@@ -1,6 +1,8 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,10 +15,15 @@ fun ChatView(
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "This is ChatView")
+    // This composable is placed on Surface,
+    // because this can't be displayed alone but need to be displayed upon Scaffold
+    // which contains bottom navigation bar. (BottomNavHostView)
+    Surface(modifier = modifier) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "This is ChatView")
+        }
     }
 }

@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.imeanttobe.drawapplication.data.NavItem
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DevView(
     modifier: Modifier = Modifier,
@@ -35,7 +34,7 @@ fun DevView(
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(NavItem.items.subList(1, 6)) { item ->
+            items(NavItem.items.subList(1, 5)) { item ->
                 Button(
                     onClick = { navigateTo(item.route) },
                     modifier = Modifier.padding(bottom = 5.dp)

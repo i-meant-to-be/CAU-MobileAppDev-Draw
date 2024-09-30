@@ -20,7 +20,6 @@ import com.imeanttobe.drawapplication.data.NavItem
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
 import com.imeanttobe.drawapplication.view.welcome.LoginView
 import com.imeanttobe.drawapplication.view.welcome.UserRegisterView
-import com.imeanttobe.drawapplication.view.welcome.UserWelcomeView
 import com.imeanttobe.drawapplication.viewmodel.MainNavHostViewModel
 
 @Composable
@@ -31,8 +30,8 @@ fun MainNavHostView(
     val navController = rememberNavController()
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0.dp),
-        modifier = modifier
+        modifier = modifier,
+        contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -61,10 +60,6 @@ fun MainNavHostView(
 
             composableAnimated(route = NavItem.UserRegisterViewItem.route) {
                 UserRegisterView()
-            }
-
-            composableAnimated(route = NavItem.UserWelcomeViewItem.route) {
-                UserWelcomeView()
             }
         }
     }

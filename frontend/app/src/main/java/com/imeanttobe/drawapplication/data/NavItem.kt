@@ -14,7 +14,6 @@ sealed class NavItem(
             ChatDetailItem,
             LoginViewItem,
             UserRegisterViewItem,
-            UserWelcomeViewItem,
             SplashViewItem
         )
     }
@@ -37,11 +36,6 @@ sealed class NavItem(
     data object UserRegisterViewItem: NavItem(
         route = "/register",
         label = "Register"
-    )
-
-    data object UserWelcomeViewItem: NavItem(
-        route = "/register/welcome",
-        label = "Welcome"
     )
 
     data object SplashViewItem: NavItem(
