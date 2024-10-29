@@ -29,7 +29,7 @@ sealed class BottomBarItem(
 
     data object ExploreViewItem: BottomBarItem(
         index = 1,
-        label = "Explore",
+        label = "Find",
         icon = Icons.Rounded.Explore
     )
 
