@@ -1,16 +1,21 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dining
 import androidx.compose.material3.MaterialTheme
@@ -35,13 +40,16 @@ fun ChatView(
     // because this can't be displayed alone but need to be displayed upon Scaffold
     // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
-        LazyColumn {
-            items(10) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(10) { index ->
                 ChatListItem(
                     image = Icons.Default.Dining,
-                    username = "username",
-                    type = "type",
-                    lastMessage = "lastMessage"
+                    username = "사용자 이름",
+                    type = "웹툰 작가",
+                    lastMessage = "내일 10시에 뵈어요.",
+                    isLastItem = index == 9
                 )
             }
         }
@@ -53,17 +61,23 @@ fun ChatListItem(
     image: ImageVector,
     username: String,
     type: String,
-    lastMessage: String
+    lastMessage: String,
+    isLastItem: Boolean = false
 ) {
     Row(
         modifier = Modifier
+            .padding(horizontal = 10.dp)
+            .padding(bottom = if (isLastItem) 0.dp else 10.dp)
             .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .clickable {}
             .padding(5.dp),
-        horizontalArrangement = Arrangement.Center
+        verticalAlignment = Alignment.CenterVertically
     ) {
         ChatListItemProfileImage(
             image = image
         )
+        Spacer(modifier = Modifier.padding(end = 10.dp))
         ChatListItemUserDataText(
             username = username,
             type = type,
@@ -78,8 +92,9 @@ fun ChatListItemProfileImage(
 ) {
     Box(
         modifier = Modifier
-            .size(30.dp)
+            .size(50.dp)
             .clip(CircleShape)
+            .background(color = MaterialTheme.colorScheme.primary)
     ) {
         Image(
             imageVector = image,
@@ -96,20 +111,26 @@ fun ChatListItemUserDataText(
     type: String,
     lastMessage: String
 ) {
-    Column() {
-        Text(
-            text = username,
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Text(
-            text = type,
-            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-        )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Text(
+                text = username,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = type,
+                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+            )
+        }
 
         Text(
             text = lastMessage,
-            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+            style = MaterialTheme.typography.bodySmall
         )
     }
 }

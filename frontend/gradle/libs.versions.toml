@@ -7,14 +7,15 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.6"
-activityCompose = "1.9.2"
-composeBom = "2024.09.02"
+activityCompose = "1.9.3"
+composeBom = "2024.10.00"
 # Additional
 ksp = "2.0.10-1.0.24"
 hilt = "2.52"
 androidx-hilt = "1.2.0"
-nav = "2.8.1"
-icons-extended = "1.7.2"
+nav = "2.8.3"
+icons-extended = "1.7.4"
+parcelize = "2.0.21"
 
 
 [libraries]
@@ -50,3 +51,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 # Additional
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt"}
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "parcelize" }
