@@ -17,11 +17,23 @@ data class ChatList(
 ): Parcelable {
     private companion object : Parceler<ChatList> {
         override fun ChatList.write(parcel: Parcel, flags: Int) {
-            TODO("Not yet implemented")
+            parcel.writeInt(id)
+            parcel.writeString(userName)
+            parcel.writeString(opponentName)
+            parcel.writeInt(opponentId)
+            parcel.writeString(lastMessage)
+            parcel.writeInt(opponentType.ordinal)
         }
 
         override fun create(parcel: Parcel): ChatList {
-            TODO("Not yet implemented")
+            return ChatList(
+                id = parcel.readInt(),
+                userName = parcel.readString() ?: "",
+                opponentName = parcel.readString() ?: "",
+                opponentId = parcel.readInt(),
+                lastMessage = parcel.readString() ?: "",
+                opponentType = UserType.entries[parcel.readInt()]
+            )
         }
     }
 }

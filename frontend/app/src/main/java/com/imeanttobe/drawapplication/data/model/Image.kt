@@ -5,6 +5,9 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+private val localDateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
 @Parcelize
 data class Image(
@@ -15,11 +18,19 @@ data class Image(
 ): Parcelable {
     private companion object : Parceler<Image> {
         override fun Image.write(parcel: Parcel, flags: Int) {
-            // TODO
+            parcel.writeInt(id)
+            parcel.writeInt(postId)
+            parcel.writeString(imageUrl)
+            parcel.writeString(datetime.format(localDateTimeFormatter))
         }
 
         override fun create(parcel: Parcel): Image {
-            // TODO
+            return Image(
+                id = parcel.readInt(),
+                postId = parcel.readInt(),
+                imageUrl = parcel.readString() ?: "",
+                datetime = LocalDateTime.parse(parcel.readString(), localDateTimeFormatter)
+            )
         }
     }
 }
