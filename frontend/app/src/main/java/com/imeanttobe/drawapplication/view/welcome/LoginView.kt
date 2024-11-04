@@ -26,13 +26,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.data.NavItem
 import com.imeanttobe.drawapplication.viewmodel.LoginViewModel
+
+
 
 
 @Composable
 fun LoginView(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
+    ,navigateToDetail: () -> Unit
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
         Column(
@@ -52,7 +56,33 @@ fun LoginView(
 
                     colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF0073FF),
                         contentColor =Color.White)
-                ,onClick = {}){ Text("로그인")}
+                ,onClick = navigateToDetail){ Text("로그인")}
             }
         }
     }
+@Composable
+fun LogindetailView(
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = hiltViewModel()
+
+) {
+    Scaffold(modifier = modifier) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center, // 수직 중앙 정렬
+            horizontalAlignment = Alignment.CenterHorizontally // 수평 중앙 정렬
+        ) {
+            Text(text = "loginpage",fontSize = 40.sp,               // 텍스트 크기
+                fontWeight = FontWeight.Bold)
+            Text(text = "창작가들을 위한 공간",fontSize = 15.sp,)
+
+            Spacer(modifier = Modifier.height(16.dp)) // 16dp의 간격 추가
+
+
+        }
+    }
+
+
+}

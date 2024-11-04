@@ -42,4 +42,9 @@ sealed class NavItem(
         route = "/",
         label = "Splash"
     )
+
+    data object LogindetailViewItem: NavItem(
+        route = "/logindetail",
+        label = "logindetail"
+    )
 }
