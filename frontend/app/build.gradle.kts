@@ -15,7 +15,7 @@ plugins {
 
 android {
     namespace = "com.imeanttobe.drawapplication"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.imeanttobe.drawapplication"
