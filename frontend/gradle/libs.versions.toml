@@ -1,22 +1,23 @@
 [versions]
 # Default
-agp = "8.7.1"
+agp = "8.7.2"
 kotlin = "2.0.21"
-coreKtx = "1.13.1"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.6"
+lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.10.00"
+composeBom = "2024.10.01"
 # Additional
 ksp = "2.0.21-1.0.26"
 hilt = "2.52"
-androidx-hilt = "1.2.0"
+androidxHilt = "1.2.0"
 nav = "2.8.3"
-icons-extended = "1.7.4"
+iconsExtended = "1.7.5"
 parcelize = "2.0.21"
-
+gms = "4.4.2"
+firebaseAuth = "23.1.0"
 
 [libraries]
 # Default
@@ -36,12 +37,14 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 # Hilt
 androidx-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "nav" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHilt" }
 dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 dagger-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt"}
 dagger-hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
+# Firebase
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth"}
 # Etc
-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "icons-extended"}
+material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "iconsExtended"}
 
 [plugins]
 # Default
@@ -52,3 +55,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt"}
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "parcelize" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "gms"}

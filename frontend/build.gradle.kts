@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.dagger.hilt.android) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.google.gms.google.services) apply false
 }
 
 buildscript {

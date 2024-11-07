@@ -1,4 +1,4 @@
-package com.imeanttobe.drawapplication.ui.theme
+package com.imeanttobe.drawapplication.theme
 
 import androidx.compose.ui.graphics.Color
 

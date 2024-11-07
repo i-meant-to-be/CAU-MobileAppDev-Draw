@@ -1,6 +1,5 @@
-package com.imeanttobe.drawapplication.ui.theme
+package com.imeanttobe.drawapplication.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
