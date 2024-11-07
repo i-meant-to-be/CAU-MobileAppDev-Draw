@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.imeanttobe.drawapplication.data.BottomBarItem
+import com.imeanttobe.drawapplication.data.navigation.BottomBarItem
 import com.imeanttobe.drawapplication.view.bottomnav.ChatView
 import com.imeanttobe.drawapplication.view.bottomnav.ExploreView
 import com.imeanttobe.drawapplication.view.bottomnav.ProfileView

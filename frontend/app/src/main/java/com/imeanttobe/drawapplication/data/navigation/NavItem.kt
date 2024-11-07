@@ -1,8 +1,4 @@
-package com.imeanttobe.drawapplication.data
-
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.ui.graphics.vector.ImageVector
+package com.imeanttobe.drawapplication.data.navigation
 
 sealed class NavItem(
     val route: String,

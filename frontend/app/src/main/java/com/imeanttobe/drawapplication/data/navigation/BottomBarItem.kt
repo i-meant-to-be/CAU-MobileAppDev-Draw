@@ -1,4 +1,4 @@
-package com.imeanttobe.drawapplication.data
+package com.imeanttobe.drawapplication.data.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Chat

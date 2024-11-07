@@ -11,7 +11,7 @@ private val localDateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
 @Parcelize
 data class Post(
-    val id: Int,
+    val id: Int = -1,
     val userId: Int,
     val description: String,
     val datetime: LocalDateTime = LocalDateTime.now()

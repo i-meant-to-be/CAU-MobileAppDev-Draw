@@ -3,7 +3,6 @@ package com.imeanttobe.drawapplication.view
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideIn
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -16,7 +15,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.imeanttobe.drawapplication.data.NavItem
+import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
 import com.imeanttobe.drawapplication.view.welcome.LoginView
 import com.imeanttobe.drawapplication.view.welcome.LogindetailView
