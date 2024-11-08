@@ -63,7 +63,7 @@ fun MainNavHostView(
                 UserRegisterView()
             }
             composableAnimated(route = NavItem.LogindetailViewItem.route) {
-                LogindetailView()
+                LogindetailView(returnTo = { navController.popBackStack() })
             }
         }
     }

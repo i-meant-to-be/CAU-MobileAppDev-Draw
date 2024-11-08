@@ -3,6 +3,7 @@ package com.imeanttobe.drawapplication.view.welcome
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,17 +12,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,13 +74,27 @@ fun LoginView(
             }
         }
     }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페이지
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel(),
+    returnTo: () -> Unit
 
 ) {
-    Scaffold(modifier = modifier) { innerPadding ->
+    Scaffold(modifier = modifier,
+        topBar = {
+            TopAppBar(
+            title = {Text("Loginpage")},
+            navigationIcon = {
+                IconButton(onClick = returnTo) {
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+                }
+            }
+
+
+        )
+        },) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,6 +147,12 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
 
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
+            Row(horizontalArrangement = Arrangement.SpaceEvenly,){TextButton(onClick ={}) { Text(fontSize = 15.sp,text="아이디 찾기")}
+                TextButton(onClick ={}) { Text(fontSize = 15.sp,text="비밀번호 찾기")}
+                    TextButton(onClick ={}) { Text(fontSize = 15.sp,text="회원가입")}
+
+
+            }
 
 
         }
