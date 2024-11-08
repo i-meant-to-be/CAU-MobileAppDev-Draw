@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledIconButton
@@ -36,7 +38,7 @@ import com.imeanttobe.drawapplication.viewmodel.LoginViewModel
 
 
 
-@Composable
+@Composable //로그인하기 버튼 있는 페이지
 fun LoginView(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
@@ -56,16 +58,18 @@ fun LoginView(
 
             Spacer(modifier = Modifier.height(16.dp)) // 16dp의 간격 추가
 
-            ElevatedButton(modifier = Modifier.width(257.dp).height(37.dp),
+            Button(modifier = Modifier.width(257.dp).height(37.dp),
+                shape = RoundedCornerShape(8.dp),
 
-                    colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF0073FF),
+
+                        colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF0073FF),
                         contentColor =Color.White)
-                ,onClick = navigateToDetail){ Text("로그인")}
+                ,onClick = navigateToDetail){ Text("로그인하기")}
             }
         }
     }
 @Composable
-fun LogindetailView(
+fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페이지
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
 
@@ -109,6 +113,17 @@ fun LogindetailView(
                 label = { Text(text = "Enter your Password") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")})
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+
+            Button(modifier = Modifier.height(50.dp).fillMaxWidth().padding(horizontal = 30.dp),
+
+                colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF0073FF),
+                    contentColor =Color.White),
+                shape = RoundedCornerShape(8.dp)
+                ,onClick = {}){ Text("로그인하기")}
 
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
