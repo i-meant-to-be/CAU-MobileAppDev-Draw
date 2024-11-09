@@ -43,4 +43,9 @@ sealed class NavItem(
         route = "/logindetail",
         label = "logindetail"
     )
+
+    data object UserRegister2ViewItem: NavItem(
+        route = "/register2",
+        label = "Register detail"
+    )
 }

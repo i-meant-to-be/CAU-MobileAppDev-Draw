@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
@@ -79,13 +81,14 @@ fun LoginView(
 fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페이지
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
-    returnTo: () -> Unit
+    returnTo: () -> Unit,
+    navigateToReg: ()-> Unit
 
 ) {
     Scaffold(modifier = modifier,
         topBar = {
-            TopAppBar(
-            title = {Text("Loginpage")},
+            CenterAlignedTopAppBar(
+            title = {Text("Login page")},
             navigationIcon = {
                 IconButton(onClick = returnTo) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
@@ -109,6 +112,7 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp)) // 16dp의 간격 추가
+
 
 
             TextField(
@@ -149,7 +153,7 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
             HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
             Row(horizontalArrangement = Arrangement.SpaceEvenly,){TextButton(onClick ={}) { Text(fontSize = 15.sp,text="아이디 찾기")}
                 TextButton(onClick ={}) { Text(fontSize = 15.sp,text="비밀번호 찾기")}
-                    TextButton(onClick ={}) { Text(fontSize = 15.sp,text="회원가입")}
+                    TextButton(onClick =navigateToReg) { Text(fontSize = 15.sp,text="회원가입")}
 
 
             }

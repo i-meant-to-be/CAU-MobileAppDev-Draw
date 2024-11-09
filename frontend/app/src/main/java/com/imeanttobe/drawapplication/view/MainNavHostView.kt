@@ -19,6 +19,7 @@ import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
 import com.imeanttobe.drawapplication.view.welcome.LoginView
 import com.imeanttobe.drawapplication.view.welcome.LogindetailView
+import com.imeanttobe.drawapplication.view.welcome.UserRegister2View
 import com.imeanttobe.drawapplication.view.welcome.UserRegisterView
 import com.imeanttobe.drawapplication.viewmodel.MainNavHostViewModel
 
@@ -60,10 +61,13 @@ fun MainNavHostView(
             }
 
             composableAnimated(route = NavItem.UserRegisterViewItem.route) {
-                UserRegisterView()
+                UserRegisterView(returnTo = { navController.popBackStack() }, navigateToRegDetail = { navController.navigate(NavItem.UserRegister2ViewItem.route) })
+            }
+            composableAnimated(route = NavItem.UserRegister2ViewItem.route) {
+                UserRegister2View()
             }
             composableAnimated(route = NavItem.LogindetailViewItem.route) {
-                LogindetailView(returnTo = { navController.popBackStack() })
+                LogindetailView(returnTo = { navController.popBackStack() }, navigateToReg = { navController.navigate(NavItem.UserRegisterViewItem.route) })
             }
         }
     }
