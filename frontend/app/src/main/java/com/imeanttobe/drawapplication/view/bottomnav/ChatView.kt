@@ -25,10 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
 
 @Composable
@@ -45,7 +48,7 @@ fun ChatView(
         ) {
             items(10) { index ->
                 ChatListItem(
-                    image = Icons.Default.Dining,
+                    image = painterResource(id = R.drawable.joker),
                     username = "사용자 이름",
                     type = "웹툰 작가",
                     lastMessage = "내일 10시에 뵈어요.",
@@ -58,7 +61,7 @@ fun ChatView(
 
 @Composable
 fun ChatListItem(
-    image: ImageVector,
+    image: Painter,
     username: String,
     type: String,
     lastMessage: String,
@@ -88,7 +91,7 @@ fun ChatListItem(
 
 @Composable
 fun ChatListItemProfileImage(
-    image: ImageVector
+    image: Painter
 ) {
     Box(
         modifier = Modifier
@@ -97,10 +100,10 @@ fun ChatListItemProfileImage(
             .background(color = MaterialTheme.colorScheme.primary)
     ) {
         Image(
-            imageVector = image,
+            painter = image,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.FillWidth
         )
     }
 }
