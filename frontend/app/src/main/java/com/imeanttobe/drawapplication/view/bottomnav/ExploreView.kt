@@ -2,6 +2,7 @@ package com.imeanttobe.drawapplication.view.bottomnav
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -31,13 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.ImageItem
 import com.imeanttobe.drawapplication.data.model.Post
+import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
 
 @Composable
@@ -92,7 +98,8 @@ fun ExploreViewGrid(
         items(10) {
             ExploreViewGridItem(
                 post = Post(userId = 0, description = "Description"),
-                image = ImageItem(postId = 0, imageUrl = "")
+                image = ImageItem(postId = 0, imageUrl = ""),
+                user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = "")
             )
         }
     }
@@ -141,32 +148,97 @@ fun ExploreViewSearchBoxTextField(
 }
 
 @Composable
-fun ExploreViewGridItem(post: Post, image: ImageItem) {
+fun ExploreViewGridItem(
+    post: Post,
+    image: ImageItem,
+    user: User,
+    onImageClick: () -> Unit = {}
+) {
     Card(
-        modifier = Modifier,
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     ) {
         Column(
-            modifier = Modifier
-                .aspectRatio(1f)
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.joker),
-                contentDescription = "Image",
-                
+            ExploreViewUserInfoItem(
+                userName = user.name,
+                userType = user.type,
+                userImageUrl = user.userImageUrl,
+                onClick = {}
             )
-            Text(
-                text = post.description,
-                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .clip(CardDefaults.shape)
-                    .background(color = MaterialTheme.colorScheme.inverseSurface)
+            ExploreViewImageItem(
+                post = post,
+                image = image,
+                onImageClick = onImageClick
             )
         }
+    }
+}
+
+@Composable
+fun ExploreViewUserInfoItem(
+    userName: String,
+    userType: UserType,
+    userImageUrl: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.joker),
+            contentDescription = "Image",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+        )
+        Column() {
+            Text(
+                text = userName,
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+            )
+            Text(
+                text = userType.toString(),
+                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+            )
+        }
+    }
+}
+
+@Composable
+fun ExploreViewImageItem(
+    post: Post,
+    image: ImageItem,
+    onImageClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onImageClick() }
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.joker),
+            contentDescription = "Image",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = post.description,
+            style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+            modifier = Modifier
+                .height(40.dp)
+                .fillMaxWidth()
+                .padding(10.dp)
+        )
     }
 }
