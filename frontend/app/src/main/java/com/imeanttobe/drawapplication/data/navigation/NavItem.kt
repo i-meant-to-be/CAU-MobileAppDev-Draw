@@ -30,7 +30,7 @@ sealed class NavItem(
     )
 
     data object UserRegisterViewItem: NavItem(
-        route = "/register",
+        route = "/register/registerFirst",
         label = "Register"
     )
 
@@ -45,7 +45,7 @@ sealed class NavItem(
     )
 
     data object UserRegister2ViewItem: NavItem(
-        route = "/register2",
+        route = "/register/registerSecond",
         label = "Register detail"
     )
 }

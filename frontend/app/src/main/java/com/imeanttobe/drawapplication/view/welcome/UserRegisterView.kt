@@ -1,5 +1,8 @@
 package com.imeanttobe.drawapplication.view.welcome
 
+import android.graphics.fonts.FontStyle
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -219,7 +223,7 @@ fun UserRegister2View(
                 // 수직 중앙 정렬
                 horizontalAlignment = Alignment.CenterHorizontally
                 ,
-                verticalArrangement = Arrangement.spacedBy(10.dp) // 수평 중앙 정렬
+                verticalArrangement = Arrangement.spacedBy(20.dp) // 수평 중앙 정렬
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 30.dp).align(alignment = Alignment.Start),
@@ -264,11 +268,19 @@ fun UserRegister2View(
                     fontSize = 20.sp,               // 텍스트 크기
                     fontWeight = FontWeight.Bold
                 )
-
                 RadioButtonSet(modifier = Modifier.padding(horizontal = 30.dp).align(alignment = Alignment.Start)
                     ,selectedoption = selectedoption, onchange = {selectedoption = it})
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Box(
+                    modifier = Modifier.padding(horizontal = 30.dp)
+                        .size(150.dp)
+                        .align(alignment = Alignment.Start)
+                        .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
+                        .clickable {}, // 이미지 선택 Intent 실행
+                    contentAlignment = Alignment.Center
+                ){Text(text="텍스트를 입력해주세요",fontSize = 10.sp, color = Color.White)}
 
 
 
