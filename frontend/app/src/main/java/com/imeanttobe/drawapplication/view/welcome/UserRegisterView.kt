@@ -1,6 +1,7 @@
 package com.imeanttobe.drawapplication.view.welcome
 
 import android.graphics.fonts.FontStyle
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -40,11 +42,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.viewmodel.UserRegisterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -271,16 +277,38 @@ fun UserRegister2View(
                 RadioButtonSet(modifier = Modifier.padding(horizontal = 30.dp).align(alignment = Alignment.Start)
                     ,selectedoption = selectedoption, onchange = {selectedoption = it})
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    modifier = Modifier.padding(horizontal = 30.dp).align(alignment = Alignment.Start),
+                    text = "그림 등록",
+                    fontSize = 20.sp,               // 텍스트 크기
+                    fontWeight = FontWeight.Bold
+                )
+                Row(modifier= Modifier.align(alignment = Alignment.Start)
+                    ){
+                    Box(
+                        modifier = Modifier.padding(start = 30.dp)
+                            .size(150.dp)
+                            .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
+                            .clickable {}, // 이미지 선택 Intent 실행
+                        contentAlignment = Alignment.Center
+                    ){ Image(
+                        painter = painterResource(id = R.drawable.joker),
+                        contentDescription = "Image",
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier.fillMaxWidth().background(Color.LightGray, shape = RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                    ) }
 
-                Box(
-                    modifier = Modifier.padding(horizontal = 30.dp)
-                        .size(150.dp)
-                        .align(alignment = Alignment.Start)
-                        .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
-                        .clickable {}, // 이미지 선택 Intent 실행
-                    contentAlignment = Alignment.Center
-                ){Text(text="텍스트를 입력해주세요",fontSize = 10.sp, color = Color.White)}
+                    Box(
+                        modifier = Modifier.padding(horizontal = 10.dp).size(150.dp)
+                            .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
+                            .clickable {}, // 이미지 선택 Intent 실행
+                        contentAlignment = Alignment.Center
+                    ){Text(text="그림 추가",fontSize = 15.sp, color = Color.White)}
+
+                }
+
+
 
 
 
@@ -301,7 +329,7 @@ fun UserRegister2View(
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("인증번호요청")
+                Text("회원가입")
             }
         }
     }
@@ -313,7 +341,7 @@ fun RadioButtonSet(modifier: Modifier,selectedoption : String, onchange : (Strin
     Row(modifier = modifier) {
         radioOptions.forEach { i->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = (selectedoption == i), onClick = {onchange(i)})
+                RadioButton(selected = (selectedoption == i), onClick = {onchange(i)},colors= RadioButtonDefaults.colors(Color(0xFF0073FF)))
                 Text(i)
             }
         }
