@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Dining
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,14 +22,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.data.enum.UserType
+import com.imeanttobe.drawapplication.data.model.ChatList
 import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
+import com.imeanttobe.drawapplication.R
 
 @Composable
 fun ChatView(
@@ -48,10 +46,15 @@ fun ChatView(
         ) {
             items(10) { index ->
                 ChatListItem(
-                    image = painterResource(id = R.drawable.joker),
-                    username = "사용자 이름",
-                    type = "웹툰 작가",
-                    lastMessage = "내일 10시에 뵈어요.",
+                    chatList = ChatList(
+                        id = 0,
+                        userName = "나",
+                        opponentName = "상대",
+                        opponentId = 0,
+                        opponentType = UserType.WEBTOON_ARTIST,
+                        lastMessage = "내일 10시에 뵈어요.",
+                        opponentImageUrl = ""
+                    ),
                     isLastItem = index == 9
                 )
             }
@@ -61,10 +64,7 @@ fun ChatView(
 
 @Composable
 fun ChatListItem(
-    image: Painter,
-    username: String,
-    type: String,
-    lastMessage: String,
+    chatList: ChatList,
     isLastItem: Boolean = false
 ) {
     Row(
@@ -77,21 +77,15 @@ fun ChatListItem(
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ChatListItemProfileImage(
-            image = image
-        )
+        ChatListItemProfileImage(imageUrl = chatList.opponentImageUrl)
         Spacer(modifier = Modifier.padding(end = 10.dp))
-        ChatListItemUserDataText(
-            username = username,
-            type = type,
-            lastMessage = lastMessage
-        )
+        ChatListItemUserDataText(chatList = chatList)
     }
 }
 
 @Composable
 fun ChatListItemProfileImage(
-    image: Painter
+    imageUrl: String
 ) {
     Box(
         modifier = Modifier
@@ -100,7 +94,7 @@ fun ChatListItemProfileImage(
             .background(color = MaterialTheme.colorScheme.primary)
     ) {
         Image(
-            painter = image,
+            painter = painterResource(id = R.drawable.joker),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillWidth
@@ -110,9 +104,7 @@ fun ChatListItemProfileImage(
 
 @Composable
 fun ChatListItemUserDataText(
-    username: String,
-    type: String,
-    lastMessage: String
+    chatList: ChatList
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -122,18 +114,22 @@ fun ChatListItemUserDataText(
             horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Text(
-                text = username,
+                text = chatList.opponentName,
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = type,
+                text = when(chatList.opponentType) {
+                    UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
+                    UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
+                    UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
+                },
                 style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
             )
         }
 
         Text(
-            text = lastMessage,
-            style = MaterialTheme.typography.bodySmall
+            text = chatList.lastMessage,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

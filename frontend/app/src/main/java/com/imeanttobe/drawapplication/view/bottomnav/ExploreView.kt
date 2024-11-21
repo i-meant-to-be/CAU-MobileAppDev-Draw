@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -65,7 +66,8 @@ fun ExploreView(
                 onSearchTextChange = { newValue -> viewModel.onSearchTextChanged(newValue) }
             )
             ExploreViewGrid(
-                modifier = Modifier.padding(horizontal = 10.dp)
+                modifier = Modifier.padding(horizontal = 10.dp),
+                isDialogOpen = viewModel.isDialogOpen
             )
         }
     }
@@ -91,7 +93,8 @@ fun ExploreViewSearchBox(
 
 @Composable
 fun ExploreViewGrid(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDialogOpen: Boolean
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -104,7 +107,10 @@ fun ExploreViewGrid(
             ExploreViewGridItem(
                 post = Post(userId = 0, description = "If description is too long, how this application looks like...?"),
                 image = ImageItem(postId = 0, imageUrl = ""),
-                user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = "")
+                user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = ""),
+                onImageClick = {
+
+                }
             )
         }
     }
@@ -144,7 +150,7 @@ fun ExploreViewSearchBoxTextField(
                     innerTextField()
                     if (text.isEmpty()) {
                         Text(
-                            text = "Search",
+                            text = stringResource(id = R.string.search),
                             style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground)
                         )
                     }
@@ -159,23 +165,8 @@ fun ExploreViewGridItem(
     post: Post,
     image: ImageItem,
     user: User,
-    onImageClick: () -> Unit = {}
+    onImageClick: () -> Unit
 ) {
-    /*
-    val seed = Random.nextInt(4)
-    val containerColor = when (seed) {
-        0 -> MaterialTheme.colorScheme.primary
-        1 -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.tertiary
-    }
-    val contentColor = when (seed) {
-        0 -> MaterialTheme.colorScheme.onPrimary
-        1 -> MaterialTheme.colorScheme.onSecondary
-        else -> MaterialTheme.colorScheme.onTertiary
-    }
-
-     */
-
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     val containerColor = MaterialTheme.colorScheme.primaryContainer
 
@@ -236,7 +227,11 @@ fun ExploreViewUserInfoItem(
                 style = MaterialTheme.typography.bodyLarge.copy(color = contentColor)
             )
             Text(
-                text = userType.toString(),
+                text = when(userType) {
+                    UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
+                    UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
+                    UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
+                },
                 style = MaterialTheme.typography.bodySmall.copy(color = contentColor)
             )
         }

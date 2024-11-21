@@ -6,10 +6,11 @@ import androidx.compose.material.icons.rounded.DeveloperMode
 import androidx.compose.material.icons.rounded.Explore
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.imeanttobe.drawapplication.R
 
 sealed class BottomBarItem(
     val index: Int,
-    val label: String,
+    val labelId: Int,
     val icon: ImageVector
 ) {
     companion object {
@@ -23,25 +24,25 @@ sealed class BottomBarItem(
 
     data object ChatViewItem: BottomBarItem(
         index = 0,
-        label = "Chat",
+        labelId = R.string.chat,
         icon = Icons.AutoMirrored.Rounded.Chat
     )
 
     data object ExploreViewItem: BottomBarItem(
         index = 1,
-        label = "Find",
+        labelId = R.string.explore,
         icon = Icons.Rounded.Explore
     )
 
     data object ProfileViewItem: BottomBarItem(
         index = 2,
-        label = "Profile",
+        labelId = R.string.profile,
         icon = Icons.Rounded.Person
     )
 
     data object DevViewItem: BottomBarItem(
         index = 3,
-        label = "Dev",
+        labelId = R.string.dev,
         icon = Icons.Rounded.DeveloperMode
     )
 

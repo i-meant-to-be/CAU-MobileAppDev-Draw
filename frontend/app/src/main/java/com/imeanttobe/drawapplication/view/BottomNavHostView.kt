@@ -9,6 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.navigation.BottomBarItem
 import com.imeanttobe.drawapplication.view.bottomnav.ChatView
@@ -60,10 +61,10 @@ fun BottomNavHostAppBar(
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.label
+                        contentDescription = stringResource(id = item.labelId)
                     )
                 },
-                label = { Text(text = item.label) }
+                label = { Text(text = stringResource(id = item.labelId)) }
             )
         }
     }

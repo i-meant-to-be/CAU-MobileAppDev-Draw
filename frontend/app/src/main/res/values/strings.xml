@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Draw</string>
+
+    <string name="usertype_admin">관리자</string>
+    <string name="usertype_webtoon_artist">웹툰 작가</string>
+    <string name="usertype_assist_artist">어시스트 작가</string>
+
+    <string name="search">검색</string>
+    <string name="chat">대화</string>
+    <string name="explore">탐색</string>
+    <string name="profile">내 정보</string>
+    <string name="dev">개발 페이지</string>
 </resources>

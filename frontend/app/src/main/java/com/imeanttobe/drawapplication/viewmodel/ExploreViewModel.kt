@@ -13,8 +13,15 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
     var searchText by mutableStateOf("")
         private set
 
+    var isDialogOpen by mutableStateOf(false)
+        private set
+
     // Methods
     fun onSearchTextChanged(newValue: String) {
         searchText = newValue
+    }
+
+    fun setIsDialogOpen(newValue: Boolean) {
+        isDialogOpen = newValue
     }
 }

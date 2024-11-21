@@ -13,7 +13,8 @@ data class ChatList(
     val opponentName: String,
     val opponentId: Int,
     val lastMessage: String,
-    val opponentType: UserType
+    val opponentType: UserType,
+    val opponentImageUrl: String
 ): Parcelable {
     private companion object : Parceler<ChatList> {
         override fun ChatList.write(parcel: Parcel, flags: Int) {
@@ -23,6 +24,7 @@ data class ChatList(
             parcel.writeInt(opponentId)
             parcel.writeString(lastMessage)
             parcel.writeInt(opponentType.ordinal)
+            parcel.writeString(opponentImageUrl)
         }
 
         override fun create(parcel: Parcel): ChatList {
@@ -32,7 +34,9 @@ data class ChatList(
                 opponentName = parcel.readString() ?: "",
                 opponentId = parcel.readInt(),
                 lastMessage = parcel.readString() ?: "",
-                opponentType = UserType.entries[parcel.readInt()]
+                opponentType = UserType.entries[parcel.readInt()],
+                opponentImageUrl = parcel.readString() ?: ""
+
             )
         }
     }
