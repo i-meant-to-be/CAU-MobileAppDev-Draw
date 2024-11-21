@@ -143,11 +143,9 @@ fun ProfileViewImageItem(
 
 @Composable // 프로필 카드 컴포저블
 fun profilecard(modifier: Modifier){
-    Card(modifier= Modifier
-        .fillMaxWidth()
-        .padding(20.dp)) {
-
-        Box {
+        Box(modifier= Modifier
+            .fillMaxWidth()
+            .padding(20.dp)) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +153,7 @@ fun profilecard(modifier: Modifier){
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
             Image(
-                painter = painterResource(id = R.drawable.joker),
+                painter = painterResource(id = R.drawable.painting2),
                 contentDescription = "Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -198,4 +196,4 @@ fun profilecard(modifier: Modifier){
             ) {
                 Text(text = "그림등록", fontSize = 10.sp)
             }
-}}}
+}}
