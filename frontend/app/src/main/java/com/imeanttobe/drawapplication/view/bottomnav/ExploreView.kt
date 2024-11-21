@@ -251,7 +251,7 @@ fun ExploreViewImageItem(
             .clickable { onImageClick() }
     ) {
         Image(
-            painter = painterResource(id = R.drawable.joker),
+            painter = painterResource(id = R.drawable.paintimage),
             contentDescription = "Image",
             contentScale = ContentScale.FillWidth,
             modifier = Modifier.fillMaxWidth()

@@ -147,7 +147,9 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                 colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF0073FF),
                     contentColor =Color.White),
                 shape = RoundedCornerShape(8.dp)
-                ,onClick = {}){ Text("로그인하기")}
+                ,onClick = {
+                     // Todo
+                }){ Text("로그인하기")}
 
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
