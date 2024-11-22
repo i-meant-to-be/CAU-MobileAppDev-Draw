@@ -70,7 +70,7 @@ fun ProfileViewGrid(
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
-        modifier = modifier.padding(horizontal = 20.dp),
+        modifier = modifier.padding(horizontal = 10.dp),
         columns = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -109,7 +109,7 @@ fun ProfileViewGridItem(
 
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
 
-            ProfileViewImageItem(
+    ProfileViewImageItem(
                 post = post,
                 imageItem = image,
                 contentColor = contentColor,
@@ -145,7 +145,7 @@ fun ProfileViewImageItem(
 fun profilecard(modifier: Modifier){
         Box(modifier= Modifier
             .fillMaxWidth()
-            .padding(20.dp)) {
+            .padding(10.dp)) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

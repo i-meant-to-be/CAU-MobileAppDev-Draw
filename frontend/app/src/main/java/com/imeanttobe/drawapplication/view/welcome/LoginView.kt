@@ -84,6 +84,7 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
     returnTo: () -> Unit,
     navigateToReg: ()-> Unit
 
+
 ) {
     Scaffold(modifier = modifier,
         topBar = {
@@ -118,7 +119,7 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
             TextField(
                 value = "",
                 onValueChange = {},
-                label = { Text("Enter your ID") },
+                placeholder = { Text("Enter your ID") },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
                 leadingIcon = {
                     Icon(
