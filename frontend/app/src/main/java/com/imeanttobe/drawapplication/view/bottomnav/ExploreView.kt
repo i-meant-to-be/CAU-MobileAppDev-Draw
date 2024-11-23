@@ -24,8 +24,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -67,7 +69,8 @@ fun ExploreView(
             )
             ExploreViewGrid(
                 modifier = Modifier.padding(horizontal = 10.dp),
-                isDialogOpen = viewModel.isDialogOpen
+                isDialogOpen = viewModel.isDialogOpen,
+                setDialogOpen = { newValue -> viewModel.setIsDialogOpen(newValue) }
             )
         }
     }
@@ -80,7 +83,7 @@ fun ExploreViewSearchBox(
     onSearchTextChange: (String) -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(10.dp)
     ) {
@@ -91,10 +94,12 @@ fun ExploreViewSearchBox(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreViewGrid(
     modifier: Modifier = Modifier,
-    isDialogOpen: Boolean
+    isDialogOpen: Boolean,
+    setDialogOpen: (Boolean) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -109,10 +114,20 @@ fun ExploreViewGrid(
                 image = ImageItem(postId = 0, imageUrl = ""),
                 user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = ""),
                 onImageClick = {
-
+                    setDialogOpen(true)
                 }
             )
         }
+    }
+
+    if (isDialogOpen) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = { },
+            dismissButton = { },
+            title = { },
+            text = { Text("안뇽") }
+        )
     }
 }
 

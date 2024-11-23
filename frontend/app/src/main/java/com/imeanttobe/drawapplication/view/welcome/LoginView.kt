@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -43,14 +44,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.viewmodel.LoginViewModel
 
-
-
-
 @Composable //로그인하기 버튼 있는 페이지
 fun LoginView(
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = hiltViewModel()
-    ,navigateToDetail: () -> Unit
+    viewModel: LoginViewModel = hiltViewModel(),
+    navigateToDetail: () -> Unit
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
         Column(
@@ -60,22 +58,34 @@ fun LoginView(
             verticalArrangement = Arrangement.Center, // 수직 중앙 정렬
             horizontalAlignment = Alignment.CenterHorizontally // 수평 중앙 정렬
         ) {
-            Text(text = "Draw",fontSize = 40.sp,               // 텍스트 크기
-                fontWeight = FontWeight.Bold)
-            Text(text = "창작가들을 위한 공간",fontSize = 15.sp,)
+            Text(
+                text = stringResource(id = R.string.app_name),
+                fontSize = 40.sp,               // 텍스트 크기
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = stringResource(id = R.string.app_description),
+                fontSize = 15.sp
+            )
 
             Spacer(modifier = Modifier.height(16.dp)) // 16dp의 간격 추가
 
-            Button(modifier = Modifier.width(257.dp).height(37.dp),
+            Button(
+                modifier = Modifier
+                    .width(257.dp)
+                    .height(37.dp),
                 shape = RoundedCornerShape(8.dp),
-
-
-                        colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF0073FF),
-                        contentColor =Color.White)
-                ,onClick = navigateToDetail){ Text("로그인하기")}
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = Color(0xFF0073FF),
+                    contentColor = Color.White
+                ),
+                onClick = navigateToDetail
+            ) {
+                Text(text = stringResource(id = R.string.login))
             }
         }
     }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페이지
@@ -83,22 +93,23 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
     viewModel: LoginViewModel = hiltViewModel(),
     returnTo: () -> Unit,
     navigateToReg: ()-> Unit
-
-
 ) {
-    Scaffold(modifier = modifier,
+    Scaffold(
+        modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
-            title = {Text("Login page")},
-            navigationIcon = {
-                IconButton(onClick = returnTo) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+                title = { Text(text = stringResource(id = R.string.login)) },
+                navigationIcon = {
+                    IconButton(onClick = returnTo) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
                 }
-            }
-
-
-        )
-        },) { innerPadding ->
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -107,19 +118,19 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
             horizontalAlignment = Alignment.CenterHorizontally // 수평 중앙 정렬
         ) {
             Text(
-                modifier = Modifier.padding(horizontal = 30.dp).align(alignment = Alignment.Start),
-                text = "DRAW",
+                modifier = Modifier
+                    .padding(horizontal = 30.dp)
+                    .align(alignment = Alignment.Start),
+                text = stringResource(id = R.string.app_name),
                 fontSize = 40.sp,               // 텍스트 크기
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp)) // 16dp의 간격 추가
 
-
-
             TextField(
                 value = "",
                 onValueChange = {},
-                placeholder = { Text("Enter your ID") },
+                placeholder = { Text(text = stringResource(id = R.string.enter_your_id)) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
                 leadingIcon = {
                     Icon(
@@ -132,36 +143,55 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
             Spacer(modifier = Modifier.height(8.dp)) // 16dp의 간격 추가
 
 
-            TextField(modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp),
                 value = "",
                 onValueChange = {},
-                label = { Text(text = "Enter your Password") },
+                label = { Text(text = stringResource(id = R.string.enter_your_pw)) },
                 leadingIcon = {
-                    Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")})
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = "비밀번호 아이콘"
+                    )
+                }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-
-            Button(modifier = Modifier.height(50.dp).fillMaxWidth().padding(horizontal = 30.dp),
-
-                colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF0073FF),
-                    contentColor =Color.White),
-                shape = RoundedCornerShape(8.dp)
-                ,onClick = {
+            Button(
+                modifier = Modifier
+                    .height(50.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp),
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = Color(0xFF0073FF),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp),
+                onClick = {
                      // Todo
-                }){ Text("로그인하기")}
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
-            Row(horizontalArrangement = Arrangement.SpaceEvenly,){TextButton(onClick ={}) { Text(fontSize = 15.sp,text="아이디 찾기")}
-                TextButton(onClick ={}) { Text(fontSize = 15.sp,text="비밀번호 찾기")}
-                    TextButton(onClick =navigateToReg) { Text(fontSize = 15.sp,text="회원가입")}
-
-
+                }
+            ) {
+                Text(text = stringResource(id = R.string.login))
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
 
+            HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
+
+            Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                TextButton(onClick = {  }) {
+                    Text(fontSize = 15.sp, text = stringResource(id = R.string.forgot_your_id))
+                }
+                TextButton(onClick = {  }) {
+                    Text(fontSize = 15.sp, text = stringResource(id = R.string.forgot_your_pw))
+                }
+                TextButton(onClick = navigateToReg) {
+                    Text(fontSize = 15.sp, text = stringResource(id = R.string.register))
+                }
+            }
         }
     }
 }

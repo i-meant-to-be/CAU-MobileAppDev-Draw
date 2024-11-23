@@ -196,36 +196,6 @@ fun ChatTextField(
             }
         }
     )
-    /*
-    @Composable { innerTextField ->
-                    OutlinedTextFieldDefaults.DecorationBox(
-                        value = value,
-                        visualTransformation = visualTransformation,
-                        innerTextField = innerTextField,
-                        placeholder = placeholder,
-                        label = label,
-                        leadingIcon = leadingIcon,
-                        trailingIcon = trailingIcon,
-                        prefix = prefix,
-                        suffix = suffix,
-                        supportingText = supportingText,
-                        singleLine = singleLine,
-                        enabled = enabled,
-                        isError = isError,
-                        interactionSource = interactionSource,
-                        colors = colors,
-                        container = {
-                            OutlinedTextFieldDefaults.Container(
-                                enabled = enabled,
-                                isError = isError,
-                                interactionSource = interactionSource,
-                                colors = colors,
-                                shape = shape,
-                            )
-                        }
-                    )
-                }
-     */
 }
 
 @Composable

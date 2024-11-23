@@ -1,13 +1,40 @@
 <resources>
     <string name="app_name">Draw</string>
+    <string name="app_description">창작자들을 위한 공간</string>
 
     <string name="usertype_admin">관리자</string>
     <string name="usertype_webtoon_artist">웹툰 작가</string>
     <string name="usertype_assist_artist">어시스트 작가</string>
 
+    <string name="enter_your_id">ID를 입력하세요.</string>
+    <string name="enter_your_pw">비밀번호를 입력하세요.</string>
+    <string name="enter_your_email">이메일을 입력하세요.</string>
+    <string name="confirm_your_password">비밀번호를 확인하세요.</string>
+    <string name="forgot_your_id">ID를 잊으셨나요?</string>
+    <string name="forgot_your_pw">비밀번호를 잊으셨나요?</string>
+    <string name="get_verification_code">인증 번호 요청</string>
+    <string name="choose_your_type">사용자 유형 선택</string>
+    <string name="add_picture">그림 추가</string>
+    <string name="register_picture">그림 등록</string>
+
+    <string name="example_phone_number">010-0000-0000</string>
+    <string name="example_verification_code">1234</string>
+
+    <string name="necessary">필수</string>
+    <string name="option">선택</string>
+
+    <string name="instagram_account">인스타그램 계정</string>
+    <string name="nickname">별명</string>
+    <string name="verification_code">인증 번호</string>
+    <string name="email">이메일</string>
+    <string name="pw">비밀번호</string>
+    <string name="phone_number">전화번호</string>
+    <string name="pw_confirm">비밀번호 확인</string>
+    <string name="register">회원가입</string>
     <string name="search">검색</string>
     <string name="chat">대화</string>
     <string name="explore">탐색</string>
     <string name="profile">내 정보</string>
     <string name="dev">개발 페이지</string>
+    <string name="login">로그인</string>
 </resources>
