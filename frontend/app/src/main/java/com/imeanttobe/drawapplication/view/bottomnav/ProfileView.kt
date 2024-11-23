@@ -69,8 +69,8 @@ fun ProfileView(
     // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
         Column(modifier=Modifier.fillMaxSize()) {
-            profilecard(modifier=Modifier,selectedImageUri = selectedImageUri)
-            ProfileViewGrid(modifier = Modifier,selectedImageUri = selectedImageUri)
+            profilecard(modifier=Modifier, viewModel = viewModel)
+            ProfileViewGrid(modifier = Modifier, viewModel=viewModel)
 
 
             }
@@ -79,8 +79,8 @@ fun ProfileView(
 @Composable
 fun ProfileViewGrid(
     modifier: Modifier = Modifier,
-    selectedImageUri: MutableState<Uri?>
-) {
+    viewModel: ProfileViewModel = hiltViewModel()
+    ) {
     LazyVerticalGrid(
         modifier = modifier.padding(horizontal = 10.dp),
         columns = GridCells.Fixed(3),
@@ -88,12 +88,11 @@ fun ProfileViewGrid(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        items(20) {
+        items(viewModel.imageUris.size) {
+            index->
             ProfileViewImageItem(
-                post = Post(userId = 0, description =""),
-                image = ImageItem(postId = 0, imageUrl = ""),
-                contentColor = Color.White,
-                imageUri = selectedImageUri.value,
+
+                imageUri = viewModel.imageUris[index],
                 onImageClick = {}
             )
         }
@@ -104,9 +103,7 @@ fun ProfileViewGrid(
 
 @Composable
 fun ProfileViewImageItem(
-    post: Post,
-    image: ImageItem,
-    contentColor: Color,
+
     imageUri: Uri?,
 
     onImageClick: () -> Unit
@@ -139,13 +136,13 @@ fun ProfileViewImageItem(
 
 @Composable // 프로필 카드 컴포저블
 fun profilecard(modifier: Modifier,
-                selectedImageUri: MutableState<Uri?>){
+                viewModel: ProfileViewModel){
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            selectedImageUri.value = result.data?.data
+            viewModel.addImageUri( result.data?.data)
         }
     }
         Box(modifier= Modifier

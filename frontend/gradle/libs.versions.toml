@@ -19,10 +19,12 @@ parcelize = "2.0.21"
 gms = "4.4.2"
 firebaseAuth = "23.1.0"
 coil = "3.0.2"
+runtimeAndroid = "1.7.5"
 
 [libraries]
 # Default
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-runtime-android = { module = "androidx.compose.runtime:runtime-android", version.ref = "runtimeAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
