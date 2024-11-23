@@ -48,7 +48,9 @@ fun MainNavHostView(
             }
 
             composableAnimated(route = NavItem.ChatDetailItem.route) {
-                ChatDetailView()
+                ChatDetailView(
+                    navigateUp = { navController.navigateUp() }
+                )
             }
 
             composableAnimated(route = NavItem.LoginViewItem.route) {

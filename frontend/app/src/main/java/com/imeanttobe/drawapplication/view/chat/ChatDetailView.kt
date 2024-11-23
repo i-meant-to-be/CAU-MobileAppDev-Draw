@@ -1,23 +1,21 @@
 package com.imeanttobe.drawapplication.view.chat
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -25,57 +23,108 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.imeanttobe.drawapplication.data.model.ChatItem
 import com.imeanttobe.drawapplication.viewmodel.ChatDetailViewModel
+import com.imeanttobe.drawapplication.R
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+
+operator fun <T> Iterable<T>.times(count: Int): List<T> = List(count) { this }.flatten()
 
 @Composable
 fun ChatDetailView(
     modifier: Modifier = Modifier,
-    viewModel: ChatDetailViewModel = hiltViewModel()
+    viewModel: ChatDetailViewModel = hiltViewModel(),
+    navigateUp: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val copyMessage = LocalContext.current.resources.getString(R.string.message_copied)
+
     Scaffold(
         modifier = modifier,
-        topBar = { ChatDetailViewTopBar(
-            opponentNickname = viewModel.opponentNickname.value
-        ) },
-        bottomBar = { ChatDetailViewBottomBar(
-            text = viewModel.message.value,
-            onValueChange = viewModel::setMessage,
-            onSendClick = viewModel::send
-        ) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = {
+            ChatDetailViewTopBar(
+                opponentNickname = viewModel.opponentNickname.value,
+                navigateUp = navigateUp
+            )
+        },
+        bottomBar = {
+            ChatDetailViewBottomBar(
+                text = viewModel.message.value,
+                onValueChange = viewModel::setMessage,
+                onSendClick = viewModel::send
+            )
+        }
     ) { innerPadding ->
-        Box(
+        ChatDetailViewBody(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            LazyColumn(
-                verticalArrangement = Arrangement.Top
-            ) {
-                items(30) {
-                    ChatBubble(
-                        message = "message",
-                        isMine = it % 2 == 0
+            // TODO: chatItems = listOf(),
+            showSnackbar = {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = copyMessage,
+                        withDismissAction = true
                     )
                 }
+            }
+        )
+    }
+}
+
+@Composable
+fun ChatDetailViewBody(
+    modifier: Modifier = Modifier,
+    chatItems: List<ChatItem> = listOf(
+        ChatItem(
+            message = "message",
+            chatListId = -1,
+            opponentName = "",
+            userName = "",
+            datetime = LocalDateTime.now()
+        )
+    ) * 10,
+    showSnackbar: () -> Unit
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        LazyColumn(
+            verticalArrangement = Arrangement.Top
+        ) {
+            itemsIndexed(chatItems) { index, item ->
+                ChatBubble(
+                    message = item.message,
+                    isMine = index % 2 == 0,
+                    showSnackbar = showSnackbar
+                )
             }
         }
     }
@@ -84,13 +133,14 @@ fun ChatDetailView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatDetailViewTopBar(
-    opponentNickname: String
+    opponentNickname: String,
+    navigateUp: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         title = { Text(text = opponentNickname) },
         navigationIcon = {
             IconButton(
-                onClick = {}
+                onClick = navigateUp
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
@@ -111,11 +161,18 @@ fun ChatDetailViewTopBar(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatBubble(
     message: String,
-    isMine: Boolean
+    isMine: Boolean,
+    showSnackbar: () -> Unit
 ) {
+    val backgroundColor = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+    val contentColor = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+    val haptics = LocalHapticFeedback.current
+    val clipboardManager = LocalClipboardManager.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,15 +182,21 @@ fun ChatBubble(
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
-                .background(color = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
+                .background(color = backgroundColor)
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        clipboardManager.setText(AnnotatedString(message))
+
+                    }
+                )
                 .padding(10.dp),
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
                 text = message,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
-                )
+                style = MaterialTheme.typography.bodyMedium.copy(color = contentColor)
             )
         }
     }

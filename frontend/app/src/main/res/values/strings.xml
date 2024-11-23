@@ -16,6 +16,7 @@
     <string name="choose_your_type">사용자 유형 선택</string>
     <string name="add_picture">그림 추가</string>
     <string name="register_picture">그림 등록</string>
+    <string name="message_copied">메시지가 복사되었습니다.</string>
 
     <string name="example_phone_number">010-0000-0000</string>
     <string name="example_verification_code">1234</string>
