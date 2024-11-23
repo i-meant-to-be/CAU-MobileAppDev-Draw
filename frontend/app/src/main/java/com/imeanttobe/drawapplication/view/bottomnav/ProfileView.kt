@@ -1,5 +1,11 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +35,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.ImageItem
@@ -53,13 +63,14 @@ fun ProfileView(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
     // This composable is placed on Surface,
     // because this can't be displayed alone but need to be displayed upon Scaffold
     // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
         Column(modifier=Modifier.fillMaxSize()) {
-            profilecard(modifier=Modifier)
-            ProfileViewGrid(modifier = Modifier)
+            profilecard(modifier=Modifier,selectedImageUri = selectedImageUri)
+            ProfileViewGrid(modifier = Modifier,selectedImageUri = selectedImageUri)
 
 
             }
@@ -67,7 +78,8 @@ fun ProfileView(
     }
 @Composable
 fun ProfileViewGrid(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedImageUri: MutableState<Uri?>
 ) {
     LazyVerticalGrid(
         modifier = modifier.padding(horizontal = 10.dp),
@@ -77,52 +89,26 @@ fun ProfileViewGrid(
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
         items(20) {
-            ProfileViewGridItem(
+            ProfileViewImageItem(
                 post = Post(userId = 0, description =""),
                 image = ImageItem(postId = 0, imageUrl = ""),
-                user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = "")
+                contentColor = Color.White,
+                imageUri = selectedImageUri.value,
+                onImageClick = {}
             )
         }
     }
 }
-@Composable
-fun ProfileViewGridItem(
-    post: Post,
-    image: ImageItem,
-    user: User,
-    onImageClick: () -> Unit = {}
-) {
-    /*
-    val seed = Random.nextInt(4)
-    val containerColor = when (seed) {
-        0 -> MaterialTheme.colorScheme.primary
-        1 -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.tertiary
-    }
-    val contentColor = when (seed) {
-        0 -> MaterialTheme.colorScheme.onPrimary
-        1 -> MaterialTheme.colorScheme.onSecondary
-        else -> MaterialTheme.colorScheme.onTertiary
-    }
 
-     */
-
-    val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-
-    ProfileViewImageItem(
-                post = post,
-                imageItem = image,
-                contentColor = contentColor,
-                onImageClick = onImageClick
-            )
-        }
 
 
 @Composable
 fun ProfileViewImageItem(
     post: Post,
-    imageItem: ImageItem,
+    image: ImageItem,
     contentColor: Color,
+    imageUri: Uri?,
+
     onImageClick: () -> Unit
 ) {
     Column(
@@ -130,19 +116,38 @@ fun ProfileViewImageItem(
             .fillMaxWidth()
             .clickable { onImageClick() }
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.paintimage),
-            contentDescription = "Image",
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (imageUri != null) {
+            AsyncImage(
+                model = imageUri,
+                contentDescription = "Selected image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.paintimage),
+                contentDescription = "Image",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
 
     }
-}
+
 
 
 @Composable // 프로필 카드 컴포저블
-fun profilecard(modifier: Modifier){
+fun profilecard(modifier: Modifier,
+                selectedImageUri: MutableState<Uri?>){
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            selectedImageUri.value = result.data?.data
+        }
+    }
         Box(modifier= Modifier
             .fillMaxWidth()
             .padding(10.dp)) {
@@ -183,7 +188,9 @@ fun profilecard(modifier: Modifier){
                 Text(text = "정보수정", fontSize = 10.sp)
             }
             OutlinedButton(
-                onClick = { /*TODO*/ },
+                onClick = {val intent = Intent(Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    launcher.launch(intent)},
                 modifier = Modifier
                     .padding(10.dp)
                     .align(Alignment.BottomEnd)
