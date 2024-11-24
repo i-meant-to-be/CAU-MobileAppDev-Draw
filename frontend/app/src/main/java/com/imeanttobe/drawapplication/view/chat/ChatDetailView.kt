@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.view.chat
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,16 +36,23 @@ import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -73,6 +82,25 @@ fun ChatDetailView(
     viewModel: ChatDetailViewModel = hiltViewModel(),
     navigateUp: () -> Unit
 ) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                HorizontalDivider()
+                NavigationDrawerItem(
+                    label = { Text(text = "Drawer Item") },
+                    selected = false,
+                    onClick = { /*TODO*/ }
+                )
+                // ...other drawer items
+            }
+        }
+    ) {  }
+
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
@@ -91,7 +119,14 @@ fun ChatDetailView(
         ) {
             ChatDetailViewTopBar(
                 opponentNickname = viewModel.opponentNickname.value,
-                navigateUp = navigateUp
+                navigateUp = navigateUp,
+                setDrawerState = {
+                    coroutineScope.launch {
+                        drawerState.apply {
+                            if (isClosed) open() else close()
+                        }
+                    }
+                }
             )
 
             ChatDetailViewBody(
@@ -100,42 +135,6 @@ fun ChatDetailView(
             )
         }
     }
-
-    /*
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = {
-            ChatDetailViewTopBar(
-                opponentNickname = viewModel.opponentNickname.value,
-                navigateUp = navigateUp
-            )
-        },
-        bottomBar = {
-            ChatDetailViewBottomBar(
-                text = viewModel.message.value,
-                onValueChange = viewModel::setMessage,
-                onSendClick = viewModel::send
-            )
-        }
-    ) { innerPadding ->
-        ChatDetailViewBody(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            // TODO: chatItems = listOf(),
-            showSnackbar = {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = copyMessage,
-                        withDismissAction = true
-                    )
-                }
-            }
-        )
-    }
-
-     */
 }
 
 @Composable
@@ -180,7 +179,8 @@ fun ChatDetailViewBody(
 fun ChatDetailViewTopBar(
     modifier: Modifier = Modifier,
     opponentNickname: String,
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    setDrawerState: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
@@ -197,7 +197,7 @@ fun ChatDetailViewTopBar(
         },
         actions = {
             IconButton(
-                onClick = {}
+                onClick = { setDrawerState() }
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Menu,
@@ -247,6 +247,7 @@ fun ChatBubble(
     }
 }
 
+@ExperimentalLayoutApi
 @Composable
 fun ChatDetailViewBottomBar(
     text: String,
@@ -257,7 +258,13 @@ fun ChatDetailViewBottomBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.primaryContainer)
-            .padding(vertical = 15.dp, horizontal = 10.dp)
+            .padding(
+                bottom = animateDpAsState(
+                    targetValue = if (WindowInsets.isImeVisible) 0.dp else 10.dp,
+                    label = "ChatDetailViewBottomBarImePadding"
+                ).value
+            )
+            .padding(10.dp)
             .imePadding(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -270,30 +277,6 @@ fun ChatDetailViewBottomBar(
             onSendClick = onSendClick
         )
     }
-    /*
-    BottomAppBar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .imePadding(),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ChatTextField(
-                text = text,
-                onValueChange = onValueChange
-            )
-            ChatSendButton(
-                onSendClick = onSendClick
-            )
-        }
-    }
-
-     */
 }
 
 @Composable
@@ -302,19 +285,19 @@ fun ChatTextField(
     onValueChange: (String) -> Unit
 ) {
     BasicTextField(
-        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
         value = text,
         onValueChange = onValueChange,
         singleLine = true,
         maxLines = 1,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
         decorationBox = @Composable { innerTextField ->
             Box(
                 modifier = Modifier
                     .size(width = 320.dp, height = 30.dp)
                     .clip(RoundedCornerShape(100.dp))
                     .border(
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimaryContainer),
                         shape = RoundedCornerShape(100.dp)
                     )
                     .padding(vertical = 5.dp, horizontal = 10.dp),
@@ -336,7 +319,8 @@ fun ChatSendButton(
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Rounded.Send,
-            contentDescription = null
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
 }
