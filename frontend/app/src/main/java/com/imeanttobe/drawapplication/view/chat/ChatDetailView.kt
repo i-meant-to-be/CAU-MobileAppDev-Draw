@@ -10,14 +10,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -38,6 +42,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -51,8 +56,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.model.ChatItem
@@ -69,24 +76,10 @@ fun ChatDetailView(
     viewModel: ChatDetailViewModel = hiltViewModel(),
     navigateUp: () -> Unit
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Text("Drawer title", modifier = Modifier.padding(16.dp))
-                HorizontalDivider()
-                NavigationDrawerItem(
-                    label = { Text(text = "Drawer Item") },
-                    selected = false,
-                    onClick = { /*TODO*/ }
-                )
-                // ...other drawer items
-            }
-        }
-    ) {  }
+    val drawerPadding = animateDpAsState(
+        targetValue = if (viewModel.drawerState.value) (LocalConfiguration.current.screenWidthDp).dp else 0.dp,
+        label = "DrawerPadding"
+    )
 
     Scaffold(
         modifier = modifier,
@@ -100,20 +93,14 @@ fun ChatDetailView(
         }
     ) { innerPadding ->
         Column(
-           modifier = Modifier
-               .padding(innerPadding)
-               .fillMaxSize()
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
         ) {
             ChatDetailViewTopBar(
                 opponentNickname = viewModel.opponentNickname.value,
                 navigateUp = navigateUp,
-                setDrawerState = {
-                    coroutineScope.launch {
-                        drawerState.apply {
-                            if (isClosed) open() else close()
-                        }
-                    }
-                }
+                setDrawerState = { viewModel.setDrawerState(true) }
             )
 
             ChatDetailViewBody(
@@ -148,11 +135,16 @@ fun ChatDetailViewBody(
         contentAlignment = Alignment.Center
     ) {
         LazyColumn(
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.primaryContainer),
             state = listState,
             verticalArrangement = Arrangement.Top
         ) {
             itemsIndexed(chatItems) { index, item ->
                 ChatBubble(
+                    modifier = Modifier.padding(
+                        top = if (index == 0) 10.dp else 0.dp,
+                        bottom = if (index == chatItems.lastIndex) 10.dp else 0.dp
+                    ),
                     message = item.message,
                     isMine = index % 2 == 0
                 )
@@ -198,11 +190,12 @@ fun ChatDetailViewTopBar(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatBubble(
+    modifier: Modifier = Modifier,
     message: String,
     isMine: Boolean
 ) {
-    val backgroundColor = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-    val contentColor = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+    val backgroundColor = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val contentColor = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
     val haptics = LocalHapticFeedback.current
     val clipboardManager = LocalClipboardManager.current
 
@@ -213,7 +206,7 @@ fun ChatBubble(
         horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .clip(RoundedCornerShape(10.dp))
                 .background(color = backgroundColor)
                 .combinedClickable(
@@ -241,16 +234,15 @@ fun ChatDetailViewBottomBar(
     onValueChange: (String) -> Unit,
     onSendClick: () -> Unit
 ) {
+    val imeIncludedPadding = animateDpAsState(
+        targetValue = if (WindowInsets.isImeVisible) 0.dp else 10.dp,
+        label = "ChatDetailViewBottomBarImePadding"
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.primaryContainer)
-            .padding(
-                bottom = animateDpAsState(
-                    targetValue = if (WindowInsets.isImeVisible) 0.dp else 10.dp,
-                    label = "ChatDetailViewBottomBarImePadding"
-                ).value
-            )
+            .padding(bottom = imeIncludedPadding.value)
             .padding(10.dp)
             .imePadding(),
         verticalAlignment = Alignment.CenterVertically,
@@ -271,23 +263,23 @@ fun ChatTextField(
     text: String,
     onValueChange: (String) -> Unit
 ) {
+    val contentColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.surfaceDim
+
     BasicTextField(
-        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+        textStyle = MaterialTheme.typography.bodyLarge,
         value = text,
         onValueChange = onValueChange,
         singleLine = true,
         maxLines = 1,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
+        cursorBrush = SolidColor(contentColor),
         decorationBox = @Composable { innerTextField ->
             Box(
                 modifier = Modifier
-                    .size(width = 320.dp, height = 30.dp)
+                    .size(width = 320.dp, height = 40.dp)
                     .clip(RoundedCornerShape(100.dp))
-                    .border(
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimaryContainer),
-                        shape = RoundedCornerShape(100.dp)
-                    )
-                    .padding(vertical = 5.dp, horizontal = 10.dp),
+                    .background(color = backgroundColor)
+                    .padding(vertical = 5.dp, horizontal = 15.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 innerTextField()
@@ -300,6 +292,8 @@ fun ChatTextField(
 fun ChatSendButton(
     onSendClick: () -> Unit
 ) {
+    val contentColor = MaterialTheme.colorScheme.onBackground
+
     IconButton(
         modifier = Modifier.size(32.dp),
         onClick = onSendClick
@@ -307,7 +301,7 @@ fun ChatSendButton(
         Icon(
             imageVector = Icons.AutoMirrored.Rounded.Send,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer
+            tint = contentColor
         )
     }
 }

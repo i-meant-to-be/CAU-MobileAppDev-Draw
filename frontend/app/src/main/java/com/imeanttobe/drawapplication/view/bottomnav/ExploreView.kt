@@ -3,6 +3,7 @@ package com.imeanttobe.drawapplication.view.bottomnav
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,11 +33,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -101,6 +106,8 @@ fun ExploreViewGrid(
     isDialogOpen: Boolean,
     setDialogState: (Boolean) -> Unit
 ) {
+    val scale = rememberSaveable { mutableFloatStateOf(1f) }
+
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(2),
@@ -125,10 +132,22 @@ fun ExploreViewGrid(
             onDismissRequest = { setDialogState(false) }
         ) {
             Card(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                       detectTransformGestures { _, _, zoom, _ ->
+                           scale.floatValue *= zoom
+                       }
+                    }
             ) {
                 Image(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                        .graphicsLayer(
+                            scaleX = maxOf(1f, minOf(3f, scale.floatValue)),
+                            scaleY = maxOf(1f, minOf(3f, scale.floatValue))
+                        ),
                     painter = painterResource(id = R.drawable.paintimage),
                     contentDescription = null,
                     contentScale = ContentScale.FillWidth
