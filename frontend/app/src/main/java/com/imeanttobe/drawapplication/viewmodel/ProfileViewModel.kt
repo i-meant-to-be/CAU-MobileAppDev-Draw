@@ -1,9 +1,7 @@
 package com.imeanttobe.drawapplication.viewmodel
 
 import android.net.Uri
-import androidx.compose.foundation.layout.add
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

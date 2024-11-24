@@ -28,11 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.ChatList
-import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
-import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.navigation.NavItem
+import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
 
 @Composable
 fun ChatView(
