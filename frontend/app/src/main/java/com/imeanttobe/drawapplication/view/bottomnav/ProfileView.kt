@@ -91,7 +91,6 @@ fun ProfileViewGrid(
         items(viewModel.imageUris.size) {
             index->
             ProfileViewImageItem(
-
                 imageUri = viewModel.imageUris[index],
                 onImageClick = {}
             )

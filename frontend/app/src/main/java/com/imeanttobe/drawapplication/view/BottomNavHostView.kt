@@ -35,7 +35,10 @@ fun BottomNavHostView(
         }
     ) { innerPadding ->
         when(viewModel.currentIndex.value) {
-            0 -> ChatView(modifier = Modifier.padding(innerPadding).fillMaxSize())
+            0 -> ChatView(
+                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                navigateTo = navigateTo
+            )
             1 -> ExploreView(modifier = Modifier.padding(innerPadding).fillMaxSize())
             2 -> ProfileView(modifier = Modifier.padding(innerPadding).fillMaxSize())
             3 -> DevView(

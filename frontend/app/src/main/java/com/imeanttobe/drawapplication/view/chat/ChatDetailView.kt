@@ -7,15 +7,25 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -33,6 +43,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -54,16 +66,42 @@ import java.time.LocalDateTime
 
 operator fun <T> Iterable<T>.times(count: Int): List<T> = List(count) { this }.flatten()
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatDetailView(
     modifier: Modifier = Modifier,
     viewModel: ChatDetailViewModel = hiltViewModel(),
     navigateUp: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val copyMessage = LocalContext.current.resources.getString(R.string.message_copied)
+    Scaffold(
+        modifier = modifier,
+        contentWindowInsets = WindowInsets(0.dp),
+        bottomBar = {
+            ChatDetailViewBottomBar(
+                text = viewModel.message.value,
+                onValueChange = viewModel::setMessage,
+                onSendClick = viewModel::send
+            )
+        }
+    ) { innerPadding ->
+        Column(
+           modifier = Modifier
+               .padding(innerPadding)
+               .fillMaxSize()
+        ) {
+            ChatDetailViewTopBar(
+                opponentNickname = viewModel.opponentNickname.value,
+                navigateUp = navigateUp
+            )
 
+            ChatDetailViewBody(
+                modifier = Modifier.fillMaxSize(),
+                // TODO: chatItems = listOf(),
+            )
+        }
+    }
+
+    /*
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -96,6 +134,8 @@ fun ChatDetailView(
             }
         )
     }
+
+     */
 }
 
 @Composable
@@ -109,21 +149,26 @@ fun ChatDetailViewBody(
             userName = "",
             datetime = LocalDateTime.now()
         )
-    ) * 10,
-    showSnackbar: () -> Unit
+    ) * 30
 ) {
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(key1 = remember { derivedStateOf { listState.firstVisibleItemIndex } }) {
+        listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+    }
+
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         LazyColumn(
+            state = listState,
             verticalArrangement = Arrangement.Top
         ) {
             itemsIndexed(chatItems) { index, item ->
                 ChatBubble(
                     message = item.message,
-                    isMine = index % 2 == 0,
-                    showSnackbar = showSnackbar
+                    isMine = index % 2 == 0
                 )
             }
         }
@@ -133,10 +178,12 @@ fun ChatDetailViewBody(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatDetailViewTopBar(
+    modifier: Modifier = Modifier,
     opponentNickname: String,
     navigateUp: () -> Unit
 ) {
     CenterAlignedTopAppBar(
+        modifier = modifier,
         title = { Text(text = opponentNickname) },
         navigationIcon = {
             IconButton(
@@ -165,8 +212,7 @@ fun ChatDetailViewTopBar(
 @Composable
 fun ChatBubble(
     message: String,
-    isMine: Boolean,
-    showSnackbar: () -> Unit
+    isMine: Boolean
 ) {
     val backgroundColor = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
     val contentColor = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
@@ -188,7 +234,6 @@ fun ChatBubble(
                     onLongClick = {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         clipboardManager.setText(AnnotatedString(message))
-
                     }
                 )
                 .padding(10.dp),
@@ -208,10 +253,28 @@ fun ChatDetailViewBottomBar(
     onValueChange: (String) -> Unit,
     onSendClick: () -> Unit
 ) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.primaryContainer)
+            .padding(vertical = 15.dp, horizontal = 10.dp)
+            .imePadding(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        ChatTextField(
+            text = text,
+            onValueChange = onValueChange
+        )
+        ChatSendButton(
+            onSendClick = onSendClick
+        )
+    }
+    /*
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp),
+            .imePadding(),
     ) {
         Row(
             modifier = Modifier
@@ -229,6 +292,8 @@ fun ChatDetailViewBottomBar(
             )
         }
     }
+
+     */
 }
 
 @Composable

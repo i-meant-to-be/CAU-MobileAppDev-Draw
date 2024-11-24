@@ -32,11 +32,13 @@ import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.ChatList
 import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
 import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.data.navigation.NavItem
 
 @Composable
 fun ChatView(
     modifier: Modifier = Modifier,
-    viewModel: ChatViewModel = hiltViewModel()
+    viewModel: ChatViewModel = hiltViewModel(),
+    navigateTo: (String) -> Unit
 ) {
     // This composable is placed on Surface,
     // because this can't be displayed alone but need to be displayed upon Scaffold
@@ -56,7 +58,8 @@ fun ChatView(
                         lastMessage = "내일 10시에 뵈어요.",
                         opponentImageUrl = ""
                     ),
-                    isLastItem = index == 9
+                    isLastItem = index == 9,
+                    onClick = { navigateTo(NavItem.ChatDetailItem.route) }
                 )
             }
         }
@@ -66,7 +69,8 @@ fun ChatView(
 @Composable
 fun ChatListItem(
     chatList: ChatList,
-    isLastItem: Boolean = false
+    isLastItem: Boolean = false,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -74,7 +78,7 @@ fun ChatListItem(
             .padding(bottom = if (isLastItem) 0.dp else 10.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .clickable {}
+            .clickable { onClick() }
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

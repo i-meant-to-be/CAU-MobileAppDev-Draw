@@ -1,8 +1,7 @@
 package com.imeanttobe.drawapplication.viewmodel
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -10,18 +9,19 @@ import javax.inject.Inject
 @HiltViewModel
 class ExploreViewModel @Inject constructor() : ViewModel() {
     // Variables
-    var searchText by mutableStateOf("")
-        private set
+    private val _searchText = mutableStateOf("")
+    private val _dialogState = mutableStateOf(false)
 
-    var isDialogOpen by mutableStateOf(false)
-        private set
+    // Getter
+    val searchText: State<String> = _searchText
+    val dialogState: State<Boolean> = _dialogState
 
     // Methods
-    fun onSearchTextChanged(newValue: String) {
-        searchText = newValue
+    fun setSearchText(newValue: String) {
+        _searchText.value = newValue
     }
 
-    fun setIsDialogOpen(newValue: Boolean) {
-        isDialogOpen = newValue
+    fun setDialogState(newValue: Boolean) {
+        _dialogState.value = newValue
     }
 }

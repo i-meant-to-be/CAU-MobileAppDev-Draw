@@ -32,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
@@ -52,7 +52,6 @@ import com.imeanttobe.drawapplication.data.model.ImageItem
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
-import kotlin.random.Random
 
 @Composable
 fun ExploreView(
@@ -64,16 +63,18 @@ fun ExploreView(
             modifier = Modifier.fillMaxSize()
         ) {
             ExploreViewSearchBox(
-                searchText = viewModel.searchText,
-                onSearchTextChange = { newValue -> viewModel.onSearchTextChanged(newValue) }
+                searchText = viewModel.searchText.value,
+                onSearchTextChange = { newValue -> viewModel.setSearchText(newValue) }
             )
             ExploreViewGrid(
                 modifier = Modifier.padding(horizontal = 10.dp),
-                isDialogOpen = viewModel.isDialogOpen,
-                setDialogOpen = { newValue -> viewModel.setIsDialogOpen(newValue) }
+                isDialogOpen = viewModel.dialogState.value,
+                setDialogState = { newValue -> viewModel.setDialogState(newValue) }
             )
         }
     }
+
+
 }
 
 @Composable
@@ -99,7 +100,7 @@ fun ExploreViewSearchBox(
 fun ExploreViewGrid(
     modifier: Modifier = Modifier,
     isDialogOpen: Boolean,
-    setDialogOpen: (Boolean) -> Unit
+    setDialogState: (Boolean) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -110,24 +111,31 @@ fun ExploreViewGrid(
     ) {
         items(10) {
             ExploreViewGridItem(
-                post = Post(userId = 0, description = "If description is too long, how this application looks like...?"),
+                post = Post(userId = 0, description = "If this description is too long, how this application looks like...?"),
                 image = ImageItem(postId = 0, imageUrl = ""),
                 user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = ""),
                 onImageClick = {
-                    setDialogOpen(true)
+                    setDialogState(true)
                 }
             )
         }
     }
 
     if (isDialogOpen) {
-        AlertDialog(
-            onDismissRequest = { },
-            confirmButton = { },
-            dismissButton = { },
-            title = { },
-            text = { Text("안뇽") }
-        )
+        Dialog(
+            onDismissRequest = { setDialogState(false) }
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    modifier = Modifier.fillMaxWidth(),
+                    painter = painterResource(id = R.drawable.paintimage),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth
+                )
+            }
+        }
     }
 }
 
