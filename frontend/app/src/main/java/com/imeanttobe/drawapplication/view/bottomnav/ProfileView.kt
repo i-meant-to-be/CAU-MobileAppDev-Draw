@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -130,12 +131,13 @@ fun profilecard(modifier: Modifier,
     }
         Box(modifier= Modifier
             .fillMaxWidth()
-            .padding(10.dp)) {
+            .padding(vertical = 50.dp,horizontal = 10.dp)) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+
             ) {
             Image(
                 painter = painterResource(id = R.drawable.painting2),
@@ -146,7 +148,9 @@ fun profilecard(modifier: Modifier,
                     .clip(CircleShape) // 이미지를 원형으로 자름
                     .background(Color.LightGray, shape = CircleShape)
             )
-            Text(text = "Nick Name", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
+                Spacer(Modifier.height(10.dp))
+
+                Text(text = "Nick Name", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
             Text(text = "Assistant",style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
             Spacer(Modifier.height(10.dp))
             Text(text = "Drawing is my life",style = MaterialTheme.typography.bodySmall)
@@ -165,7 +169,7 @@ fun profilecard(modifier: Modifier,
                 border = BorderStroke(0.5.dp, Color(0xFF9E9D9D)), // 테두리 설정
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text(text = "정보수정", fontSize = 10.sp)
+                Text(text = stringResource(id=R.string.Information_modify), fontSize = 10.sp)
             }
             OutlinedButton(
                 onClick = {val intent = Intent(Intent.ACTION_PICK,
@@ -181,6 +185,6 @@ fun profilecard(modifier: Modifier,
                 border = BorderStroke(0.5.dp, Color(0xFF9E9D9D)), // 테두리 설정
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text(text = "그림등록", fontSize = 10.sp)
+                Text(text = stringResource(id=R.string.paint_register), fontSize = 10.sp)
             }
 }}

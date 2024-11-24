@@ -38,4 +38,10 @@
     <string name="profile">내 정보</string>
     <string name="dev">개발 페이지</string>
     <string name="login">로그인</string>
+
+
+    <string name="Information_modify">정보 수정</string>
+
+    <string name="paint_register">그림 등록</string>
+
 </resources>
