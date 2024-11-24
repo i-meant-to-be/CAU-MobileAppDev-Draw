@@ -75,6 +75,7 @@ dependencies {
     // Etc
     implementation(libs.material.icons.extended)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Default
     implementation(libs.androidx.core.ktx)

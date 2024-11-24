@@ -63,7 +63,6 @@ fun ProfileView(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
     // This composable is placed on Surface,
     // because this can't be displayed alone but need to be displayed upon Scaffold
     // which contains bottom navigation bar. (BottomNavHostView)

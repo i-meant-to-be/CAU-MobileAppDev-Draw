@@ -62,8 +62,11 @@ fun UserRegisterView(
     returnTo : () -> Unit,
     navigateToRegDetail : () -> Unit
 ) {
-    // 회원가입 성공 후, '환영합니다' 문구가 표시되는 페이지는 여기서 한 번에 구현하는 게 좋을 것 같습니다.
-    // 페이지 하나를 더 만들려고 보니 굳이 그럴 필요가 없을 정도로 간단하다고 생각해요.
+    val email by viewModel.email
+    val password by viewModel.password
+    val passwordConfirm by viewModel.passwordConfirm
+    val isValid by viewModel.isValid
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -100,8 +103,8 @@ fun UserRegisterView(
                 )
 
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    value = email,
+                    onValueChange = {viewModel.updateEmail(it)},
                     label = { Text(text = stringResource(id = R.string.enter_your_email)) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -133,8 +136,8 @@ fun UserRegisterView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
-                    value = "",
-                    onValueChange = {},
+                    value = password,
+                    onValueChange = {viewModel.updatePassword(it)},
                     label = { Text(text = stringResource(id = R.string.enter_your_pw)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
@@ -152,8 +155,9 @@ fun UserRegisterView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
-                    value = "",
-                    onValueChange = {},
+                    value = passwordConfirm,
+                    onValueChange = {viewModel.updatePasswordConfirm(it)},
+
                     label = { Text(text = stringResource(id = R.string.confirm_your_password)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
@@ -208,7 +212,14 @@ fun UserRegisterView(
             }
 
             Button(
-                onClick = navigateToRegDetail,
+                onClick = {viewModel.validateInput()
+                          if(isValid){
+                              navigateToRegDetail()
+
+                          }
+                          else{
+
+                          }},
                 modifier = Modifier
                     .align(alignment = BottomCenter) // 버튼을 화면 아래에 배치
                     .padding(bottom = 50.dp, start = 30.dp, end = 30.dp)
