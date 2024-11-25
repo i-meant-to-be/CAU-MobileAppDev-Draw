@@ -40,6 +40,8 @@ fun ChatView(
     viewModel: ChatViewModel = hiltViewModel(),
     navigateTo: (String) -> Unit
 ) {
+    val itemCount = 20
+
     // This composable is placed on Surface,
     // because this can't be displayed alone but need to be displayed upon Scaffold
     // which contains bottom navigation bar. (BottomNavHostView)
@@ -47,7 +49,7 @@ fun ChatView(
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(10) { index ->
+            items(itemCount) { index ->
                 ChatListItem(
                     chatList = ChatList(
                         id = 0,
@@ -58,7 +60,7 @@ fun ChatView(
                         lastMessage = "내일 10시에 뵈어요.",
                         opponentImageUrl = ""
                     ),
-                    isLastItem = index == 9,
+                    isLastItem = index == itemCount,
                     onClick = { navigateTo(NavItem.ChatDetailItem.route) }
                 )
             }

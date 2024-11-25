@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -24,17 +22,25 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.ImageSearch
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +49,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -51,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.ImageItem
 import com.imeanttobe.drawapplication.data.model.Post
@@ -68,7 +76,12 @@ fun ExploreView(
         ) {
             ExploreViewSearchBox(
                 searchText = viewModel.searchText.value,
-                onSearchTextChange = { newValue -> viewModel.setSearchText(newValue) }
+                onSearchTextChange = { newValue -> viewModel.setSearchText(newValue) },
+                expanded = viewModel.expanded.value,
+                setExpanded = { newValue -> viewModel.setExpanded(newValue) },
+                setSearchOption = { newValue -> viewModel.setFilterState(newValue) },
+                searchOption = viewModel.filterState.value,
+                search = viewModel::search
             )
             ExploreViewGrid(
                 modifier = Modifier.padding(horizontal = 10.dp),
@@ -85,7 +98,12 @@ fun ExploreView(
 fun ExploreViewSearchBox(
     modifier: Modifier = Modifier,
     searchText: String,
-    onSearchTextChange: (String) -> Unit
+    onSearchTextChange: (String) -> Unit,
+    expanded: Boolean,
+    setExpanded: (Boolean) -> Unit,
+    setSearchOption: (ExploreSearchOption) -> Unit,
+    searchOption: ExploreSearchOption,
+    search: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -94,20 +112,22 @@ fun ExploreViewSearchBox(
     ) {
         ExploreViewSearchBoxTextField(
             text = searchText,
-            onValueChange = onSearchTextChange
+            onValueChange = onSearchTextChange,
+            expanded = expanded,
+            setExpanded = setExpanded,
+            setSearchOption = setSearchOption,
+            searchOption = searchOption,
+            search = {}
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreViewGrid(
     modifier: Modifier = Modifier,
     isDialogOpen: Boolean,
     setDialogState: (Boolean) -> Unit
 ) {
-    val scale = rememberSaveable { mutableFloatStateOf(1f) }
-
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(2),
@@ -128,29 +148,81 @@ fun ExploreViewGrid(
     }
 
     if (isDialogOpen) {
-        Dialog(
-            onDismissRequest = { setDialogState(false) }
+        ExploreViewImageDialog(
+            setDialogState = { setDialogState(false) },
+            description = "This is a description."
+        )
+    }
+}
+
+@Composable
+fun ExploreViewImageDialog(
+    setDialogState: (Boolean) -> Unit,
+    description: String
+) {
+    var scale by rememberSaveable { mutableFloatStateOf(1f) }
+    var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
+    var offsetY by rememberSaveable { mutableFloatStateOf(0f) }
+    var cardWidth by rememberSaveable { mutableFloatStateOf(0f) }
+    var cardHeight by rememberSaveable { mutableFloatStateOf(0f) }
+    var imageWidth by rememberSaveable { mutableFloatStateOf(0f) }
+    var imageHeight by rememberSaveable { mutableFloatStateOf(0f) }
+    val backgroundColor = MaterialTheme.colorScheme.surface
+
+    Dialog(
+        onDismissRequest = { setDialogState(false) }
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .pointerInput(Unit) {
-                       detectTransformGestures { _, _, zoom, _ ->
-                           scale.floatValue *= zoom
-                       }
-                    }
-            ) {
-                Image(
+            Column {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
+                        .onGloballyPositioned { coordinates ->
+                            cardWidth = coordinates.size.width.toFloat()
+                            cardHeight = coordinates.size.height.toFloat()
+                        }
+                        .pointerInput(Unit) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                scale = (scale * zoom).coerceIn(1f, 3f)
+
+                                val maxOffsetX = (cardWidth * (scale - 1f) / 2f)
+                                val maxOffsetY = (cardHeight * (scale - 1f) / 2f)
+
+                                offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
+                                offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                            }
+                        }
                         .graphicsLayer(
-                            scaleX = maxOf(1f, minOf(3f, scale.floatValue)),
-                            scaleY = maxOf(1f, minOf(3f, scale.floatValue))
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offsetX,
+                            translationY = offsetY
                         ),
-                    painter = painterResource(id = R.drawable.paintimage),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillWidth
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { coordinates ->
+                                imageWidth = coordinates.size.width.toFloat()
+                                imageHeight = coordinates.size.height.toFloat()
+                            },
+                        painter = painterResource(id = R.drawable.paintimage),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = backgroundColor)
+                        .padding(10.dp),
+                    text = description,
+                    minLines = 2,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -160,39 +232,112 @@ fun ExploreViewGrid(
 @Composable
 fun ExploreViewSearchBoxTextField(
     text: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    expanded: Boolean,
+    setExpanded: (Boolean) -> Unit,
+    setSearchOption: (ExploreSearchOption) -> Unit,
+    searchOption: ExploreSearchOption,
+    search: () -> Unit
 ) {
+    val contentColor = MaterialTheme.colorScheme.onBackground
+    val textFieldColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    val filterColor = MaterialTheme.colorScheme.surfaceContainerLowest
+    val icon = if (searchOption == ExploreSearchOption.BY_NAME) Icons.Default.PersonSearch else Icons.Default.ImageSearch
+
     BasicTextField(
-        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(color = contentColor),
         value = text,
         onValueChange = onValueChange,
         singleLine = true,
         maxLines = 1,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = {  }),
+        keyboardActions = KeyboardActions(onSearch = { search() }),
         decorationBox = @Composable { innerTextField ->
             Row(
                 modifier = Modifier
                     .height(40.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(100.dp))
-                    .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .background(color = textFieldColor)
                     .padding(vertical = 5.dp, horizontal = 15.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search Icon",
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = contentColor
                 )
-                Spacer(modifier = Modifier.width(5.dp))
-                Box(contentAlignment = Alignment.CenterStart) {
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 5.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
                     innerTextField()
                     if (text.isEmpty()) {
                         Text(
                             text = stringResource(id = R.string.search),
-                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground)
+                            style = MaterialTheme.typography.bodyLarge.copy(color = contentColor)
+                        )
+                    }
+                }
+
+                Box() {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(100.dp))
+                            .background(color = filterColor)
+                            .clickable { setExpanded(true) }
+                            .padding(horizontal = 10.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FilterList,
+                            contentDescription = "Filter Icon",
+                            tint = contentColor
+                        )
+
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = "Filter Icon",
+                            tint = contentColor
+                        )
+
+                        // Text(text = stringResource(stringResId))
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { setExpanded(false) }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.search_by_name)) },
+                            onClick = {
+                                setSearchOption(ExploreSearchOption.BY_NAME)
+                                setExpanded(false)
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.search_by_post)) },
+                            onClick = {
+                                setSearchOption(ExploreSearchOption.BY_POST)
+                                setExpanded(false)
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Image,
+                                    contentDescription = null
+                                )
+                            }
                         )
                     }
                 }

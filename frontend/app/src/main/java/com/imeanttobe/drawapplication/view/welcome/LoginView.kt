@@ -21,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -120,7 +121,7 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
             )
             Spacer(modifier = Modifier.height(16.dp)) // 16dp의 간격 추가
 
-            TextField(
+            OutlinedTextField(
                 value = "",
                 onValueChange = {},
                 placeholder = { Text(text = stringResource(id = R.string.enter_your_id)) },
@@ -135,14 +136,13 @@ fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페
 
             Spacer(modifier = Modifier.height(8.dp)) // 16dp의 간격 추가
 
-
-            TextField(
+            OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp),
                 value = "",
                 onValueChange = {},
-                label = { Text(text = stringResource(id = R.string.enter_your_pw)) },
+                placeholder = { Text(text = stringResource(id = R.string.enter_your_pw)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Lock,

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
@@ -246,13 +247,15 @@ fun ChatDetailViewBottomBar(
             .padding(10.dp)
             .imePadding(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.End
     ) {
         ChatTextField(
+            modifier = Modifier.weight(1f),
             text = text,
             onValueChange = onValueChange
         )
         ChatSendButton(
+            modifier = Modifier.padding(horizontal = 5.dp),
             onSendClick = onSendClick
         )
     }
@@ -260,6 +263,7 @@ fun ChatDetailViewBottomBar(
 
 @Composable
 fun ChatTextField(
+    modifier: Modifier = Modifier,
     text: String,
     onValueChange: (String) -> Unit
 ) {
@@ -267,6 +271,7 @@ fun ChatTextField(
     val backgroundColor = MaterialTheme.colorScheme.surfaceDim
 
     BasicTextField(
+        modifier = modifier,
         textStyle = MaterialTheme.typography.bodyLarge,
         value = text,
         onValueChange = onValueChange,
@@ -276,7 +281,6 @@ fun ChatTextField(
         decorationBox = @Composable { innerTextField ->
             Box(
                 modifier = Modifier
-                    .size(width = 320.dp, height = 40.dp)
                     .clip(RoundedCornerShape(100.dp))
                     .background(color = backgroundColor)
                     .padding(vertical = 5.dp, horizontal = 15.dp),
@@ -290,12 +294,13 @@ fun ChatTextField(
 
 @Composable
 fun ChatSendButton(
+    modifier: Modifier = Modifier,
     onSendClick: () -> Unit
 ) {
     val contentColor = MaterialTheme.colorScheme.onBackground
 
     IconButton(
-        modifier = Modifier.size(32.dp),
+        modifier = modifier.size(32.dp),
         onClick = onSendClick
     ) {
         Icon(

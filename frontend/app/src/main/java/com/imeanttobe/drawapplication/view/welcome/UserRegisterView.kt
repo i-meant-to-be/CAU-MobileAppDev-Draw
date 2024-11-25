@@ -28,6 +28,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
@@ -102,10 +103,10 @@ fun UserRegisterView(
                     fontWeight = FontWeight.Bold
                 )
 
-                TextField(
+                OutlinedTextField(
                     value = email,
                     onValueChange = {viewModel.updateEmail(it)},
-                    label = { Text(text = stringResource(id = R.string.enter_your_email)) },
+                    placeholder = { Text(text = stringResource(id = R.string.enter_your_email)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
@@ -132,13 +133,13 @@ fun UserRegisterView(
                     fontWeight = FontWeight.Bold
                 )
 
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     value = password,
                     onValueChange = {viewModel.updatePassword(it)},
-                    label = { Text(text = stringResource(id = R.string.enter_your_pw)) },
+                    placeholder = { Text(text = stringResource(id = R.string.enter_your_pw)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
                     }
@@ -151,14 +152,13 @@ fun UserRegisterView(
                     fontWeight = FontWeight.Bold
                 )
 
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     value = passwordConfirm,
                     onValueChange = {viewModel.updatePasswordConfirm(it)},
-
-                    label = { Text(text = stringResource(id = R.string.confirm_your_password)) },
+                    placeholder = { Text(text = stringResource(id = R.string.confirm_your_password)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
                     }
@@ -175,13 +175,13 @@ fun UserRegisterView(
                     fontWeight = FontWeight.Bold
                 )
 
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     value = "",
                     onValueChange = {},
-                    label = { Text(text = stringResource(id = R.string.example_phone_number)) },
+                    placeholder = { Text(text = stringResource(id = R.string.example_phone_number)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.PhoneIphone, contentDescription = "비밀번호 아이콘")
                     }
@@ -196,13 +196,13 @@ fun UserRegisterView(
                     fontWeight = FontWeight.Bold
                 )
 
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     value = "",
                     onValueChange = {},
-                    label = { Text(text = stringResource(id = R.string.example_verification_code)) },
+                    placeholder = { Text(text = stringResource(id = R.string.example_verification_code)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Check, contentDescription = "비밀번호 아이콘")
                     }
@@ -279,10 +279,10 @@ fun UserRegister2View(
                     fontWeight = FontWeight.Bold
                 )
 
-                TextField(
+                OutlinedTextField(
                     value = "",
                     onValueChange = {},
-                    label = { Text(text = stringResource(id = R.string.enter_your_email)) },
+                    placeholder = { Text(text = stringResource(id = R.string.enter_your_email)) },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
                     leadingIcon = {
                         Icon(
@@ -304,13 +304,13 @@ fun UserRegister2View(
                 )
 
 
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     value = "",
                     onValueChange = {},
-                    label = { Text(text = stringResource(id = R.string.enter_your_pw)) },
+                    placeholder = { Text(text = stringResource(id = R.string.enter_your_pw)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
                     }

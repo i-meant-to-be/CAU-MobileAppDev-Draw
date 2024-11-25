@@ -6,10 +6,13 @@
     <string name="usertype_webtoon_artist">웹툰 작가</string>
     <string name="usertype_assist_artist">어시스트 작가</string>
 
+    <string name="search_by_name">사용자 검색</string>
+    <string name="search_by_post">게시물 검색</string>
+
     <string name="enter_your_id">ID를 입력하세요.</string>
     <string name="enter_your_pw">비밀번호를 입력하세요.</string>
     <string name="enter_your_email">이메일을 입력하세요.</string>
-    <string name="confirm_your_password">비밀번호를 확인하세요.</string>
+    <string name="confirm_your_password">비밀번호를 다시 입력하세요.</string>
     <string name="forgot_your_id">ID를 잊으셨나요?</string>
     <string name="forgot_your_pw">비밀번호를 잊으셨나요?</string>
     <string name="get_verification_code">인증 번호 요청</string>
@@ -17,6 +20,7 @@
     <string name="add_picture">그림 추가</string>
     <string name="register_picture">그림 등록</string>
     <string name="message_copied">메시지가 복사되었습니다.</string>
+    <string name="modify_information">정보 수정</string>
 
     <string name="example_phone_number">010-0000-0000</string>
     <string name="example_verification_code">1234</string>
@@ -38,10 +42,4 @@
     <string name="profile">내 정보</string>
     <string name="dev">개발 페이지</string>
     <string name="login">로그인</string>
-
-
-    <string name="Information_modify">정보 수정</string>
-
-    <string name="paint_register">그림 등록</string>
-
 </resources>
