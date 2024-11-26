@@ -134,6 +134,14 @@ fun ProfileCard(
     val backgroundColor = MaterialTheme.colorScheme.primaryContainer
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     val currentUser = FirebaseAuth.getInstance().currentUser
+    var Nickname by remember { mutableStateOf("nickname")}
+    var Role by remember { mutableStateOf("assistant")}
+    var onesentence by remember { mutableStateOf("drawing is my life")}
+    var tempNickname by remember { mutableStateOf("nickname")}
+    var tempRole by remember { mutableStateOf("assistant")}
+    var temponesentence by remember { mutableStateOf("drawing is my life")}
+
+
     var showDialog by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -163,10 +171,10 @@ fun ProfileCard(
                     .clip(CircleShape) // 이미지를 원형으로 자름
             )
             Spacer(Modifier.height(10.dp))
-            Text(text = "Nick Name", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
-            Text(text = "Assistant",style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
+            Text(text = Nickname, style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
+            Text(text = Role,style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
             Spacer(Modifier.height(10.dp))
-            Text(text = "Drawing is my life",style = MaterialTheme.typography.bodySmall)
+            Text(text = onesentence,style = MaterialTheme.typography.bodySmall)
         }
 
         if (true) {
@@ -206,8 +214,8 @@ fun ProfileCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 10.dp),
-                            value = "",
-                            onValueChange = {},
+                            value = tempNickname,
+                            onValueChange = {tempNickname=it},
                             placeholder = { Text(text = "닉네임을 입력하시오")},
                             leadingIcon = {
                                 Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
@@ -225,8 +233,8 @@ fun ProfileCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 10.dp),
-                                value = "",
-                                onValueChange = {},
+                                value = tempRole,
+                                onValueChange = {tempRole=it},
                                 placeholder = { Text(text = "역할을 입력하시오")},
                                 leadingIcon = {
                                     Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
@@ -244,8 +252,8 @@ fun ProfileCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 10.dp),
-                                value = "",
-                                onValueChange = {},
+                                value = temponesentence,
+                                onValueChange = {temponesentence=it},
                                 placeholder = { Text(text = "한 줄 소개")},
                                 leadingIcon = {
                                     Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
@@ -257,6 +265,10 @@ fun ProfileCard(
                     },
                     confirmButton = {
                         Button(onClick = {
+                            onesentence=temponesentence
+                            Role=tempRole
+                            Nickname=tempNickname
+
                             // 정보 저장 로직 추가
                             showDialog = false // dialog 닫기
                         }) {
