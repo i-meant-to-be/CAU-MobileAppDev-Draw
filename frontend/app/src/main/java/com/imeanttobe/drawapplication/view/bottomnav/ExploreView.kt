@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -37,8 +38,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -60,7 +64,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
-import com.imeanttobe.drawapplication.data.model.ImageItem
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
@@ -70,6 +73,8 @@ fun ExploreView(
     modifier: Modifier = Modifier,
     viewModel: ExploreViewModel = hiltViewModel()
 ) {
+    val posts = viewModel.posts.collectAsState()
+
     Surface(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -86,7 +91,8 @@ fun ExploreView(
             ExploreViewGrid(
                 modifier = Modifier.padding(horizontal = 10.dp),
                 isDialogOpen = viewModel.dialogState.value,
-                setDialogState = { newValue -> viewModel.setDialogState(newValue) }
+                setDialogState = { newValue -> viewModel.setDialogState(newValue) },
+                posts = posts.value
             )
         }
     }
@@ -117,7 +123,7 @@ fun ExploreViewSearchBox(
             setExpanded = setExpanded,
             setSearchOption = setSearchOption,
             searchOption = searchOption,
-            search = {}
+            search = search
         )
     }
 }
@@ -126,8 +132,11 @@ fun ExploreViewSearchBox(
 fun ExploreViewGrid(
     modifier: Modifier = Modifier,
     isDialogOpen: Boolean,
-    setDialogState: (Boolean) -> Unit
+    setDialogState: (Boolean) -> Unit,
+    posts: List<Post>
 ) {
+    var dialogDescription by rememberSaveable { mutableStateOf("") }
+
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(2),
@@ -135,12 +144,13 @@ fun ExploreViewGrid(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         contentPadding = PaddingValues(vertical = 10.dp)
     ) {
-        items(10) {
+        items(posts) { post ->
             ExploreViewGridItem(
-                post = Post(userId = 0, description = "If this description is too long, how this application looks like...?"),
-                image = ImageItem(postId = 0, imageUrl = ""),
+                post = post,
+                // TODO: how can we get user who created the post?
                 user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = ""),
                 onImageClick = {
+                    dialogDescription = post.description
                     setDialogState(true)
                 }
             )
@@ -150,7 +160,9 @@ fun ExploreViewGrid(
     if (isDialogOpen) {
         ExploreViewImageDialog(
             setDialogState = { setDialogState(false) },
-            description = "This is a description."
+            description = dialogDescription,
+            // TODO: how can we get image included in post?
+            image = painterResource(id = R.drawable.paintimage)
         )
     }
 }
@@ -158,7 +170,8 @@ fun ExploreViewGrid(
 @Composable
 fun ExploreViewImageDialog(
     setDialogState: (Boolean) -> Unit,
-    description: String
+    description: String,
+    image: Painter
 ) {
     var scale by rememberSaveable { mutableFloatStateOf(1f) }
     var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
@@ -208,7 +221,7 @@ fun ExploreViewImageDialog(
                                 imageWidth = coordinates.size.width.toFloat()
                                 imageHeight = coordinates.size.height.toFloat()
                             },
-                        painter = painterResource(id = R.drawable.paintimage),
+                        painter = image,
                         contentDescription = null,
                         contentScale = ContentScale.FillWidth
                     )
@@ -349,7 +362,6 @@ fun ExploreViewSearchBoxTextField(
 @Composable
 fun ExploreViewGridItem(
     post: Post,
-    image: ImageItem,
     user: User,
     onImageClick: () -> Unit
 ) {
@@ -375,7 +387,8 @@ fun ExploreViewGridItem(
             )
             ExploreViewImageItem(
                 post = post,
-                imageItem = image,
+                // TODO: have to set image's url here
+                imageUrl = "?",
                 contentColor = contentColor,
                 onImageClick = onImageClick
             )
@@ -427,7 +440,7 @@ fun ExploreViewUserInfoItem(
 @Composable
 fun ExploreViewImageItem(
     post: Post,
-    imageItem: ImageItem,
+    imageUrl: String,
     contentColor: Color,
     onImageClick: () -> Unit
 ) {
@@ -437,6 +450,7 @@ fun ExploreViewImageItem(
             .clickable { onImageClick() }
     ) {
         Image(
+            // TODO: this sample image have to replaced with server's image loaded by Coil library
             painter = painterResource(id = R.drawable.paintimage),
             contentDescription = "Image",
             contentScale = ContentScale.FillWidth,

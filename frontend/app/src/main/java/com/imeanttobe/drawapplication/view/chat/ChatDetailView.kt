@@ -1,28 +1,21 @@
 package com.imeanttobe.drawapplication.view.chat
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,24 +26,17 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,15 +46,11 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.model.ChatItem
 import com.imeanttobe.drawapplication.viewmodel.ChatDetailViewModel
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-
-operator fun <T> Iterable<T>.times(count: Int): List<T> = List(count) { this }.flatten()
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -81,14 +63,15 @@ fun ChatDetailView(
         targetValue = if (viewModel.drawerState.value) (LocalConfiguration.current.screenWidthDp).dp else 0.dp,
         label = "DrawerPadding"
     )
+    val messages = viewModel.messages.collectAsState()
 
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
         bottomBar = {
             ChatDetailViewBottomBar(
-                text = viewModel.message.value,
-                onValueChange = viewModel::setMessage,
+                text = viewModel.textFieldMessage.value,
+                onValueChange = viewModel::setTextFieldMessage,
                 onSendClick = viewModel::send
             )
         }
@@ -106,7 +89,7 @@ fun ChatDetailView(
 
             ChatDetailViewBody(
                 modifier = Modifier.fillMaxSize(),
-                // TODO: chatItems = listOf(),
+                chatItems = messages.value
             )
         }
     }
@@ -115,15 +98,7 @@ fun ChatDetailView(
 @Composable
 fun ChatDetailViewBody(
     modifier: Modifier = Modifier,
-    chatItems: List<ChatItem> = listOf(
-        ChatItem(
-            message = "message",
-            chatListId = -1,
-            opponentName = "",
-            userName = "",
-            datetime = LocalDateTime.now()
-        )
-    ) * 30
+    chatItems: List<ChatItem>
 ) {
     val listState = rememberLazyListState()
 
@@ -147,7 +122,7 @@ fun ChatDetailViewBody(
                         bottom = if (index == chatItems.lastIndex) 10.dp else 0.dp
                     ),
                     message = item.message,
-                    isMine = index % 2 == 0
+                    isMine = index % 2 == 0 // TODO: have to set the logic that determines whether the message is mine or not
                 )
             }
         }
@@ -267,6 +242,7 @@ fun ChatTextField(
     text: String,
     onValueChange: (String) -> Unit
 ) {
+    // Colors for text field's content and its background
     val contentColor = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.surfaceDim
 
@@ -277,7 +253,11 @@ fun ChatTextField(
         onValueChange = onValueChange,
         singleLine = true,
         maxLines = 1,
+        // Defines color of blinking bar on the text field (looks like |)
+        // Since cursor is also a part of the text field, it is better to set its color as content's color
         cursorBrush = SolidColor(contentColor),
+        // Define text field's outfit on this variable
+        // Composable function 'innerTextField()' is text field and you can wrap it with other composables
         decorationBox = @Composable { innerTextField ->
             Box(
                 modifier = Modifier

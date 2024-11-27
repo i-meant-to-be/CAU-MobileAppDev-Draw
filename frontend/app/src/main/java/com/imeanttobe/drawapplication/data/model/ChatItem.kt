@@ -9,6 +9,8 @@ import java.time.format.DateTimeFormatter
 
 private val localDateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
+// TODO: Do we need to add a field for determining whether the message is mine or not?
+
 @Parcelize
 data class ChatItem(
     val id: Int = -1,
