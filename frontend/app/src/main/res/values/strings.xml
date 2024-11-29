@@ -8,6 +8,8 @@
 
     <string name="search_by_name">사용자 검색</string>
     <string name="search_by_post">게시물 검색</string>
+    <string name="search_by_name_dot">사용자 검색…</string>
+    <string name="search_by_post_dot">게시물 검색…</string>
 
     <string name="enter_your_id">ID를 입력하세요.</string>
     <string name="enter_your_pw">비밀번호를 입력하세요.</string>

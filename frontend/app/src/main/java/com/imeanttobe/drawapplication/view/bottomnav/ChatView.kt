@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +42,7 @@ fun ChatView(
     viewModel: ChatViewModel = hiltViewModel(),
     navigateTo: (String) -> Unit
 ) {
-    val itemCount = 20
+    val chatLists = viewModel.chatLists.collectAsState().value
 
     // This composable is placed on Surface,
     // because this can't be displayed alone but need to be displayed upon Scaffold
@@ -49,18 +51,13 @@ fun ChatView(
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(itemCount) { index ->
+            itemsIndexed(chatLists) { index, chatList ->
                 ChatListItem(
-                    chatList = ChatList(
-                        id = 0,
-                        userName = "나",
-                        opponentName = "상대",
-                        opponentId = 0,
-                        opponentType = UserType.WEBTOON_ARTIST,
-                        lastMessage = "내일 10시에 뵈어요.",
-                        opponentImageUrl = ""
+                    modifier = Modifier.padding(
+                        top = if (index == 0) 10.dp else 0.dp,
+                        bottom = if (index == chatLists.lastIndex) 10.dp else 0.dp
                     ),
-                    isLastItem = index == itemCount,
+                    chatList = chatList,
                     onClick = { navigateTo(NavItem.ChatDetailItem.route) }
                 )
             }
@@ -70,14 +67,13 @@ fun ChatView(
 
 @Composable
 fun ChatListItem(
+    modifier: Modifier = Modifier,
     chatList: ChatList,
-    isLastItem: Boolean = false,
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 10.dp)
-            .padding(bottom = if (isLastItem) 0.dp else 10.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .clickable { onClick() }
@@ -101,6 +97,7 @@ fun ChatListItemProfileImage(
             .background(color = MaterialTheme.colorScheme.primary)
     ) {
         Image(
+            // TODO: have to load image here by Coil library
             painter = painterResource(id = R.drawable.joker),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),

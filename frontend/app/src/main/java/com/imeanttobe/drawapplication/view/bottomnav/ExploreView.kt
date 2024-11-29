@@ -256,6 +256,7 @@ fun ExploreViewSearchBoxTextField(
     val textFieldColor = MaterialTheme.colorScheme.surfaceContainerHighest
     val filterColor = MaterialTheme.colorScheme.surfaceContainerLowest
     val icon = if (searchOption == ExploreSearchOption.BY_NAME) Icons.Default.PersonSearch else Icons.Default.ImageSearch
+    val stringResId = if (searchOption == ExploreSearchOption.BY_NAME) R.string.search_by_name_dot else R.string.search_by_post_dot
 
     BasicTextField(
         textStyle = MaterialTheme.typography.bodyLarge.copy(color = contentColor),
@@ -291,7 +292,7 @@ fun ExploreViewSearchBoxTextField(
                     innerTextField()
                     if (text.isEmpty()) {
                         Text(
-                            text = stringResource(id = R.string.search),
+                            text = stringResource(id = stringResId),
                             style = MaterialTheme.typography.bodyLarge.copy(color = contentColor)
                         )
                     }
@@ -318,8 +319,6 @@ fun ExploreViewSearchBoxTextField(
                             contentDescription = "Filter Icon",
                             tint = contentColor
                         )
-
-                        // Text(text = stringResource(stringResId))
                     }
 
                     DropdownMenu(

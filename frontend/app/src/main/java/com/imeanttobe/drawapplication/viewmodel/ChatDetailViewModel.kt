@@ -15,10 +15,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatDetailViewModel @Inject constructor() : ViewModel() {
-    operator fun <T> Iterable<T>.times(count: Int): List<T> = List(count) { this }.flatten()
+    private operator fun <T> Iterable<T>.times(count: Int): List<T> = List(count) { this }.flatten()
 
     // Values
-    // TODO: have to get firebase instances
+    // TODO: have to get firebase instances here
     private val _textFieldMessage = mutableStateOf("")
     private val _opponentNickname = mutableStateOf("채팅 상대 닉네임")
     private val _drawerState = mutableStateOf(false)

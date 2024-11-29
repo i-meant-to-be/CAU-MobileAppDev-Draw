@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 @HiltViewModel
 class UserRegisterViewModel @Inject constructor() : ViewModel() {
+    // Variables and getter
     private val _email = mutableStateOf("")
     val email: State<String> = _email
 
@@ -19,7 +20,7 @@ class UserRegisterViewModel @Inject constructor() : ViewModel() {
     private val _isValid = mutableStateOf(false)
     val isValid: State<Boolean> = _isValid
 
-
+    // Methods
     fun updateEmail(newEmail: String) {
         _email.value = newEmail // value 속성을 사용하여 상태 업데이트
     }
@@ -30,9 +31,8 @@ class UserRegisterViewModel @Inject constructor() : ViewModel() {
         _passwordConfirm.value = newPasswordConfirm // value 속성을 사용하여 상태 업데이트
     }
 
-
     fun validateInput() {
-        _isValid.value = isValidEmail(email.value) && isValidPassword(password.value)&& isPasswordConfirmed()
+        _isValid.value = isValidEmail(email.value) && isValidPassword(password.value) && isPasswordConfirmed()
     }
 
     // 유효성 검사 함수
@@ -45,11 +45,7 @@ class UserRegisterViewModel @Inject constructor() : ViewModel() {
         return true // 임시로 true 반환
     }
 
-
     fun isPasswordConfirmed(): Boolean {
         return password.value == passwordConfirm.value
     }
-
-
-
 }

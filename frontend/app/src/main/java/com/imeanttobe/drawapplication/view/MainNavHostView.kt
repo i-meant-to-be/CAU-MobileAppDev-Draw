@@ -18,7 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
 import com.imeanttobe.drawapplication.view.welcome.LoginView
-import com.imeanttobe.drawapplication.view.welcome.LogindetailView
+import com.imeanttobe.drawapplication.view.welcome.LoginDetailView
 import com.imeanttobe.drawapplication.view.welcome.UserRegister2View
 import com.imeanttobe.drawapplication.view.welcome.UserRegisterView
 import com.imeanttobe.drawapplication.viewmodel.MainNavHostViewModel
@@ -69,7 +69,7 @@ fun MainNavHostView(
                 UserRegister2View()
             }
             composableAnimated(route = NavItem.LogindetailViewItem.route) {
-                LogindetailView(returnTo = { navController.popBackStack() }, navigateToReg = { navController.navigate(NavItem.UserRegisterViewItem.route) })
+                LoginDetailView(returnTo = { navController.popBackStack() }, navigateToReg = { navController.navigate(NavItem.UserRegisterViewItem.route) })
             }
         }
     }

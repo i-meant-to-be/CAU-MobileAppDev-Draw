@@ -25,7 +25,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,7 +81,7 @@ fun LoginView(
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogindetailView( //실제로 로그인 및 아이디 비번 회원가입 페이지
+fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페이지
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
     returnTo: () -> Unit,

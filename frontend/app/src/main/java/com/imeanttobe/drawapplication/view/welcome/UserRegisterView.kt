@@ -33,7 +33,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.viewmodel.UserRegisterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +88,7 @@ fun UserRegisterView(
             modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-        ){
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -105,7 +105,7 @@ fun UserRegisterView(
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = {viewModel.updateEmail(it)},
+                    onValueChange = { viewModel.updateEmail(it) },
                     placeholder = { Text(text = stringResource(id = R.string.enter_your_email)) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -212,14 +212,13 @@ fun UserRegisterView(
             }
 
             Button(
-                onClick = {viewModel.validateInput()
-                          if(isValid){
-                              navigateToRegDetail()
-
-                          }
-                          else{
-
-                          }},
+                onClick = {
+                    viewModel.validateInput()
+                    if (isValid) { navigateToRegDetail() }
+                    else {
+                        // Do something
+                    }
+                },
                 modifier = Modifier
                     .align(alignment = BottomCenter) // 버튼을 화면 아래에 배치
                     .padding(bottom = 50.dp, start = 30.dp, end = 30.dp)
@@ -244,7 +243,8 @@ fun UserRegister2View(
     modifier: Modifier = Modifier,
     viewModel: UserRegisterViewModel = hiltViewModel(),
 ) {
-    var selectedOption by rememberSaveable { mutableStateOf("그림 작가") }
+    // var selectedOption by rememberSaveable { mutableStateOf("그림 작가") }
+    var selectedOption by rememberSaveable { mutableStateOf(UserType.WEBTOON_ARTIST) }
 
     Scaffold(
         modifier = modifier,
@@ -396,10 +396,14 @@ fun UserRegister2View(
 @Composable
 fun RadioButtonSet(
     modifier: Modifier,
-    selectedOption: String,
-    onChange: (String) -> Unit)
-{
-    val radioOptions = listOf("그림 작가", "어시", "기업")
+    selectedOption: UserType,
+    onChange: (UserType) -> Unit
+) {
+    val radioOptions = listOf(UserType.WEBTOON_ARTIST, UserType.ASSIST_ARTIST)
+    val radioStringResId = when (selectedOption) {
+        UserType.WEBTOON_ARTIST -> R.string.usertype_webtoon_artist
+        else -> R.string.usertype_assist_artist
+    }
 
     Row(modifier = modifier) {
         radioOptions.forEach { item ->
@@ -409,7 +413,7 @@ fun RadioButtonSet(
                     onClick = { onChange(item) },
                     colors = RadioButtonDefaults.colors(Color(0xFF0073FF))
                 )
-                Text(text = item)
+                Text(text = stringResource(id = radioStringResId))
             }
         }
     }
