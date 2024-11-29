@@ -73,6 +73,8 @@ dependencies {
     ksp(libs.dagger.hilt.android.compiler)
 
     // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
 
     // Etc

@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.view.welcome
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
@@ -26,16 +29,29 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.viewmodel.LoginViewModel
+import com.imeanttobe.drawapplication.viewmodel.SignInState
 
 @Composable //로그인하기 버튼 있는 페이지
 fun LoginView(
@@ -79,14 +95,35 @@ fun LoginView(
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페이지
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
     returnTo: () -> Unit,
-    navigateToReg: ()-> Unit
+    navigateToReg: ()-> Unit,
+    navigateHome: () -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+    val uiState = viewModel.state.collectAsState()
+
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
+    val context = LocalContext.current
+    LaunchedEffect(key1 = uiState.value) {
+        when(uiState.value){
+            is SignInState.Success -> {
+                navigateHome()
+            }
+            is SignInState.Error -> {
+                Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -121,8 +158,8 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
             Spacer(modifier = Modifier.height(16.dp)) // 16dp의 간격 추가
 
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = email,
+                onValueChange = {email = it},
                 placeholder = { Text(text = stringResource(id = R.string.enter_your_id)) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
                 leadingIcon = {
@@ -130,7 +167,13 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                         imageVector = Icons.Filled.Person, // 원하는 아이콘으로 변경
                         contentDescription = "사용자 아이콘" // 접근성을 위한 설명
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = {focusManager.moveFocus(FocusDirection.Down)}
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp)) // 16dp의 간격 추가
@@ -139,15 +182,21 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp),
-                value = "",
-                onValueChange = {},
+                value = password,
+                onValueChange = {password = it},
                 placeholder = { Text(text = stringResource(id = R.string.enter_your_pw)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Lock,
                         contentDescription = "비밀번호 아이콘"
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {focusManager.clearFocus()}
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -163,7 +212,7 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                 ),
                 shape = RoundedCornerShape(8.dp),
                 onClick = {
-                     // Todo
+                     viewModel.signIn(email, password)
                 }
             ) {
                 Text(text = stringResource(id = R.string.login))
@@ -186,4 +235,14 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLogindetailView(){
+    LoginDetailView(
+        returnTo = {},
+        navigateToReg = {},
+        navigateHome = {}
+    )
 }

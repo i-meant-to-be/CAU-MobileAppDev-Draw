@@ -17,13 +17,19 @@
     <string name="confirm_your_password">비밀번호를 다시 입력하세요.</string>
     <string name="forgot_your_id">ID를 잊으셨나요?</string>
     <string name="forgot_your_pw">비밀번호를 잊으셨나요?</string>
-    <string name="get_verification_code">인증 번호 요청</string>
+    <string name="confirm">확인</string>
+    <string name="verification">인증</string>
     <string name="choose_your_type">사용자 유형 선택</string>
     <string name="add_picture">그림 추가</string>
+    <string name="add_photo">사진 추가</string>
     <string name="register_picture">그림 등록</string>
+    <string name="logout">로그아웃</string>
+    <string name="register_profileImg">프로필 사진 등록</string>
     <string name="direct_message">Contact</string>
 
     <string name="message_copied">메시지가 복사되었습니다.</string>
+    <string name="enter_your_nickname">별명을 입력하세요.</string>
+    <string name="enter_your_instaId">인스타그램 아이디를 입력하세요.</string>
     <string name="modify_information">정보 수정</string>
 
     <string name="example_phone_number">010-0000-0000</string>

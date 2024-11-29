@@ -15,18 +15,21 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
-import com.imeanttobe.drawapplication.view.welcome.LoginView
 import com.imeanttobe.drawapplication.view.welcome.LoginDetailView
+import com.imeanttobe.drawapplication.view.welcome.LoginView
 import com.imeanttobe.drawapplication.view.welcome.UserRegister2View
-import com.imeanttobe.drawapplication.view.welcome.UserRegisterView
+import com.imeanttobe.drawapplication.view.welcome.UserRegister1View
 import com.imeanttobe.drawapplication.viewmodel.MainNavHostViewModel
+import com.imeanttobe.drawapplication.viewmodel.UserRegisterViewModel
 
 @Composable
 fun MainNavHostView(
     modifier: Modifier = Modifier,
-    viewModel: MainNavHostViewModel = hiltViewModel()
+    viewModel: MainNavHostViewModel = hiltViewModel(),
+    sharedViewModel: UserRegisterViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
 
@@ -43,7 +46,12 @@ fun MainNavHostView(
                 BottomNavHostView(
                     isDevModeEnabled = true,
                     navigateTo = { route -> navController.navigate(route) },
-                    navigateBack = { navController.popBackStack() }
+                    navigateBack = { navController.popBackStack() },
+                    navigateToLogin = {
+                        navController.navigate(NavItem.LoginViewItem.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 )
             }
 
@@ -54,7 +62,8 @@ fun MainNavHostView(
             }
 
             composableAnimated(route = NavItem.LoginViewItem.route) {
-                LoginView(navigateToDetail = { navController.navigate(NavItem.LogindetailViewItem.route) }
+                LoginView(
+                    navigateToDetail = { navController.navigate(NavItem.LogindetailViewItem.route) }
                 )
             }
 
@@ -62,14 +71,45 @@ fun MainNavHostView(
                 SplashView()
             }
 
-            composableAnimated(route = NavItem.UserRegisterViewItem.route) {
-                UserRegisterView(returnTo = { navController.popBackStack() }, navigateToRegDetail = { navController.navigate(NavItem.UserRegister2ViewItem.route) })
+            navigation( //viewmodel을 1과 2가 공유하기 위해서 설정한 것. (sharedViewModel)
+                startDestination = NavItem.UserRegister1ViewItem.route,
+                route = "register_graph"
+            ) {
+                composableAnimated(route = NavItem.UserRegister1ViewItem.route) {
+                    UserRegister1View(
+                        viewModel = sharedViewModel,
+                        returnTo = { navController.popBackStack() },
+                        navigateToRegDetail = {email, password ->
+                            sharedViewModel.updateEmail(email)
+                            sharedViewModel.updatePassword(password)
+                            navController.navigate(NavItem.UserRegister2ViewItem.route)
+                        }
+                    )
+                }
+
+                composableAnimated(route = NavItem.UserRegister2ViewItem.route) {
+                    UserRegister2View(
+                        viewModel = sharedViewModel,
+                        returnTo = { navController.popBackStack() },
+                        navigateToLogin = {
+                            navController.navigate(NavItem.LogindetailViewItem.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
+                }
             }
-            composableAnimated(route = NavItem.UserRegister2ViewItem.route) {
-                UserRegister2View()
-            }
+
             composableAnimated(route = NavItem.LogindetailViewItem.route) {
-                LoginDetailView(returnTo = { navController.popBackStack() }, navigateToReg = { navController.navigate(NavItem.UserRegisterViewItem.route) })
+                LoginDetailView(
+                    returnTo = { navController.popBackStack() },
+                    navigateToReg = { navController.navigate(NavItem.UserRegister1ViewItem.route) },
+                    navigateHome = {
+                        navController.navigate(NavItem.BottomNavHostViewItem.route){
+                            popUpTo(0){inclusive = true}
+                        }
+                    }
+                )
             }
         }
     }

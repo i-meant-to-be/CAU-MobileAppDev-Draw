@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.navigation.BottomBarItem
+import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.bottomnav.ChatView
 import com.imeanttobe.drawapplication.view.bottomnav.ExploreView
 import com.imeanttobe.drawapplication.view.bottomnav.ProfileView
@@ -22,7 +23,8 @@ fun BottomNavHostView(
     viewModel: BottomNavHostViewModel = hiltViewModel(),
     isDevModeEnabled: Boolean = false,
     navigateTo: (String) -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    navigateToLogin: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -36,13 +38,24 @@ fun BottomNavHostView(
     ) { innerPadding ->
         when(viewModel.currentIndex.value) {
             0 -> ChatView(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
                 navigateTo = navigateTo
             )
-            1 -> ExploreView(modifier = Modifier.padding(innerPadding).fillMaxSize())
-            2 -> ProfileView(modifier = Modifier.padding(innerPadding).fillMaxSize())
+            1 -> ExploreView(modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize())
+            2 -> ProfileView(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                navigateToLogin = navigateToLogin
+            )
             3 -> DevView(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
                 navigateBack = navigateBack,
                 navigateTo = navigateTo
             )

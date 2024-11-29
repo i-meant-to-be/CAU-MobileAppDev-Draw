@@ -37,6 +37,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,22 +59,25 @@ import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
+import com.imeanttobe.drawapplication.viewmodel.SignOutState
 
 @Composable
 fun ProfileView(
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    navigateToLogin : ()->Unit
 ) {
     // This composable is placed on Surface,
     // because this can't be displayed alone but need to be displayed upon Scaffold
     // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
-            ProfileCard(modifier=Modifier, viewModel = viewModel)
+            ProfileCard(modifier=Modifier, viewModel = viewModel, navigateToLogin = navigateToLogin)
             ProfileViewGrid(modifier = Modifier, viewModel=viewModel)
         }
     }
 }
+
 @Composable
 fun ProfileViewGrid(
     modifier: Modifier = Modifier,
@@ -129,7 +135,8 @@ fun ProfileViewImageItem(
 @Composable // 프로필 카드 컴포저블
 fun ProfileCard(
     modifier: Modifier,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    navigateToLogin: ()-> Unit
 ){
     val backgroundColor = MaterialTheme.colorScheme.primaryContainer
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -141,6 +148,8 @@ fun ProfileCard(
     var tempRole by remember { mutableStateOf("assistant")}
     var temponesentence by remember { mutableStateOf("drawing is my life")}
 
+    val profileImageUri = viewModel.profileImageUri.collectAsState()
+    val nickname = viewModel.userNickname.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
@@ -148,6 +157,14 @@ fun ProfileCard(
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             viewModel.addImageUri( result.data?.data)
+        }
+    }
+
+    val uiState = viewModel.state.collectAsState()
+
+    LaunchedEffect(key1 = uiState.value) {
+        if (uiState.value == SignOutState.LoggedOut) {
+            navigateToLogin()
         }
     }
 
@@ -162,16 +179,17 @@ fun ProfileCard(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.painting2),
-                contentDescription = "Image",
+            AsyncImage(
+                model = profileImageUri,
+//                model = Uri.parse("android.resource://com.example.myapp/drawable/basic_profile"),
+                contentDescription = "Profile Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(90.dp) // 이미지 크기 64dp로 설정
                     .clip(CircleShape) // 이미지를 원형으로 자름
             )
             Spacer(Modifier.height(10.dp))
-            Text(text = Nickname, style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
+            Text(text = nickname.value?:"", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
             Text(text = Role,style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
             Spacer(Modifier.height(10.dp))
             Text(text = onesentence,style = MaterialTheme.typography.bodySmall)
@@ -298,16 +316,37 @@ fun ProfileCard(
                     .width(58.dp)
                     .height(20.dp)
                     .clip(RoundedCornerShape(5.dp)),// 배경색 설정
-            shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = backgroundColor,
-                contentColor = contentColor
-            )
-        ) {
-            Text(text = stringResource(id = R.string.register_picture), fontSize = 10.sp)
+                shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = backgroundColor,
+                    contentColor = contentColor
+                )
+            ) {
+                Text(text = stringResource(id = R.string.register_picture), fontSize = 10.sp)
+            }
+
+            Button(
+                onClick = {
+                    viewModel.signOut()
+                },
+                modifier = Modifier
+                    .padding(10.dp)
+                    .align(Alignment.TopStart)
+                    .width(58.dp)
+                    .height(20.dp)
+                    .clip(RoundedCornerShape(5.dp)),// 배경색 설정
+                shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = backgroundColor,
+                    contentColor = contentColor
+                )
+            ) {
+                Text(text = stringResource(id = R.string.logout), fontSize = 10.sp)
+            }
+
         }
-    }
         else{
             OutlinedButton(onClick = {},modifier = Modifier
                     .padding(10.dp)
@@ -322,8 +361,8 @@ fun ProfileCard(
                     contentColor = contentColor
                 )            ) {
                 Text(text = stringResource(id = R.string.direct_message), fontSize = 10.sp)
-            }}
-
-}
+            }
+        }
+    }
 }
 

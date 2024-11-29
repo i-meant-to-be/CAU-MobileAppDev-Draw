@@ -9,7 +9,7 @@ sealed class NavItem(
             BottomNavHostViewItem,
             ChatDetailItem,
             LoginViewItem,
-            UserRegisterViewItem,
+            UserRegister1ViewItem,
             SplashViewItem
         )
     }
@@ -29,7 +29,7 @@ sealed class NavItem(
         label = "Login"
     )
 
-    data object UserRegisterViewItem: NavItem(
+    data object UserRegister1ViewItem: NavItem(
         route = "/register/registerFirst",
         label = "Register"
     )
