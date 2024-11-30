@@ -12,6 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor() : ViewModel() {
+
+    
     //ProfileCard
 
     private val _profileImageUri = MutableStateFlow<Uri?>(null)
@@ -32,10 +34,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
 
 
-
-
-
-
     //---------------------------------------------------------------------------
     //ProfileViewGrid
 
@@ -45,7 +43,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     fun addImageUri(uri: Uri?) {
         _imageUris.add(uri)
     }
-
 
 
     //---------------------------------------------------------------------------

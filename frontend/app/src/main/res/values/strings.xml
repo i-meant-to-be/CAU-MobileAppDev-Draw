@@ -25,7 +25,7 @@
     <string name="register_picture">그림 등록</string>
     <string name="logout">로그아웃</string>
     <string name="register_profileImg">프로필 사진 등록</string>
-    <string name="exit_chat">채팅방 나가기</string>
+    <string name="direct_message">Contact</string>
 
     <string name="message_copied">메시지가 복사되었습니다.</string>
     <string name="enter_your_nickname">별명을 입력하세요.</string>
@@ -39,7 +39,6 @@
     <string name="option">선택</string>
 
     <string name="instagram_account">인스타그램 계정</string>
-    <string name="direct_message">다이렉트 메시지</string>
     <string name="nickname">별명</string>
     <string name="verification_code">인증 번호</string>
     <string name="email">이메일</string>
@@ -53,5 +52,4 @@
     <string name="profile">내 정보</string>
     <string name="dev">개발 페이지</string>
     <string name="login">로그인</string>
-    <string name="menu">메뉴</string>
 </resources>

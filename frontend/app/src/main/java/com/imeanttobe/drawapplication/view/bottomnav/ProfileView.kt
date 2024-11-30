@@ -151,6 +151,7 @@ fun ProfileCard(
     val profileImageUri = viewModel.profileImageUri.collectAsState()
     val nickname = viewModel.userNickname.collectAsState()
 
+
     var showDialog by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()

@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
-import com.imeanttobe.drawapplication.data.model.ChatList
+import com.imeanttobe.drawapplication.data.model.ChatSession
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
 
@@ -58,7 +58,7 @@ fun ChatView(
                         top = if (index == 0) 10.dp else 0.dp,
                         bottom = if (index == chatLists.lastIndex) 10.dp else 0.dp
                     ),
-                    chatList = chatList,
+                    chatSession = chatList,
                     onClick = { navigateTo(NavItem.ChatDetailItem.route) }
                 )
             }
@@ -69,7 +69,7 @@ fun ChatView(
 @Composable
 fun ChatListItem(
     modifier: Modifier = Modifier,
-    chatList: ChatList,
+    chatSession: ChatSession,
     onClick: () -> Unit
 ) {
     Row(
@@ -81,9 +81,9 @@ fun ChatListItem(
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ChatListItemProfileImage(imageUrl = chatList.opponentImageUrl)
+        ChatListItemProfileImage(imageUrl = chatSession.opponentImageUrl)
         Spacer(modifier = Modifier.padding(end = 10.dp))
-        ChatListItemUserDataText(chatList = chatList)
+        ChatListItemUserDataText(chatList = chatSession)
     }
 }
 
@@ -109,7 +109,7 @@ fun ChatListItemProfileImage(
 
 @Composable
 fun ChatListItemUserDataText(
-    chatList: ChatList
+    chatList: ChatSession
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(3.dp)

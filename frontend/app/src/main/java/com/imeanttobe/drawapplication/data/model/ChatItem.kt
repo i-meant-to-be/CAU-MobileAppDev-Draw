@@ -7,38 +7,20 @@ import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-private val localDateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-
 // TODO: Do we need to add a field for determining whether the message is mine or not?
 
-@Parcelize
-data class ChatItem(
+data class Message(
     val id: Int = -1,
-    val chatListId: Int,
-    val opponentName: String,
-    val userName: String,
-    val message: String,
+    val senderId: String,
+    val chatSessionId: String,
+    val body: String,
     val datetime: LocalDateTime = LocalDateTime.now()
-): Parcelable {
-    private companion object : Parceler<ChatItem> {
-        override fun ChatItem.write(parcel: Parcel, flags: Int) {
-            parcel.writeInt(id)
-            parcel.writeInt(chatListId)
-            parcel.writeString(opponentName)
-            parcel.writeString(userName)
-            parcel.writeString(message)
-            parcel.writeString(datetime.format(localDateTimeFormatter))
-        }
+)
 
-        override fun create(parcel: Parcel): ChatItem {
-            return ChatItem(
-                id = parcel.readInt(),
-                chatListId = parcel.readInt(),
-                opponentName = parcel.readString() ?: "",
-                userName = parcel.readString() ?: "",
-                message = parcel.readString() ?: "",
-                datetime = LocalDateTime.parse(parcel.readString(), localDateTimeFormatter)
-            )
-        }
-    }
-}
+/*
+    val id: String = "",
+    val senderId: String = "",
+    val body: String = "",
+    val createdAt: Long = System.currentTimeMillis(),
+    val senderName: String = ""
+ */

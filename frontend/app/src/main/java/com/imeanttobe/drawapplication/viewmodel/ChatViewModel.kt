@@ -1,13 +1,9 @@
 package com.imeanttobe.drawapplication.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imeanttobe.drawapplication.data.enum.UserType
-import com.imeanttobe.drawapplication.data.model.ChatList
-import com.imeanttobe.drawapplication.data.navigation.NavItem
-import com.imeanttobe.drawapplication.view.bottomnav.ChatListItem
+import com.imeanttobe.drawapplication.data.model.ChatSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +16,7 @@ class ChatViewModel @Inject constructor() : ViewModel() {
 
     // Variables
     // TODO: have to get firebase instances here
-    private val _chatLists = MutableStateFlow<List<ChatList>>(emptyList()) // This is for chat lists received from firebase
+    private val _chatLists = MutableStateFlow<List<ChatSession>>(emptyList()) // This is for chat lists received from firebase
 
     // Getter
     val chatLists = _chatLists.asStateFlow() // This is for chat lists received from firebase
@@ -30,7 +26,7 @@ class ChatViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _chatLists.emit(
                 listOf(
-                    ChatList(
+                    ChatSession(
                         id = 0,
                         userName = "나",
                         opponentName = "상대",
