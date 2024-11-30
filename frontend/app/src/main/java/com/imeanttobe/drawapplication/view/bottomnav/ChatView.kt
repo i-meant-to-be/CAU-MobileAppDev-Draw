@@ -49,7 +49,8 @@ fun ChatView(
     // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
         LazyColumn(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             itemsIndexed(chatLists) { index, chatList ->
                 ChatListItem(

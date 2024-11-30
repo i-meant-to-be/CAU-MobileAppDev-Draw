@@ -266,7 +266,9 @@ fun ExploreViewSearchBoxTextField(
         maxLines = 1,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { search() }),
+        keyboardActions = KeyboardActions(onSearch = {
+            search()
+        }),
         decorationBox = @Composable { innerTextField ->
             Row(
                 modifier = Modifier

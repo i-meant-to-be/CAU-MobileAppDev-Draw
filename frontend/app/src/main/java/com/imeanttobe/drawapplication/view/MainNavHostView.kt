@@ -19,7 +19,7 @@ import androidx.navigation.navigation
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
 import com.imeanttobe.drawapplication.view.welcome.LoginDetailView
-import com.imeanttobe.drawapplication.view.welcome.LoginView
+import com.imeanttobe.drawapplication.view.welcome.LoginTitleView
 import com.imeanttobe.drawapplication.view.welcome.UserRegister2View
 import com.imeanttobe.drawapplication.view.welcome.UserRegister1View
 import com.imeanttobe.drawapplication.viewmodel.MainNavHostViewModel
@@ -62,7 +62,7 @@ fun MainNavHostView(
             }
 
             composableAnimated(route = NavItem.LoginViewItem.route) {
-                LoginView(
+                LoginTitleView(
                     navigateToDetail = { navController.navigate(NavItem.LogindetailViewItem.route) }
                 )
             }

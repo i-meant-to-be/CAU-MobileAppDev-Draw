@@ -34,6 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
@@ -68,6 +69,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
+import com.imeanttobe.drawapplication.theme.onSeed
+import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.theme.textFieldTransparentContainerColor
 import com.imeanttobe.drawapplication.viewmodel.UserRegisterViewModel
 
@@ -111,7 +114,7 @@ fun UserRegister1View(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-        ){
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -173,7 +176,7 @@ fun UserRegister1View(
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { focusManager.moveFocus(FocusDirection.Down)}
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
                     ),
                     colors = textFieldTransparentContainerColor()
                 )
@@ -192,8 +195,7 @@ fun UserRegister1View(
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     value = passwordConfirm,
-                    onValueChange = {viewModel.updatePasswordConfirm(it)},
-
+                    onValueChange = { viewModel.updatePasswordConfirm(it) },
                     placeholder = { Text(text = stringResource(id = R.string.confirm_your_password)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
@@ -202,7 +204,7 @@ fun UserRegister1View(
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = {focusManager.clearFocus()}
+                        onDone = { focusManager.clearFocus() }
                     ),
                     colors = textFieldTransparentContainerColor()
                 )
@@ -244,7 +246,7 @@ fun UserRegister1View(
                         modifier = Modifier.wrapContentSize(),
                         shape = RoundedCornerShape(4.dp),
                         contentPadding = PaddingValues(4.dp)
-                    ){
+                    ) {
                         Text(
                             stringResource(id = R.string.verification),
 //                            fontSize = 10.sp
@@ -280,11 +282,11 @@ fun UserRegister1View(
                     )
                     Spacer(modifier =Modifier.padding(horizontal = 8.dp))
                     OutlinedButton(
-                        onClick = {},
+                        onClick = {  },
                         modifier = Modifier.wrapContentSize(),
                         shape = RoundedCornerShape(4.dp),
                         contentPadding = PaddingValues(4.dp)
-                    ){
+                    ) {
                         Text(stringResource(id = R.string.confirm))
                     }
                 }
@@ -320,285 +322,11 @@ fun UserRegister1View(
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun UserRegister2View(
-    modifier: Modifier = Modifier,
-    viewModel: UserRegisterViewModel = hiltViewModel(),
-    returnTo: ()-> Unit,
-    navigateToLogin: () -> Unit,
-) {
-    // var selectedOption by rememberSaveable { mutableStateOf("그림 작가") }
-    var selectedOption by rememberSaveable { mutableStateOf(UserType.WEBTOON_ARTIST) }
-    val isValid by viewModel.isValid2.collectAsState()
-
-    val nickname by viewModel.nickname.collectAsState()
-    val instaId by viewModel.instaId.collectAsState()
-
-    //그림 바뀔(추가/삭제)때도 가능하도록 해야함
-    LaunchedEffect(key1 = nickname) {
-        viewModel.isValidateInput2() /* todo*/
-    }
-    
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "Register Detail Page") },
-                navigationIcon = {
-                    IconButton(onClick = returnTo) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "back"
-                        )
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ){
-            val scrollState = rememberScrollState()
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 30.dp, bottom = 130.dp)
-                    .verticalScroll(scrollState),
-                horizontalAlignment = Alignment.CenterHorizontally, // 수직 중앙 정렬
-                verticalArrangement = Arrangement.spacedBy(20.dp), // 수평 중앙 정렬
-
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .align(alignment = Alignment.Start),
-                    text = String.format(
-                        "%s (%s)",
-                        stringResource(id = R.string.register_profileImg),
-                        stringResource(id = R.string.option)
-                    ),
-                    fontSize = 20.sp,               // 텍스트 크기
-                    fontWeight = FontWeight.Bold
-                )
-
-                Row(modifier= Modifier.align(alignment = Alignment.Start)) {
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 30.dp)
-                            .size(150.dp)
-                            .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
-                            .clickable {
-
-                            }, // 이미지 선택 Intent 실행
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.add_photo),
-                            fontSize = 15.sp,
-                            color = Color.White
-                        )
-                    }
-                }
-
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .align(alignment = Alignment.Start),
-                    text = String.format(
-                        "%s (%s)",
-                        stringResource(id = R.string.nickname),
-                        stringResource(id = R.string.necessary)
-                    ),
-                    fontSize = 20.sp,               // 텍스트 크기
-                    fontWeight = FontWeight.Bold
-                )
-
-                TextField(
-                    value = nickname,
-                    onValueChange = {viewModel.updateNickname(it)},
-                    placeholder = { Text(text = stringResource(id = R.string.enter_your_nickname)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 30.dp),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Person, // 원하는 아이콘으로 변경
-                            contentDescription = "사용자 아이콘" // 접근성을 위한 설명
-                        )
-                    },
-                    colors = textFieldTransparentContainerColor()
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .align(alignment = Alignment.Start),
-                    text = String.format(
-                        "%s (%s)",
-                        stringResource(id = R.string.instagram_account),
-                        stringResource(id = R.string.option)
-                    ),
-                    fontSize = 20.sp,               // 텍스트 크기
-                    fontWeight = FontWeight.Bold
-                )
-
-
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 30.dp),
-                    value = instaId,
-                    onValueChange = {viewModel.updateInstaId(it)},
-                    placeholder = { Text(text = stringResource(id = R.string.enter_your_instaId)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
-                    },
-                    colors = textFieldTransparentContainerColor()
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .align(alignment = Alignment.Start),
-                    text = String.format(
-                        "%s (%s)",
-                        stringResource(id = R.string.choose_your_type),
-                        stringResource(id = R.string.necessary)
-                    ),
-                    fontSize = 20.sp,               // 텍스트 크기
-                    fontWeight = FontWeight.Bold
-                )
-
-                RadioButtonSet(
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .align(alignment = Alignment.Start),
-                    selectedOption = selectedOption,
-                    onChange = { selectedOption = it }
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .align(alignment = Alignment.Start),
-                    text = String.format(
-                        "%s (1개 이상 %s)",
-                        stringResource(id = R.string.register_picture),
-                        stringResource(id = R.string.necessary)
-                    ),
-                    fontSize = 20.sp,               // 텍스트 크기
-                    fontWeight = FontWeight.Bold
-                )
-
-                Row(modifier= Modifier.align(alignment = Alignment.Start)) {
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 30.dp)
-                            .size(150.dp)
-                            .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
-                            .clickable {}, // 이미지 선택 Intent 실행
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.joker),
-                            contentDescription = "Image",
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    color = Color.LightGray,
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .clip(RoundedCornerShape(12.dp))
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp)
-                            .size(150.dp)
-                            .background(color = Color.LightGray, shape = RoundedCornerShape(12.dp))
-                            .clickable {}, // 이미지 선택 Intent 실행
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.add_picture),
-                            fontSize = 15.sp,
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-
-            Button(
-                onClick = {
-                    viewModel.signUp(){
-                        navigateToLogin()
-                    }
-                },
-                modifier = Modifier
-                    .align(BottomCenter) // 버튼을 화면 아래에 배치
-                    .padding(bottom = 50.dp, start = 30.dp, end = 30.dp)
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = Color(0xFF0073FF),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(8.dp),
-                enabled = isValid
-            ) {
-                Text(text = stringResource(id = R.string.register))
-            }
-        }
-    }
-}
-
-@Composable
-fun RadioButtonSet(
-    modifier: Modifier,
-    selectedOption: UserType,
-    onChange: (UserType) -> Unit
-) {
-    val radioOptions = listOf(UserType.WEBTOON_ARTIST, UserType.ASSIST_ARTIST)
-    val radioStringResId = when (selectedOption) {
-        UserType.WEBTOON_ARTIST -> R.string.usertype_webtoon_artist
-        else -> R.string.usertype_assist_artist
-    }
-
-    Row(modifier = modifier) {
-        radioOptions.forEach { item ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = (selectedOption == item),
-                    onClick = { onChange(item) },
-                    colors = RadioButtonDefaults.colors(Color(0xFF0073FF))
-                )
-                Text(text = stringResource(id = radioStringResId))
-            }
-        }
-    }
-}
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewUserRegister1View(){
     UserRegister1View(
         returnTo = { },
         navigateToRegDetail = {} as (String, String) -> Unit
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewUserRegister2View(){
-    UserRegister2View(
-        returnTo = { },
-        navigateToLogin = {},
     )
 }

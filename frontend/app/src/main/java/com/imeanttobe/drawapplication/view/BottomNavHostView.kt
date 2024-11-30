@@ -69,7 +69,7 @@ fun BottomNavHostAppBar(
     onClick: (Int) -> Unit,
     isDevModeEnabled: Boolean
 ) {
-    BottomAppBar {
+    BottomAppBar() {
         BottomBarItem.items.subList(0, if (isDevModeEnabled) 4 else 3).forEach { item ->
             NavigationBarItem(
                 selected = item.index == index,

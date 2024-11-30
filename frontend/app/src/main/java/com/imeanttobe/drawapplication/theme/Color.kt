@@ -3,6 +3,7 @@ package com.imeanttobe.drawapplication.theme
 import androidx.compose.ui.graphics.Color
 
 val seed = Color(0xFF0073FF)
+val onSeed = Color(0xFFFFFFFF)
 
 val primaryLight = Color(0xFF465D91)
 val onPrimaryLight = Color(0xFFFFFFFF)
