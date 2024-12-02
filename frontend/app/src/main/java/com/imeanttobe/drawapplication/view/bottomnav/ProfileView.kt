@@ -159,17 +159,26 @@ fun ProfileCard(
     var temponesentence by remember { mutableStateOf("drawing is my life")}
 
     val profileImageUri = viewModel.profileImageUri.collectAsState()
+    val individualImageUri = viewModel.individualImageUri.collectAsState()
     val nickname = viewModel.userNickname.collectAsState()
 
 
     var showDialog by remember { mutableStateOf(false) }
 
 
-    val launcher = rememberLauncherForActivityResult(
+    val launcher1 = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             viewModel.addImageUri( result.data?.data)
+        }
+    }
+
+    val launcher2 = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.addprofileImageUri( result.data?.data)
         }
     }
     val uiState = viewModel.state.collectAsState()
@@ -190,7 +199,7 @@ fun ProfileCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = profileImageUri,
+                model = profileImageUri.value,
 //                model = Uri.parse("android.resource://com.example.myapp/drawable/basic_profile"),
                 contentDescription = "Profile Image",
                 contentScale = ContentScale.Crop,
@@ -227,7 +236,7 @@ fun ProfileCard(
                             Intent.ACTION_PICK,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                         )
-                        launcher.launch(intent)
+                        launcher1.launch(intent)
                     },
                     modifier = Modifier
                         .weight(0.3f)
@@ -278,7 +287,52 @@ fun ProfileCard(
                         Column() {
 
                             Row(verticalAlignment = Alignment.CenterVertically
-                                ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+                                ,horizontalArrangement = Arrangement.spacedBy(50.dp)) {
+
+
+                                Text(
+                                    modifier = Modifier,
+                                    text = "프로필",
+                                    fontSize = 15.sp,               // 텍스트 크기
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Visible
+                                )
+
+
+
+                                Box(
+                                    modifier = Modifier
+
+                                        .size(100.dp)
+                                        .background(
+                                            Color.LightGray,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .clickable {val intent = Intent(
+                                            Intent.ACTION_PICK,
+                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                                        )
+                                            launcher2.launch(intent)}, // 이미지 선택 Intent 실행
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AsyncImage(
+
+                                        model = profileImageUri.value
+                                        ,contentDescription = "Profile Image",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(90.dp) // 이미지 크기 64dp로 설정
+                                            .clip(CircleShape)
+                                    )
+                                }
+                            }
+                                Spacer(modifier.height(30.dp))
+
+
+                                Row(verticalAlignment = Alignment.CenterVertically
+                                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+
 
                                 Text(
                                     modifier = Modifier.weight(3f),
@@ -347,6 +401,8 @@ fun ProfileCard(
                                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
                                 )
                             }
+
+
                         }
 
                         // 정보 입력 폼 추가

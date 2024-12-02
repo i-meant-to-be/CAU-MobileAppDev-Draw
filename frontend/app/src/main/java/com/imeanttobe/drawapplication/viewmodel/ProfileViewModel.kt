@@ -15,6 +15,8 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
     
     //ProfileCard
+    private val _individualImageUri = MutableStateFlow<Uri?>(null)
+    val individualImageUri = _individualImageUri.asStateFlow()
 
     private val _profileImageUri = MutableStateFlow<Uri?>(null)
     val profileImageUri = _profileImageUri.asStateFlow()
@@ -42,6 +44,10 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
     fun addImageUri(uri: Uri?) {
         _imageUris.add(uri)
+    }
+
+    fun addprofileImageUri(uri: Uri?) {
+        _profileImageUri.value = uri
     }
 
 
