@@ -5,6 +5,7 @@
     <string name="usertype_admin">관리자</string>
     <string name="usertype_webtoon_artist">웹툰 작가</string>
     <string name="usertype_assist_artist">어시스트 작가</string>
+    <string name="usertype_undefined">Undefined</string>
 
     <string name="search_by_name">사용자 검색</string>
     <string name="search_by_post">게시물 검색</string>
@@ -13,8 +14,9 @@
 
     <string name="enter_your_id">ID를 입력하세요.</string>
     <string name="enter_your_pw">비밀번호를 입력하세요.</string>
-    <string name="enter_your_email">이메일을 입력하세요.</string>
+    <string name="enter_your_email">유효한 이메일을 입력하세요.</string>
     <string name="confirm_your_password">비밀번호를 다시 입력하세요.</string>
+    <string name="enter_your_phone_number">유효한 전화번호를 입력하세요.</string>
     <string name="forgot_your_id">ID를 잊으셨나요?</string>
     <string name="forgot_your_pw">비밀번호를 잊으셨나요?</string>
     <string name="confirm">확인</string>
@@ -24,25 +26,31 @@
     <string name="add_photo">사진 추가</string>
     <string name="register_picture">그림 등록</string>
     <string name="logout">로그아웃</string>
-    <string name="register_profileImg">프로필 사진 등록</string>
+    <string name="register_profile_img">프로필 사진 등록</string>
     <string name="direct_message">Contact</string>
+    <string name="pw_length">비밀번호는 최소 6자리 이상이어야 합니다.</string>
+    <string name="repeat_your_pw">비밀번호를 다시 입력해주세요.</string>
+    <string name="not_valid_input">입력한 내용이 유효하지 않아요.</string>
+    <string name="failed_to_sign_in">로그인에 실패했어요.</string>
 
     <string name="message_copied">메시지가 복사되었습니다.</string>
     <string name="enter_your_nickname">별명을 입력하세요.</string>
     <string name="enter_your_instaId">인스타그램 아이디를 입력하세요.</string>
     <string name="modify_information">정보 수정</string>
 
-    <string name="example_phone_number">010-0000-0000</string>
+    <string name="example_phone_number">010–0000–0000</string>
     <string name="example_verification_code">1234</string>
+    <string name="example_email">example@example.com</string>
+    <string name="example_pw">******</string>
 
     <string name="necessary">필수</string>
     <string name="option">선택</string>
-
     <string name="instagram_account">인스타그램 계정</string>
     <string name="nickname">별명</string>
     <string name="verification_code">인증 번호</string>
     <string name="email">이메일</string>
     <string name="pw">비밀번호</string>
+    <string name="next">다음</string>
     <string name="phone_number">전화번호</string>
     <string name="pw_confirm">비밀번호 확인</string>
     <string name="register">회원가입</string>

@@ -1,4 +1,4 @@
-package com.imeanttobe.drawapplication.view.welcome
+package com.imeanttobe.drawapplication.view.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,28 +56,16 @@ import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.theme.onSeed
 import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.theme.textFieldTransparentContainerColor
-import com.imeanttobe.drawapplication.viewmodel.UserRegisterViewModel
+import com.imeanttobe.drawapplication.viewmodel.RegisterUserProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserRegister2View(
+fun RegisterUserProfileView(
     modifier: Modifier = Modifier,
-    viewModel: UserRegisterViewModel = hiltViewModel(),
+    viewModel: RegisterUserProfileViewModel = hiltViewModel(),
     returnTo: ()-> Unit,
     navigateToLogin: () -> Unit,
 ) {
-    // var selectedOption by rememberSaveable { mutableStateOf("그림 작가") }
-    var selectedOption by rememberSaveable { mutableStateOf(UserType.WEBTOON_ARTIST) }
-    val isValid by viewModel.isValid2.collectAsState()
-
-    val nickname by viewModel.nickname.collectAsState()
-    val instaId by viewModel.instaId.collectAsState()
-
-    //그림 바뀔(추가/삭제)때도 가능하도록 해야함
-    LaunchedEffect(key1 = nickname) {
-        viewModel.isValidateInput2() /* todo*/
-    }
-
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -114,7 +103,7 @@ fun UserRegister2View(
                         .align(alignment = Alignment.Start),
                     text = String.format(
                         "%s (%s)",
-                        stringResource(id = R.string.register_profileImg),
+                        stringResource(id = R.string.register_profile_img),
                         stringResource(id = R.string.option)
                     ),
                     fontSize = 20.sp,               // 텍스트 크기
@@ -154,8 +143,8 @@ fun UserRegister2View(
                 )
 
                 TextField(
-                    value = nickname,
-                    onValueChange = {viewModel.updateNickname(it)},
+                    value = viewModel.nickname.value,
+                    onValueChange = { newValue -> viewModel.setNickname(newValue) },
                     placeholder = { Text(text = stringResource(id = R.string.enter_your_nickname)) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -187,8 +176,8 @@ fun UserRegister2View(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
-                    value = instaId,
-                    onValueChange = {viewModel.updateInstaId(it)},
+                    value = viewModel.instagramId.value,
+                    onValueChange = { newValue -> viewModel.setInstagramId(newValue) },
                     placeholder = { Text(text = stringResource(id = R.string.enter_your_instaId)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Lock, contentDescription = "비밀번호 아이콘")
@@ -213,8 +202,8 @@ fun UserRegister2View(
                     modifier = Modifier
                         .padding(horizontal = 30.dp)
                         .align(alignment = Alignment.Start),
-                    selectedOption = selectedOption,
-                    onChange = { selectedOption = it }
+                    selectedOption = viewModel.userType.value,
+                    onChange = { newValue -> viewModel.setUserType(newValue) }
                 )
 
                 Text(
@@ -230,7 +219,7 @@ fun UserRegister2View(
                     fontWeight = FontWeight.Bold
                 )
 
-                Row(modifier= Modifier.align(alignment = Alignment.Start)) {
+                Row(modifier = Modifier.align(alignment = Alignment.Start)) {
                     Box(
                         modifier = Modifier
                             .padding(start = 30.dp)
@@ -272,9 +261,7 @@ fun UserRegister2View(
 
             Button(
                 onClick = {
-                    viewModel.signUp(){
-                        navigateToLogin()
-                    }
+
                 },
                 modifier = Modifier
                     .align(BottomCenter) // 버튼을 화면 아래에 배치
@@ -286,7 +273,7 @@ fun UserRegister2View(
                     contentColor = onSeed
                 ),
                 shape = RoundedCornerShape(100.dp),
-                enabled = isValid
+                enabled = viewModel.isAllValid.value
             ) {
                 Text(text = stringResource(id = R.string.register))
             }
@@ -300,10 +287,11 @@ fun RadioButtonSet(
     selectedOption: UserType,
     onChange: (UserType) -> Unit
 ) {
+    val context = LocalContext.current
     val radioOptions = listOf(UserType.WEBTOON_ARTIST, UserType.ASSIST_ARTIST)
-    val radioStringResId = when (selectedOption) {
-        UserType.WEBTOON_ARTIST -> R.string.usertype_webtoon_artist
-        else -> R.string.usertype_assist_artist
+    val radioString = when (selectedOption) {
+        UserType.WEBTOON_ARTIST -> context.getString(R.string.usertype_webtoon_artist)
+        else -> context.getString(R.string.usertype_assist_artist)
     }
 
     Row(modifier = modifier) {
@@ -314,7 +302,7 @@ fun RadioButtonSet(
                     onClick = { onChange(item) },
                     colors = RadioButtonDefaults.colors(Color(0xFF0073FF))
                 )
-                Text(text = stringResource(id = radioStringResId))
+                Text(text = radioString)
             }
         }
     }
@@ -323,7 +311,7 @@ fun RadioButtonSet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewUserRegister2View(){
-    UserRegister2View(
+    RegisterUserProfileView(
         returnTo = { },
         navigateToLogin = {},
     )

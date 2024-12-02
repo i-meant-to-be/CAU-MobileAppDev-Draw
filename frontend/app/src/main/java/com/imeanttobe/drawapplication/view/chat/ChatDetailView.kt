@@ -43,14 +43,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.model.Message
 import com.imeanttobe.drawapplication.viewmodel.ChatDetailViewModel
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -59,10 +57,6 @@ fun ChatDetailView(
     viewModel: ChatDetailViewModel = hiltViewModel(),
     navigateUp: () -> Unit
 ) {
-    val drawerPadding = animateDpAsState(
-        targetValue = if (viewModel.drawerState.value) (LocalConfiguration.current.screenWidthDp).dp else 0.dp,
-        label = "DrawerPadding"
-    )
     val messages = viewModel.messages.collectAsState()
 
     Scaffold(

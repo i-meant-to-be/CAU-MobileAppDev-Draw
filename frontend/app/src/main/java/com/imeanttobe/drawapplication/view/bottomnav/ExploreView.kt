@@ -437,6 +437,7 @@ fun ExploreViewUserInfoItem(
                     UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
                     UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
                     UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
+                    UserType.UNDEFINED -> stringResource(id = R.string.usertype_undefined)
                 },
                 style = MaterialTheme.typography.bodySmall.copy(color = contentColor)
             )

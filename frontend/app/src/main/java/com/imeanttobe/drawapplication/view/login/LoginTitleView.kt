@@ -1,4 +1,4 @@
-package com.imeanttobe.drawapplication.view.welcome
+package com.imeanttobe.drawapplication.view.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,16 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.theme.onSeed
 import com.imeanttobe.drawapplication.theme.seed
-import com.imeanttobe.drawapplication.viewmodel.LoginViewModel
 
 @Composable //로그인하기 버튼 있는 페이지
 fun LoginTitleView(
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = hiltViewModel(),
     navigateToDetail: () -> Unit
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
