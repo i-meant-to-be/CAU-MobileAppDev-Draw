@@ -4,37 +4,43 @@ import android.util.Patterns
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.imeanttobe.drawapplication.data.etc.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterUserAccountViewModel @Inject constructor() : ViewModel() {
     // Variables
-    private val _email = mutableStateOf("")
+    private val _registerState = MutableStateFlow<Resource>(Resource.Nothing())
+    val registerState = _registerState.asStateFlow()
+
+    private val _email = mutableStateOf("aaa@aaa.com")
     val email: State<String> = _email
 
-    private var _password = mutableStateOf("")
+    private var _password = mutableStateOf("111111")
     val password: State<String> = _password
 
-    private val _passwordConfirm = mutableStateOf("")
+    private val _passwordConfirm = mutableStateOf("111111")
     val passwordConfirm: State<String> = _passwordConfirm
 
-    private val _phoneNumber = mutableStateOf("")
+    private val _phoneNumber = mutableStateOf("010-1111-1111")
     val phoneNumber: State<String> = _phoneNumber
 
-    private val _isEmailValid = mutableStateOf(false)
+    private val _isEmailValid = mutableStateOf(true)
     val isEmailValid: State<Boolean> = _isEmailValid
 
-    private val _isPasswordValid = mutableStateOf(false)
+    private val _isPasswordValid = mutableStateOf(true)
     val isPasswordValid: State<Boolean> = _isPasswordValid
 
-    private val _isPasswordConfirmed = mutableStateOf(false)
+    private val _isPasswordConfirmed = mutableStateOf(true)
     val isPasswordConfirmed: State<Boolean> = _isPasswordConfirmed
 
-    private val _isPhoneNumberValid = mutableStateOf(false)
+    private val _isPhoneNumberValid = mutableStateOf(true)
     val isPhoneNumberValid: State<Boolean> = _isPhoneNumberValid
 
-    private val _isAllValid = mutableStateOf(false)
+    private val _isAllValid = mutableStateOf(true)
     val isAllValid: State<Boolean> = _isAllValid
 
     // Methods
@@ -61,7 +67,7 @@ class RegisterUserAccountViewModel @Inject constructor() : ViewModel() {
     }
 
     fun updatePhoneNumber(newValue: String) {
-        _passwordConfirm.value = newValue
+        _phoneNumber.value = newValue
         _isPhoneNumberValid.value = Patterns.PHONE.matcher(newValue).matches()
         updateAllValid()
     }

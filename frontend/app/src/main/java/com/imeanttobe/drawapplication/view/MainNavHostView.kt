@@ -9,13 +9,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
+import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
@@ -31,7 +32,7 @@ fun MainNavHostView(
     val navController = rememberNavController()
     val startRoute =
         if (FirebaseAuth.getInstance().currentUser != null) NavItem.BottomNavHostViewItem.route
-        else NavItem.LoginViewItem.route
+        else NavItem.LoginTitleViewItem.route
 
     Scaffold(
         modifier = modifier,
@@ -48,7 +49,7 @@ fun MainNavHostView(
                     navigateTo = { route -> navController.navigate(route) },
                     navigateBack = { navController.popBackStack() },
                     navigateToLogin = {
-                        navController.navigate(NavItem.LoginViewItem.route) {
+                        navController.navigate(NavItem.LoginTitleViewItem.route) {
                             popUpTo(0) { inclusive = true }
                         }
                     }
@@ -61,39 +62,45 @@ fun MainNavHostView(
                 )
             }
 
-            composableAnimated(route = NavItem.LoginViewItem.route) {
+            composableAnimated(route = NavItem.LoginTitleViewItem.route) {
                 LoginTitleView(
-                    navigateToDetail = { navController.navigate(NavItem.LogindetailViewItem.route) }
+                    navigateToDetail = { navController.navigate(NavItem.LoginDetailViewItem.route) }
                 )
             }
 
-            composableAnimated(route = NavItem.UserRegister1ViewItem.route) {
+            composableAnimated(route = NavItem.RegisterUserAccountViewItem.route) {
                 RegisterUserAccountView(
                     returnTo = { navController.popBackStack() },
-                    navigateToRegDetail = {email, password ->
-                        // TODO
-                        // sharedViewModel.updateEmail(email)
-                        // sharedViewModel.updatePassword(password)
-                        navController.navigate(NavItem.UserRegister2ViewItem.route)
+                    navigateToRegisterProfile = { email, pw ->
+                        navController.navigate("/${NavItem.RegisterUserProfileViewItem.route}/email=$email?pw=$pw")
                     }
                 )
             }
 
-            composableAnimated(route = NavItem.UserRegister2ViewItem.route) {
+            composableAnimated(
+                route = "/${NavItem.RegisterUserProfileViewItem.route}/email={email}?pw={pw}",
+                arguments = listOf(
+                    navArgument("email") { type = NavType.StringType },
+                    navArgument("pw") { type = NavType.StringType }
+                )
+            ) { navBackStackEntry ->
+                val email = navBackStackEntry.arguments?.getString("email") ?: ""
+                val pw = navBackStackEntry.arguments?.getString("pw") ?: ""
+
                 RegisterUserProfileView(
-                    returnTo = { navController.popBackStack() },
-                    navigateToLogin = {
-                        navController.navigate(NavItem.LogindetailViewItem.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
+                    naviagateBack = { navController.popBackStack() },
+                    navigateToHome = {
+                        navController.navigate(NavItem.BottomNavHostViewItem.route) { popUpTo(0) { inclusive = true } }
+                    },
+                    email = email,
+                    password = pw
                 )
             }
 
-            composableAnimated(route = NavItem.LogindetailViewItem.route) {
+            composableAnimated(route = NavItem.LoginDetailViewItem.route) {
                 LoginDetailView(
                     returnTo = { navController.popBackStack() },
-                    navigateToReg = { navController.navigate(NavItem.UserRegister1ViewItem.route) },
+                    navigateToReg = { navController.navigate(NavItem.RegisterUserAccountViewItem.route) },
                     navigateHome = {
                         navController.navigate(NavItem.BottomNavHostViewItem.route){
                             popUpTo(0){inclusive = true}
@@ -107,10 +114,12 @@ fun MainNavHostView(
 
 private fun NavGraphBuilder.composableAnimated(
     route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
     content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
     composable(
         route = route,
+        arguments = arguments,
         enterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Left,

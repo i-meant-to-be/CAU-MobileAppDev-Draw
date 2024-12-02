@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -160,27 +162,31 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                modifier = Modifier
-                    .height(50.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 30.dp),
-                colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = seed,
-                    contentColor = onSeed
-                ),
-                shape = RoundedCornerShape(100.dp),
-                onClick = {
-                    viewModel.login()
-                },
-                enabled = viewModel.isAllValid.value
-            ) {
-                Text(text = stringResource(id = R.string.login))
+            if (signInState.value is Resource.Loading) {
+                CircularProgressIndicator()
+            } else {
+                Button(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp),
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = seed,
+                        contentColor = onSeed
+                    ),
+                    shape = RoundedCornerShape(100.dp),
+                    onClick = {
+                        viewModel.login()
+                    },
+                    enabled = viewModel.isAllValid.value
+                ) {
+                    Text(text = stringResource(id = R.string.login))
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
+            //HorizontalDivider(modifier = Modifier.width(500.dp).padding(horizontal = 30.dp))
 
             Row(
                 modifier = Modifier

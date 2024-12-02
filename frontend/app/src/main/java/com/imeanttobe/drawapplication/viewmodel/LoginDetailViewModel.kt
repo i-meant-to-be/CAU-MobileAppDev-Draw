@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginDetailViewModel @Inject constructor() : ViewModel() {
     // Values
-    private val _loginState = MutableStateFlow<Resource>(Resource.Loading())
+    private val _loginState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _email = mutableStateOf("")
     private val _pw = mutableStateOf("")
     private val _isAllValid = mutableStateOf(false)
@@ -47,6 +47,8 @@ class LoginDetailViewModel @Inject constructor() : ViewModel() {
     }
 
     fun login() {
+        _loginState.value = Resource.Loading()
+
         FirebaseAuth
             .getInstance()
             .signInWithEmailAndPassword(_email.value, _pw.value)

@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId = "com.imeanttobe.drawapplication"
-        minSdk = 26
+        minSdk = 34
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -81,6 +81,8 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.coil.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity)
+    implementation(libs.accompanist.permissions)
 
     // Default
     implementation(libs.androidx.core.ktx)

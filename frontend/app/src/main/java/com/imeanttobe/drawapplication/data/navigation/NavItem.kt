@@ -8,9 +8,8 @@ sealed class NavItem(
         val items = listOf(
             BottomNavHostViewItem,
             ChatDetailItem,
-            LoginViewItem,
-            UserRegister1ViewItem,
-            SplashViewItem
+            LoginTitleViewItem,
+            RegisterUserAccountViewItem
         )
     }
 
@@ -24,28 +23,23 @@ sealed class NavItem(
         label = "Chat"
     )
 
-    data object LoginViewItem: NavItem(
+    data object LoginTitleViewItem: NavItem(
         route = "/login",
         label = "Login"
     )
 
-    data object UserRegister1ViewItem: NavItem(
-        route = "/register/registerFirst",
-        label = "Register"
+    data object RegisterUserAccountViewItem: NavItem(
+        route = "/register/account",
+        label = "Register account"
     )
 
-    data object SplashViewItem: NavItem(
-        route = "/",
-        label = "Splash"
+    data object LoginDetailViewItem: NavItem(
+        route = "/login_detail",
+        label = "Login detail"
     )
 
-    data object LogindetailViewItem: NavItem(
-        route = "/logindetail",
-        label = "logindetail"
-    )
-
-    data object UserRegister2ViewItem: NavItem(
-        route = "/register/registerSecond",
-        label = "Register detail"
+    data object RegisterUserProfileViewItem: NavItem(
+        route = "/register/profile",
+        label = "Register profile"
     )
 }
