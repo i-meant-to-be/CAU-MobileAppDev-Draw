@@ -28,12 +28,8 @@ class ChatViewModel @Inject constructor() : ViewModel() {
                 listOf(
                     ChatSession(
                         id = 0,
-                        userName = "나",
-                        opponentName = "상대",
-                        opponentId = 0,
-                        opponentType = UserType.WEBTOON_ARTIST,
-                        lastMessage = "내일 10시에 뵈어요.",
-                        opponentImageUrl = ""
+                        userIdList = listOf("2", "1"),
+                        lastMessage = "last message",
                     )
                 ) * 20
             )

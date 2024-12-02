@@ -37,7 +37,8 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
                 listOf(
                     Post(
                         userId = 0,
-                        description = "This is a description."
+                        description = "This is a description.",
+                        imageUrl = ""
                     ),
                 ) * 20
             )

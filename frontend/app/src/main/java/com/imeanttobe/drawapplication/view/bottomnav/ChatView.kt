@@ -81,7 +81,7 @@ fun ChatListItem(
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ChatListItemProfileImage(imageUrl = chatSession.opponentImageUrl)
+        ChatListItemProfileImage(imageUrl = "")
         Spacer(modifier = Modifier.padding(end = 10.dp))
         ChatListItemUserDataText(chatList = chatSession)
     }
@@ -119,15 +119,20 @@ fun ChatListItemUserDataText(
             horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Text(
-                text = chatList.opponentName,
+                text = "",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             Text(
+                /*
+                TODO:
                 text = when(chatList.opponentType) {
                     UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
                     UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
                     UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
                 },
+
+                 */
+                text = stringResource(id = R.string.usertype_admin),
                 style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
             )
         }

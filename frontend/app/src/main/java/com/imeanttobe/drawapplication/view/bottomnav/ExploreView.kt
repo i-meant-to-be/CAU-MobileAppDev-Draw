@@ -148,7 +148,13 @@ fun ExploreViewGrid(
             ExploreViewGridItem(
                 post = post,
                 // TODO: how can we get user who created the post?
-                user = User(name = "Username", email = "", type = UserType.ASSIST_ARTIST, userImageUrl = "", password = "", instagramId = ""),
+                user = User(
+                    name = "Username", email = "", type = UserType.ASSIST_ARTIST,
+                    password = "",
+                    imageUrl = "",
+                    instagramId = "",
+                    phoneNumber = ""
+                ),
                 onImageClick = {
                     dialogDescription = post.description
                     setDialogState(true)
@@ -382,7 +388,7 @@ fun ExploreViewGridItem(
             ExploreViewUserInfoItem(
                 userName = user.name,
                 userType = user.type,
-                userImageUrl = user.userImageUrl,
+                userImageUrl = user.imageUrl,
                 contentColor = contentColor,
                 onClick = {}
             )

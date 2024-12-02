@@ -48,7 +48,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.imeanttobe.drawapplication.data.model.ChatItem
+import com.imeanttobe.drawapplication.data.model.Message
 import com.imeanttobe.drawapplication.viewmodel.ChatDetailViewModel
 import java.time.LocalDateTime
 
@@ -98,7 +98,7 @@ fun ChatDetailView(
 @Composable
 fun ChatDetailViewBody(
     modifier: Modifier = Modifier,
-    chatItems: List<ChatItem>
+    chatItems: List<Message>
 ) {
     val listState = rememberLazyListState()
 
@@ -121,7 +121,7 @@ fun ChatDetailViewBody(
                         top = if (index == 0) 10.dp else 0.dp,
                         bottom = if (index == chatItems.lastIndex) 10.dp else 0.dp
                     ),
-                    message = item.message,
+                    message = item.body,
                     isMine = index % 2 == 0 // TODO: have to set the logic that determines whether the message is mine or not
                 )
             }
