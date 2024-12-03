@@ -58,7 +58,7 @@ fun RegisterUserAccountView(
     modifier: Modifier = Modifier,
     viewModel: RegisterUserAccountViewModel = hiltViewModel(),
     returnTo : () -> Unit,
-    navigateToRegisterProfile : (String, String) -> Unit
+    navigateToRegisterProfile : (String, String, String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
@@ -247,7 +247,13 @@ fun RegisterUserAccountView(
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 30.dp),
-                onClick = { navigateToRegisterProfile(viewModel.email.value, viewModel.password.value) },
+                onClick = {
+                    navigateToRegisterProfile(
+                        viewModel.email.value,
+                        viewModel.password.value,
+                        viewModel.phoneNumber.value
+                    )
+                },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = seed,
                     contentColor = onSeed

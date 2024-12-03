@@ -139,6 +139,8 @@ fun ProfileCard(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.primaryContainer
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+
+
     val currentUser = FirebaseAuth.getInstance().currentUser
     var Nickname by remember { mutableStateOf("nickname")}
     var Role by remember { mutableStateOf("assistant")}
@@ -246,6 +248,7 @@ fun ProfileCard(
         Button(
             onClick = {
                 viewModel.signOut()
+                navigateToLogin()
             },
             modifier = Modifier
                 .padding(10.dp)
@@ -265,19 +268,18 @@ fun ProfileCard(
 
 
 
-            if (showDialog) {
-                UpdateUserDataDialog(
-                    onDismiss = {
-                        viewModel.setDialogState(false)
-                    },
-                    onConfirm = {
-                        viewModel.updateUserData()
-                        viewModel.setDialogState(false)
-                    }
-                )
-            }
-
+        if (showDialog) {
+            UpdateUserDataDialog(
+                onDismiss = {
+                    viewModel.setDialogState(false)
+                },
+                onConfirm = {
+                    viewModel.updateUserData()
+                    viewModel.setDialogState(false)
+                }
+            )
         }
+    }
 }
 
 @Composable
@@ -285,6 +287,10 @@ fun UpdateUserDataDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
+
+    // Dialog()
+    // AlertDialog()
+
     Dialog(
         onDismissRequest = {
             onDismiss()

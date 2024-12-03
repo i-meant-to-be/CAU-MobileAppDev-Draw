@@ -172,7 +172,7 @@ fun ExploreViewGrid(
                     userProfile = UserProfile(
                         instagramId = "",
                         type = UserType.WEBTOON_ARTIST,
-                        phoneNumber = ""
+                        introduce = ""
                     ),
                     onImageClick = {
                         dialogDescription = post.description

@@ -79,8 +79,8 @@ fun MainNavHostView(
             composableAnimated(route = NavItem.RegisterUserAccountViewItem.route) {
                 RegisterUserAccountView(
                     returnTo = { navController.popBackStack() },
-                    navigateToRegisterProfile = { email, pw ->
-                        navController.navigate("/${NavItem.RegisterUserProfileViewItem.route}/email=$email?pw=$pw")
+                    navigateToRegisterProfile = { email, pw, phoneNumber ->
+                        navController.navigate("${NavItem.RegisterUserProfileViewItem.route}/email=$email?pw=$pw?phone_number=$phoneNumber")
                     }
                 )
             }

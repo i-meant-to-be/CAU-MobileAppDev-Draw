@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -207,6 +208,48 @@ fun RegisterUserProfileView(
                     Icon(
                         imageVector = Icons.Filled.Person, // 원하는 아이콘으로 변경
                         contentDescription = "사용자 아이콘" // 접근성을 위한 설명
+                    )
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                ),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Introduce area
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 30.dp)
+                    .align(alignment = Alignment.Start),
+                text = String.format(
+                    "%s (%s)",
+                    stringResource(id = R.string.introduce),
+                    stringResource(id = R.string.option)
+                ),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 30.dp)
+                    .align(alignment = Alignment.Start),
+                text = stringResource(id = R.string.enter_your_introduce),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp),
+                value = viewModel.introduce.value,
+                onValueChange = { newValue -> viewModel.setIntroduce(newValue) },
+                placeholder = { Text(text = stringResource(id = R.string.example_introduce)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.FormatQuote, // 원하는 아이콘으로 변경
+                        contentDescription = "한 줄 소개 아이콘" // 접근성을 위한 설명
                     )
                 },
                 keyboardOptions = KeyboardOptions(

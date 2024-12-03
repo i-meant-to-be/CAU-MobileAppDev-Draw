@@ -21,6 +21,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
     private val _registerState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _nickname = mutableStateOf("")
     private val _instagramId = mutableStateOf("")
+    private val _introduce = mutableStateOf("")
     private val _userType = mutableStateOf(UserType.UNDEFINED)
     private val _profilePhotoUri = mutableStateOf(Uri.EMPTY)
     private val _pictureUri = mutableStateOf(Uri.EMPTY)
@@ -30,6 +31,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
     val registerState = _registerState.asStateFlow()
     val nickname: State<String> = _nickname
     val instagramId: State<String> = _instagramId
+    val introduce: State<String> = _introduce
     val userType: State<UserType> = _userType
     val profilePhotoUri: State<Uri> = _profilePhotoUri
     val pictureUri: State<Uri> = _pictureUri
@@ -47,6 +49,10 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
 
     fun setInstagramId(newValue: String) {
         _instagramId.value = newValue
+    }
+
+    fun setIntroduce(newValue: String) {
+        _introduce.value = newValue
     }
 
     fun setUserType(newValue: UserType) {
@@ -83,16 +89,17 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
                             .build()
                     ).addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            val child = FirebaseDatabase.getInstance()
-                                .getReference("user_data")
-                                .child(user.uid)
                             val userProfile = UserProfile(
                                 instagramId = _instagramId.value,
                                 type = _userType.value,
                                 phoneNumber = phoneNumber,
+                                introduce = _introduce.value,
                             )
                             userProfile.pictureIds.add(_pictureUri.value.toString())
-                            child.setValue(userProfile)
+                            FirebaseDatabase.getInstance()
+                                .getReference("user_data")
+                                .child(user.uid)
+                                .setValue(userProfile)
                         }
                         _registerState.value = Resource.Success()
                     }
