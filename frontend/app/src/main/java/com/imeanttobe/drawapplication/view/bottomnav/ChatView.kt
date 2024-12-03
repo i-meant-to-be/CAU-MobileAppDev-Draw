@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -36,7 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
-import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.ChatSession
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
@@ -47,7 +45,7 @@ fun ChatView(
     viewModel: ChatViewModel = hiltViewModel(),
     navigateTo: (String) -> Unit
 ) {
-    val chatLists = viewModel.chatLists.collectAsState().value
+    val chatLists = viewModel.sessions.collectAsState().value
 
     // This composable is placed on Surface,
     // because this can't be displayed alone but need to be displayed upon Scaffold
@@ -66,7 +64,7 @@ fun ChatView(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(id = R.string.start_chat_with_others),
+                    text = stringResource(id = R.string.chat_is_empty),
                     style = MaterialTheme.typography.titleMedium
                 )
             }

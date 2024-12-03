@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -61,11 +62,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
-import com.imeanttobe.drawapplication.data.model.User
+import com.imeanttobe.drawapplication.data.model.UserProfile
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
 
 @Composable
@@ -137,39 +140,56 @@ fun ExploreViewGrid(
 ) {
     var dialogDescription by rememberSaveable { mutableStateOf("") }
 
-    LazyVerticalGrid(
-        modifier = modifier,
-        columns = GridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = PaddingValues(vertical = 10.dp)
-    ) {
-        items(posts) { post ->
-            ExploreViewGridItem(
-                post = post,
-                // TODO: how can we get user who created the post?
-                user = User(
-                    name = "Username", email = "", type = UserType.ASSIST_ARTIST,
-                    password = "",
-                    imageUrl = "",
-                    instagramId = "",
-                    phoneNumber = ""
-                ),
-                onImageClick = {
-                    dialogDescription = post.description
-                    setDialogState(true)
-                }
+    if (posts.isEmpty()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Image,
+                contentDescription = null,
+                modifier = Modifier.size(100.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(id = R.string.post_is_empty),
+                style = MaterialTheme.typography.titleMedium
             )
         }
-    }
+    } else {
+        LazyVerticalGrid(
+            modifier = modifier,
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(vertical = 10.dp)
+        ) {
+            items(posts) { post ->
+                ExploreViewGridItem(
+                    post = post,
+                    user = FirebaseAuth.getInstance().currentUser!!,
+                    userProfile = UserProfile(
+                        instagramId = "",
+                        type = UserType.WEBTOON_ARTIST,
+                        phoneNumber = ""
+                    ),
+                    onImageClick = {
+                        dialogDescription = post.description
+                        setDialogState(true)
+                    }
+                )
+            }
+        }
 
-    if (isDialogOpen) {
-        ExploreViewImageDialog(
-            setDialogState = { setDialogState(false) },
-            description = dialogDescription,
-            // TODO: how can we get image included in post?
-            image = painterResource(id = R.drawable.paintimage)
-        )
+        if (isDialogOpen) {
+            ExploreViewImageDialog(
+                setDialogState = { setDialogState(false) },
+                description = dialogDescription,
+                // TODO: how can we get image included in post?
+                image = painterResource(id = R.drawable.paintimage)
+            )
+        }
     }
 }
 
@@ -369,7 +389,8 @@ fun ExploreViewSearchBoxTextField(
 @Composable
 fun ExploreViewGridItem(
     post: Post,
-    user: User,
+    user: FirebaseUser,
+    userProfile: UserProfile,
     onImageClick: () -> Unit
 ) {
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -386,9 +407,9 @@ fun ExploreViewGridItem(
             modifier = Modifier.fillMaxWidth()
         ) {
             ExploreViewUserInfoItem(
-                userName = user.name,
-                userType = user.type,
-                userImageUrl = user.imageUrl,
+                userName = user.displayName ?: "",
+                userType = userProfile.type,
+                userImageUrl = user.photoUrl.toString(),
                 contentColor = contentColor,
                 onClick = {}
             )

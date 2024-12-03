@@ -3,7 +3,6 @@ package com.imeanttobe.drawapplication.view.register
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -58,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
@@ -66,15 +64,16 @@ import com.imeanttobe.drawapplication.theme.onSeed
 import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.viewmodel.RegisterUserProfileViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterUserProfileView(
     modifier: Modifier = Modifier,
     viewModel: RegisterUserProfileViewModel = hiltViewModel(),
-    naviagateBack: () -> Unit,
+    navigateBack: () -> Unit,
     navigateToHome: () -> Unit,
     email: String,
-    password: String
+    password: String,
+    phoneNumber: String
 ) {
     val registerState = viewModel.registerState.collectAsState()
     val scrollState = rememberScrollState()
@@ -112,7 +111,7 @@ fun RegisterUserProfileView(
             CenterAlignedTopAppBar(
                 title = { Text(text = stringResource(id = R.string.register_profile)) },
                 navigationIcon = {
-                    IconButton(onClick = naviagateBack) {
+                    IconButton(onClick = navigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "back"
@@ -345,7 +344,7 @@ fun RegisterUserProfileView(
             } else {
                 Button(
                     onClick = {
-                        viewModel.signUp(email, password)
+                        viewModel.signUp(email, password, phoneNumber)
                     },
                     modifier = Modifier
                         .padding(horizontal = 30.dp)
@@ -397,9 +396,10 @@ fun RadioButtonSet(
 @Composable
 fun PreviewUserRegister2View(){
     RegisterUserProfileView(
-        naviagateBack = {},
+        navigateBack = {},
         navigateToHome = {},
         email = "",
-        password = ""
+        password = "",
+        phoneNumber = ""
     )
 }

@@ -9,6 +9,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
+import com.imeanttobe.drawapplication.data.model.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,6 +66,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
     fun signUp(
         email: String,
         pw: String,
+        phoneNumber: String
     ) {
         _registerState.value = Resource.Loading()
 
@@ -84,9 +86,13 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
                             val child = FirebaseDatabase.getInstance()
                                 .getReference("user_data")
                                 .child(user.uid)
-                            child.child("instagram_id").setValue(_instagramId.value)
-                            child.child("type").setValue(_userType.value)
-                            child.child("picture_uri").setValue(_pictureUri.value.toString())
+                            val userProfile = UserProfile(
+                                instagramId = _instagramId.value,
+                                type = _userType.value,
+                                phoneNumber = phoneNumber,
+                            )
+                            userProfile.pictureIds.add(_pictureUri.value.toString())
+                            child.setValue(userProfile)
                         }
                         _registerState.value = Resource.Success()
                     }

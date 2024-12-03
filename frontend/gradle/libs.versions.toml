@@ -1,6 +1,6 @@
 [versions]
 # Default
-agp = "8.7.2"
+agp = "8.7.3"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -18,12 +18,10 @@ activity = "1.9.3"
 parcelize = "2.0.21"
 gms = "4.4.2"
 coil = "3.0.2"
-accompanist = "0.29.0-alpha"
 firebaseAuth = "23.1.0"
 firebaseBom = "33.6.0"
 firebaseAnalytics = "22.1.2"
 firebaseDatabase = "21.0.0"
-
 
 [libraries]
 # Default
@@ -56,7 +54,6 @@ firebase-database = { module = "com.google.firebase:firebase-database", version.
 androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "iconsExtended"}
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
-accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist"}
 
 [plugins]
 # Default

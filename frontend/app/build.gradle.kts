@@ -83,7 +83,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity)
-    implementation(libs.accompanist.permissions)
 
     // Default
     implementation(libs.androidx.core.ktx)

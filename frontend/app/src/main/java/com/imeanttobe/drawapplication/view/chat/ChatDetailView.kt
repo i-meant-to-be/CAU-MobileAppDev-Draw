@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.view.chat
 
+import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -43,11 +44,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.model.Message
+import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.viewmodel.ChatDetailViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -55,18 +58,27 @@ import com.imeanttobe.drawapplication.viewmodel.ChatDetailViewModel
 fun ChatDetailView(
     modifier: Modifier = Modifier,
     viewModel: ChatDetailViewModel = hiltViewModel(),
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    sessionId: String
 ) {
     val messages = viewModel.messages.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = true) {
+        viewModel.listen(
+            onError = { Toast.makeText(context, context.getString(R.string.error_get_message), Toast.LENGTH_SHORT).show() },
+            sessionId = sessionId
+        )
+    }
 
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
         bottomBar = {
             ChatDetailViewBottomBar(
-                text = viewModel.textFieldMessage.value,
+                text = viewModel.messageTextField.value,
                 onValueChange = viewModel::setTextFieldMessage,
-                onSendClick = viewModel::send
+                onSendClick = { viewModel.send(sessionId = sessionId) }
             )
         }
     ) { innerPadding ->

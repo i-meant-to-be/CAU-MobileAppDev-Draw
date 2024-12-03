@@ -56,9 +56,17 @@ fun MainNavHostView(
                 )
             }
 
-            composableAnimated(route = NavItem.ChatDetailItem.route) {
+            composableAnimated(
+                route = "${NavItem.ChatDetailItem.route}/sessionId={sessionId}",
+                arguments = listOf(
+                    navArgument("sessionId") { type = NavType.StringType }
+                )
+            ) { navBackStackEntry ->
+                val sessionId = navBackStackEntry.arguments?.getString("sessionId") ?: ""
+
                 ChatDetailView(
-                    navigateUp = { navController.navigateUp() }
+                    navigateUp = { navController.navigateUp() },
+                    sessionId = sessionId
                 )
             }
 
@@ -78,22 +86,25 @@ fun MainNavHostView(
             }
 
             composableAnimated(
-                route = "/${NavItem.RegisterUserProfileViewItem.route}/email={email}?pw={pw}",
+                route = "${NavItem.RegisterUserProfileViewItem.route}/email={email}?pw={pw}?phone_number={phone_number}",
                 arguments = listOf(
                     navArgument("email") { type = NavType.StringType },
-                    navArgument("pw") { type = NavType.StringType }
+                    navArgument("pw") { type = NavType.StringType },
+                    navArgument("phone_number") { type = NavType.StringType }
                 )
             ) { navBackStackEntry ->
                 val email = navBackStackEntry.arguments?.getString("email") ?: ""
                 val pw = navBackStackEntry.arguments?.getString("pw") ?: ""
+                val phoneNumber = navBackStackEntry.arguments?.getString("phone_number") ?: ""
 
                 RegisterUserProfileView(
-                    naviagateBack = { navController.popBackStack() },
+                    navigateBack = { navController.popBackStack() },
                     navigateToHome = {
                         navController.navigate(NavItem.BottomNavHostViewItem.route) { popUpTo(0) { inclusive = true } }
                     },
                     email = email,
-                    password = pw
+                    password = pw,
+                    phoneNumber = phoneNumber
                 )
             }
 
