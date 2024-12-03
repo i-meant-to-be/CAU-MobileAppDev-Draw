@@ -10,12 +10,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,19 +53,38 @@ fun ChatView(
     // because this can't be displayed alone but need to be displayed upon Scaffold
     // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            itemsIndexed(chatLists) { index, chatList ->
-                ChatListItem(
-                    modifier = Modifier.padding(
-                        top = if (index == 0) 10.dp else 0.dp,
-                        bottom = if (index == chatLists.lastIndex) 10.dp else 0.dp
-                    ),
-                    chatSession = chatList,
-                    onClick = { navigateTo(NavItem.ChatDetailItem.route) }
+        if (chatLists.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    modifier = Modifier.size(100.dp)
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(id = R.string.start_chat_with_others),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                itemsIndexed(chatLists) { index, chatList ->
+                    ChatListItem(
+                        modifier = Modifier.padding(
+                            top = if (index == 0) 10.dp else 0.dp,
+                            bottom = if (index == chatLists.lastIndex) 10.dp else 0.dp
+                        ),
+                        chatSession = chatList,
+                        onClick = { navigateTo(NavItem.ChatDetailItem.route) }
+                    )
+                }
             }
         }
     }

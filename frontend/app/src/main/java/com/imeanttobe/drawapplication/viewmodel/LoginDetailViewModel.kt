@@ -15,11 +15,11 @@ import javax.inject.Inject
 class LoginDetailViewModel @Inject constructor() : ViewModel() {
     // Values
     private val _loginState = MutableStateFlow<Resource>(Resource.Nothing())
-    private val _email = mutableStateOf("")
-    private val _pw = mutableStateOf("")
-    private val _isAllValid = mutableStateOf(false)
-    private val _isEmailValid = mutableStateOf(false)
-    private val _isPwValid = mutableStateOf(false)
+    private val _email = mutableStateOf("aaa@aaa.com")
+    private val _pw = mutableStateOf("111111")
+    private val _isAllValid = mutableStateOf(true)
+    private val _isEmailValid = mutableStateOf(true)
+    private val _isPwValid = mutableStateOf(true)
 
     // Getter
     val loginState = _loginState.asStateFlow()

@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,18 +25,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,24 +43,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
-import com.imeanttobe.drawapplication.viewmodel.SignOutState
+import com.imeanttobe.drawapplication.data.etc.Resource
 
 @Composable
 fun ProfileView(
@@ -77,13 +66,17 @@ fun ProfileView(
     viewModel: ProfileViewModel = hiltViewModel(),
     navigateToLogin : ()->Unit
 ) {
-    // This composable is placed on Surface,
-    // because this can't be displayed alone but need to be displayed upon Scaffold
-    // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
-            ProfileCard(modifier=Modifier, viewModel = viewModel, navigateToLogin = navigateToLogin)
-            ProfileViewGrid(modifier = Modifier, viewModel=viewModel)
+            ProfileCard(
+                modifier = Modifier,
+                viewModel = viewModel,
+                navigateToLogin = navigateToLogin
+            )
+            ProfileViewGrid(
+                modifier = Modifier,
+                viewModel = viewModel
+            )
         }
     }
 }
@@ -109,8 +102,6 @@ fun ProfileViewGrid(
         }
     }
 }
-
-
 
 @Composable
 fun ProfileViewImageItem(
@@ -140,14 +131,12 @@ fun ProfileViewImageItem(
     }
 }
 
-
-
 @Composable // 프로필 카드 컴포저블
 fun ProfileCard(
     modifier: Modifier,
     viewModel: ProfileViewModel,
     navigateToLogin: ()-> Unit
-){
+) {
     val backgroundColor = MaterialTheme.colorScheme.primaryContainer
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -181,9 +170,9 @@ fun ProfileCard(
             viewModel.addprofileImageUri( result.data?.data)
         }
     }
-    val uiState = viewModel.state.collectAsState()
+    val uiState = viewModel.signOutState.collectAsState()
     LaunchedEffect(key1 = uiState.value) {
-        if (uiState.value == SignOutState.LoggedOut) {
+        if (uiState.value == Resource.Success()) {
             navigateToLogin()
         }
     }
@@ -277,163 +266,176 @@ fun ProfileCard(
 
 
             if (showDialog) {
-                AlertDialog(
-                    containerColor = Color.White,
-                    onDismissRequest = { showDialog = false },
-                    title = { Box(modifier=Modifier.fillMaxWidth()
-                        , contentAlignment = Alignment.Center){
-                        Text("프로필 정보 수정",style = MaterialTheme.typography.labelLarge, fontSize = 18.sp)} },
-                    text = {
-                        Column() {
-
-                            Row(verticalAlignment = Alignment.CenterVertically
-                                ,horizontalArrangement = Arrangement.spacedBy(50.dp)) {
-
-
-                                Text(
-                                    modifier = Modifier,
-                                    text = "프로필",
-                                    fontSize = 15.sp,               // 텍스트 크기
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Visible
-                                )
-
-
-
-                                Box(
-                                    modifier = Modifier
-
-                                        .size(100.dp)
-                                        .background(
-                                            Color.LightGray,
-                                            shape = RoundedCornerShape(12.dp)
-                                        )
-                                        .clickable {val intent = Intent(
-                                            Intent.ACTION_PICK,
-                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                                        )
-                                            launcher2.launch(intent)}, // 이미지 선택 Intent 실행
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    AsyncImage(
-
-                                        model = profileImageUri.value
-                                        ,contentDescription = "Profile Image",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .size(90.dp) // 이미지 크기 64dp로 설정
-                                            .clip(CircleShape)
-                                    )
-                                }
-                            }
-                                Spacer(modifier.height(30.dp))
-
-
-                                Row(verticalAlignment = Alignment.CenterVertically
-                                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-
-
-                                Text(
-                                    modifier = Modifier.weight(3f),
-                                    text = "시용자 이름",
-                                    fontSize = 15.sp,               // 텍스트 크기
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Visible
-                                )
-
-                                TextField(
-                                    modifier = Modifier
-                                        .weight(7f),
-                                    value = tempNickname,
-                                    onValueChange = { tempNickname = it },
-
-                                    placeholder = { Text(text = "닉네임을 입력하시오") },
-                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
-                                    )
-                            }
-
-                            Spacer(Modifier.height(10.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically
-                                ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-
-                                Text(
-                                    modifier = Modifier.weight(3f),
-                                    text = "역할",
-                                    fontSize = 15.sp,               // 텍스트 크기
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Visible
-                                )
-
-                                TextField(
-                                    modifier = Modifier
-                                        .weight(7f),
-                                    value = tempRole,
-                                    onValueChange = { tempRole= it },
-
-                                    placeholder = { Text(text = "역할을 입력하시오") },
-                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
-                                )
-                            }
-                            Spacer(Modifier.height(10.dp))
-
-                            Row(verticalAlignment = Alignment.CenterVertically
-                                ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-
-                                Text(
-                                    modifier = Modifier.weight(3f),
-                                    text = "소개",
-                                    fontSize = 15.sp,               // 텍스트 크기
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Visible
-                                )
-
-                                TextField(
-                                    modifier = Modifier
-                                        .weight(7f),
-                                    value = temponesentence,
-                                    onValueChange = { temponesentence = it },
-
-                                    placeholder = { Text(text = "소개를 입력하시오") },
-                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
-                                )
-                            }
-
-
-                        }
-
-                        // 정보 입력 폼 추가
-                        // 예: OutlinedTextField, Button 등
+                UpdateUserDataDialog(
+                    onDismiss = {
+                        viewModel.setDialogState(false)
                     },
-                    confirmButton = {
-                        Button(onClick = {
-                            onesentence=temponesentence
-                            Role=tempRole
-                            Nickname=tempNickname
-
-                            // 정보 저장 로직 추가
-                            showDialog = false // dialog 닫기
-                        }) {
-                            Text("저장")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showDialog = false }) {
-                            Text("취소")
-                        }
+                    onConfirm = {
+                        viewModel.updateUserData()
+                        viewModel.setDialogState(false)
                     }
                 )
             }
 
+        }
+}
 
-
+@Composable
+fun UpdateUserDataDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        content = {
 
         }
+                /*
+        text = {
+            Column() {
 
+                Row(verticalAlignment = Alignment.CenterVertically
+                    ,horizontalArrangement = Arrangement.spacedBy(50.dp)) {
+
+
+                    Text(
+                        modifier = Modifier,
+                        text = "프로필",
+                        fontSize = 15.sp,               // 텍스트 크기
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+
+
+
+                    Box(
+                        modifier = Modifier
+
+                            .size(100.dp)
+                            .background(
+                                Color.LightGray,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable {val intent = Intent(
+                                Intent.ACTION_PICK,
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                            )
+                                launcher2.launch(intent)}, // 이미지 선택 Intent 실행
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+
+                            model = profileImageUri.value
+                            ,contentDescription = "Profile Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(90.dp) // 이미지 크기 64dp로 설정
+                                .clip(CircleShape)
+                        )
+                    }
+                }
+                Spacer(modifier.height(30.dp))
+
+
+                Row(verticalAlignment = Alignment.CenterVertically
+                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+
+
+                    Text(
+                        modifier = Modifier.weight(3f),
+                        text = "시용자 이름",
+                        fontSize = 15.sp,               // 텍스트 크기
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+
+                    TextField(
+                        modifier = Modifier
+                            .weight(7f),
+                        value = tempNickname,
+                        onValueChange = { tempNickname = it },
+
+                        placeholder = { Text(text = "닉네임을 입력하시오") },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
+                    )
+                }
+
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically
+                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+
+                    Text(
+                        modifier = Modifier.weight(3f),
+                        text = "역할",
+                        fontSize = 15.sp,               // 텍스트 크기
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+
+                    TextField(
+                        modifier = Modifier
+                            .weight(7f),
+                        value = tempRole,
+                        onValueChange = { tempRole= it },
+
+                        placeholder = { Text(text = "역할을 입력하시오") },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
+                    )
+                }
+                Spacer(Modifier.height(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically
+                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+
+                    Text(
+                        modifier = Modifier.weight(3f),
+                        text = "소개",
+                        fontSize = 15.sp,               // 텍스트 크기
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+
+                    TextField(
+                        modifier = Modifier
+                            .weight(7f),
+                        value = temponesentence,
+                        onValueChange = { temponesentence = it },
+
+                        placeholder = { Text(text = "소개를 입력하시오") },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
+                    )
+                }
+
+
+            }
+
+            // 정보 입력 폼 추가
+            // 예: OutlinedTextField, Button 등
+        },
+        confirmButton = {
+            Button(onClick = {
+                onesentence=temponesentence
+                Role=tempRole
+                Nickname=tempNickname
+
+                // 정보 저장 로직 추가
+                showDialog = false // dialog 닫기
+            }) {
+                Text("저장")
+            }
+        },
+        dismissButton = {
+            Button(onClick = { showDialog = false }) {
+                Text("취소")
+            }
         }
 
-
-
+                 */
+    )
+}

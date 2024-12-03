@@ -44,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -157,7 +158,8 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                 keyboardActions = KeyboardActions(
                     onDone = {focusManager.clearFocus()}
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
+                visualTransformation = PasswordVisualTransformation()
             )
 
             Spacer(modifier = Modifier.height(16.dp))

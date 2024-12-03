@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId = "com.imeanttobe.drawapplication"
-        minSdk = 34
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -76,6 +76,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
 
     // Etc
     implementation(libs.material.icons.extended)

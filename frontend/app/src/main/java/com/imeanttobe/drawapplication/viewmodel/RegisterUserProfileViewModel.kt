@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -70,17 +71,24 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
         FirebaseAuth.getInstance()
             .createUserWithEmailAndPassword(email, pw)
             .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    task.result.user?.let { user ->
-                        user.updateProfile(
-                            UserProfileChangeRequest
-                                .Builder()
-                                .setDisplayName(_nickname.value)
-                                .setPhotoUri(_profilePhotoUri.value)
-                                .build()
-                        ).addOnCompleteListener {
-                            _registerState.value = Resource.Success()
+                if (task.isSuccessful && task.result.user != null) {
+                    val user = task.result.user!!
+                    user.updateProfile(
+                        UserProfileChangeRequest
+                            .Builder()
+                            .setDisplayName(_nickname.value)
+                            .setPhotoUri(_profilePhotoUri.value)
+                            .build()
+                    ).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val child = FirebaseDatabase.getInstance()
+                                .getReference("user_data")
+                                .child(user.uid)
+                            child.child("instagram_id").setValue(_instagramId.value)
+                            child.child("type").setValue(_userType.value)
+                            child.child("picture_uri").setValue(_pictureUri.value.toString())
                         }
+                        _registerState.value = Resource.Success()
                     }
                 } else {
                     _registerState.value =

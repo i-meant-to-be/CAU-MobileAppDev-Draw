@@ -31,6 +31,7 @@
     <string name="repeat_your_pw">비밀번호를 다시 입력해주세요.</string>
     <string name="not_valid_input">입력한 내용이 유효하지 않아요.</string>
     <string name="failed_to_sign_in">로그인에 실패했어요.</string>
+    <string name="start_chat_with_others">새로운 작가들을 찾아 대화를 시작해보세요.</string>
     <string name="failed_to_register">회원가입에 실패했어요.</string>
     <string name="failed_to_get_permission">권한이 거부되었어요.</string>
     <string name="message_copied">메시지가 복사되었습니다.</string>
