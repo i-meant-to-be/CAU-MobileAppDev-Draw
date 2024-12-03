@@ -9,4 +9,11 @@ data class UserProfile(
     val chatSessions: MutableList<String> = mutableListOf(),
     val introduce: String,
     val phoneNumber: String
-)
+) {
+    constructor() : this(
+        instagramId = "",
+        type = UserType.UNDEFINED,
+        introduce = "",
+        phoneNumber = ""
+    )
+}

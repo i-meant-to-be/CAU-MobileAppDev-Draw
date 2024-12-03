@@ -63,6 +63,7 @@
     <string name="verification_code">인증 번호</string>
     <string name="email">이메일</string>
     <string name="pw">비밀번호</string>
+    <string name="menu">메뉴</string>
     <string name="next">다음</string>
     <string name="register">회원가입</string>
     <string name="phone_number">전화번호</string>
@@ -71,6 +72,7 @@
     <string name="register_profile">개인 프로필 설정</string>
     <string name="search">검색</string>
     <string name="chat">대화</string>
+    <string name="exit_chat">대화 나가기</string>
     <string name="explore">탐색</string>
     <string name="profile">내 정보</string>
     <string name="dev">개발 페이지</string>

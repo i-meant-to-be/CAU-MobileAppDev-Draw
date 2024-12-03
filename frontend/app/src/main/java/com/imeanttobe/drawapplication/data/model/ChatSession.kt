@@ -4,5 +4,6 @@ data class ChatSession(
     val id: String,
     val user1Id: String,
     val user2Id: String,
-    val lastMessage: String
+    val lastMessage: String,
+    val isClosed: Boolean = false
 )

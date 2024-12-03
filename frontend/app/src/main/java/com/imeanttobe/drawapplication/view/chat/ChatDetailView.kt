@@ -2,27 +2,38 @@ package com.imeanttobe.drawapplication.view.chat
 
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Menu
@@ -32,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,12 +53,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.model.Message
@@ -64,6 +83,19 @@ fun ChatDetailView(
     val messages = viewModel.messages.collectAsState()
     val context = LocalContext.current
 
+    // Variables for drawer implementation
+    val deviceWidth = LocalConfiguration.current.screenWidthDp.dp
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val drawerOffset = animateDpAsState(
+        targetValue = if (viewModel.drawerState.value) 200.dp else 0.dp,
+        label = "ChatDetailViewDrawerOffset"
+    )
+    val drawerAlpha = animateFloatAsState(
+        targetValue = if (viewModel.drawerState.value) 0.5f else 0f,
+        label = "ChatDetailViewDrawerAlpha"
+    )
+
     LaunchedEffect(key1 = true) {
         viewModel.listen(
             onError = { Toast.makeText(context, context.getString(R.string.error_get_message), Toast.LENGTH_SHORT).show() },
@@ -71,32 +103,115 @@ fun ChatDetailView(
         )
     }
 
-    Scaffold(
-        modifier = modifier,
-        contentWindowInsets = WindowInsets(0.dp),
-        bottomBar = {
-            ChatDetailViewBottomBar(
-                text = viewModel.messageTextField.value,
-                onValueChange = viewModel::setTextFieldMessage,
-                onSendClick = { viewModel.send(sessionId = sessionId) }
+    // Drawer wrapper
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = { viewModel.setDrawerState(false) }
+            )
+    ) {
+        // Main content
+        Scaffold(
+            modifier = modifier,
+            contentWindowInsets = WindowInsets(0.dp),
+            bottomBar = {
+                ChatDetailViewBottomBar(
+                    text = viewModel.messageTextField.value,
+                    onValueChange = viewModel::setTextFieldMessage,
+                    focusRequester = focusRequester,
+                    onSendClick = {
+                        viewModel.send(sessionId = sessionId)
+                        viewModel.setTextFieldMessage("")
+                    }
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+            ) {
+                ChatDetailViewTopBar(
+                    opponentNickname = viewModel.opponentNickname.value,
+                    navigateUp = navigateUp,
+                    setDrawerState = {
+                        viewModel.setDrawerState(true)
+                        focusManager.clearFocus()
+                    }
+                )
+
+                ChatDetailViewBody(
+                    modifier = Modifier.fillMaxSize(),
+                    chatItems = messages.value
+                )
+            }
+        }
+
+        // Box for screen hiding when drawer is open
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.Black.copy(alpha = drawerAlpha.value))
+        )
+
+        // Drawer content
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .widthIn(min = 200.dp)
+                .offset(x = deviceWidth - drawerOffset.value)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    enabled = viewModel.drawerState.value,
+                    onClick = { }
+                )
+                .background(color = MaterialTheme.colorScheme.background)
+                .windowInsetsPadding(WindowInsets.systemBars)
+        ) {
+            ChatDetailViewDrawer(
+                onExit = {}
             )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-        ) {
-            ChatDetailViewTopBar(
-                opponentNickname = viewModel.opponentNickname.value,
-                navigateUp = navigateUp,
-                setDrawerState = { viewModel.setDrawerState(true) }
-            )
+    }
+}
 
-            ChatDetailViewBody(
-                modifier = Modifier.fillMaxSize(),
-                chatItems = messages.value
-            )
+@Composable
+fun ChatDetailViewDrawer(
+    onExit: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.menu),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(20.dp)
+        )
+
+        Surface(
+            modifier = Modifier
+                .widthIn(max = 200.dp)
+                .fillMaxWidth()
+                .clickable { onExit() }
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ExitToApp,
+                    contentDescription = null
+                )
+
+                Text(
+                    text = stringResource(id = R.string.exit_chat)
+                )
+            }
         }
     }
 }
@@ -213,25 +328,23 @@ fun ChatBubble(
 @Composable
 fun ChatDetailViewBottomBar(
     text: String,
+    focusRequester: FocusRequester,
     onValueChange: (String) -> Unit,
     onSendClick: () -> Unit
 ) {
-    val imeIncludedPadding = animateDpAsState(
-        targetValue = if (WindowInsets.isImeVisible) 0.dp else 10.dp,
-        label = "ChatDetailViewBottomBarImePadding"
-    )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = imeIncludedPadding.value)
             .padding(10.dp)
+            .windowInsetsPadding(WindowInsets.navigationBars)
             .imePadding(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End
     ) {
         ChatTextField(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester = focusRequester),
             text = text,
             onValueChange = onValueChange
         )
@@ -253,7 +366,9 @@ fun ChatTextField(
     val backgroundColor = MaterialTheme.colorScheme.surfaceDim
 
     BasicTextField(
-        modifier = modifier,
+        modifier = Modifier
+            .heightIn(min = 36.dp)
+            .then(modifier),
         textStyle = MaterialTheme.typography.bodyLarge,
         value = text,
         onValueChange = onValueChange,
@@ -269,7 +384,7 @@ fun ChatTextField(
                 modifier = Modifier
                     .clip(RoundedCornerShape(100.dp))
                     .background(color = backgroundColor)
-                    .padding(vertical = 5.dp, horizontal = 15.dp),
+                    .padding(horizontal = 15.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 innerTextField()

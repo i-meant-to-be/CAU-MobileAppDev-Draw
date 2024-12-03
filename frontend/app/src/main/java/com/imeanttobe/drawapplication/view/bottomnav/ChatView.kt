@@ -47,9 +47,6 @@ fun ChatView(
 ) {
     val chatLists = viewModel.sessions.collectAsState().value
 
-    // This composable is placed on Surface,
-    // because this can't be displayed alone but need to be displayed upon Scaffold
-    // which contains bottom navigation bar. (BottomNavHostView)
     Surface(modifier = modifier) {
         if (chatLists.isEmpty()) {
             Column(

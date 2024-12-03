@@ -119,6 +119,16 @@ fun MainNavHostView(
                     }
                 )
             }
+
+            // For test
+            composableAnimated(
+                route = NavItem.ChatDetailItem.route
+            ) { navBackStackEntry ->
+                ChatDetailView(
+                    navigateUp = { navController.navigateUp() },
+                    sessionId = ""
+                )
+            }
         }
     }
 }

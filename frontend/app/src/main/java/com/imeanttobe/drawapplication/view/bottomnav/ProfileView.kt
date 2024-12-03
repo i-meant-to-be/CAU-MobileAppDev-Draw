@@ -86,10 +86,9 @@ fun ProfileViewGrid(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        items(viewModel.imageUris.size) {
-            index->
+        items(5) { index->
             ProfileViewImageItem(
-                imageUri = viewModel.imageUris[index],
+                imageUri = Uri.EMPTY,
                 onImageClick = {}
             )
         }
@@ -132,21 +131,7 @@ fun ProfileCard(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.primaryContainer
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-    val currentUser = FirebaseAuth.getInstance().currentUser
-    var Nickname by remember { mutableStateOf("nickname")}
-    var Role by remember { mutableStateOf("assistant")}
-    var onesentence by remember { mutableStateOf("drawing is my life")}
-    var tempNickname by remember { mutableStateOf("nickname")}
-    var tempRole by remember { mutableStateOf("assistant")}
-    var temponesentence by remember { mutableStateOf("drawing is my life")}
-
-    val profileImageUri = viewModel.profileImageUri.collectAsState()
-    val individualImageUri = viewModel.individualImageUri.collectAsState()
-    val nickname = viewModel.userNickname.collectAsState()
-
-
-    var showDialog by remember { mutableStateOf(false) }
-
+    val userProfile = viewModel.userProfile.collectAsState()
 
     val launcher1 = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -155,7 +140,6 @@ fun ProfileCard(
             viewModel.addImageUri( result.data?.data)
         }
     }
-
     val launcher2 = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -181,7 +165,7 @@ fun ProfileCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = viewModel.profileImageUri.value,
+                model = viewModel.profilePhotoUri.value,
 //                model = Uri.parse("android.resource://com.example.myapp/drawable/basic_profile"),
                 contentDescription = "Profile Image",
                 contentScale = ContentScale.Crop,
@@ -190,15 +174,15 @@ fun ProfileCard(
                     .clip(CircleShape) // 이미지를 원형으로 자름
             )
             Spacer(Modifier.height(10.dp))
-            Text(text = viewModel.userNickname.value?:"", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
-            Text(text = viewModel.userType.value.toString(),style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
+            Text(text = viewModel.nickname.value, style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
+            Text(text = userProfile.value?.type.toString(), style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
             Spacer(Modifier.height(10.dp))
-            Text(text = viewModel.userInfo.value,style = MaterialTheme.typography.bodySmall)
+            Text(text = userProfile.value?.introduce.toString(), style = MaterialTheme.typography.bodySmall)
 
             Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
 
             Button(
-                onClick = {showDialog=true},
+                onClick = { viewModel.setDialogState(true) },
                 modifier = Modifier
                     .weight(0.7f)
                     .padding(10.dp)
@@ -257,9 +241,7 @@ fun ProfileCard(
             Text(text = stringResource(id = R.string.logout), fontSize = 10.sp)
         }
 
-
-
-        if (showDialog) {
+        if (viewModel.dialogState.value) {
             UpdateUserDataDialog(
                 onDismiss = {
                     viewModel.setDialogState(false)

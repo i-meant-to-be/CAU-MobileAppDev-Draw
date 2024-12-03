@@ -6,9 +6,8 @@ sealed class NavItem(
 ) {
     companion object {
         val items = listOf(
-            BottomNavHostViewItem,
             ChatDetailItem,
-            LoginTitleViewItem,
+            LoginDetailViewItem,
             RegisterUserAccountViewItem
         )
     }

@@ -56,7 +56,6 @@ fun BottomNavHostView(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
-                navigateBack = navigateBack,
                 navigateTo = navigateTo
             )
         }

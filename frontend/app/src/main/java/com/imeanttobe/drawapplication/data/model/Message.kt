@@ -6,4 +6,12 @@ data class Message(
     val chatSessionId: String,
     val body: String,
     val timestamp: Long = System.currentTimeMillis()
-)
+) {
+    constructor() : this(
+        id = "",
+        senderId = "",
+        chatSessionId = "",
+        body = ""
+    )
+
+}

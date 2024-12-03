@@ -1,5 +1,7 @@
 package com.imeanttobe.drawapplication.view
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,25 +18,30 @@ import com.imeanttobe.drawapplication.data.navigation.NavItem
 @Composable
 fun DevView(
     modifier: Modifier = Modifier,
-    navigateBack: () -> Unit,
     navigateTo: (String) -> Unit
 ) {
     Scaffold(
         modifier = modifier
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(NavItem.items.subList(1, 5)) { item ->
+            for (item in NavItem.items) {
                 Button(
-                    onClick = { navigateTo(item.route) },
-                    modifier = Modifier.padding(bottom = 5.dp)
+                    onClick = { navigateTo(item.route) }
                 ) {
                     Text(text = "Navigate to ${item.label}")
                 }
+            }
+
+            Button(
+                onClick = {  }
+            ) {
+                Text(text = "Add new post")
             }
         }
     }
