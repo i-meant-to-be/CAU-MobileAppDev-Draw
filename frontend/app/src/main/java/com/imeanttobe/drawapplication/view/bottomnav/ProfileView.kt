@@ -7,7 +7,6 @@ import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,14 +24,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,8 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -56,7 +50,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.imeanttobe.drawapplication.R
-import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 import com.imeanttobe.drawapplication.data.etc.Resource
 
@@ -139,8 +132,6 @@ fun ProfileCard(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.primaryContainer
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-
-
     val currentUser = FirebaseAuth.getInstance().currentUser
     var Nickname by remember { mutableStateOf("nickname")}
     var Role by remember { mutableStateOf("assistant")}
@@ -169,7 +160,7 @@ fun ProfileCard(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            viewModel.addprofileImageUri( result.data?.data)
+            viewModel.addProfileImageUri( result.data?.data)
         }
     }
     val uiState = viewModel.signOutState.collectAsState()
@@ -190,7 +181,7 @@ fun ProfileCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = profileImageUri.value,
+                model = viewModel.profileImageUri.value,
 //                model = Uri.parse("android.resource://com.example.myapp/drawable/basic_profile"),
                 contentDescription = "Profile Image",
                 contentScale = ContentScale.Crop,
@@ -199,10 +190,10 @@ fun ProfileCard(
                     .clip(CircleShape) // 이미지를 원형으로 자름
             )
             Spacer(Modifier.height(10.dp))
-            Text(text = nickname.value?:"", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
-            Text(text = Role,style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
+            Text(text = viewModel.userNickname.value?:"", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
+            Text(text = viewModel.userType.value.toString(),style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
             Spacer(Modifier.height(10.dp))
-            Text(text = onesentence,style = MaterialTheme.typography.bodySmall)
+            Text(text = viewModel.userInfo.value,style = MaterialTheme.typography.bodySmall)
 
             Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
 

@@ -1,7 +1,6 @@
 package com.imeanttobe.drawapplication.viewmodel
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,50 +21,24 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val firebaseDatabase = FirebaseDatabase.getInstance()
     private val referenceName = "user_data"
-    private val _dialogState = mutableStateOf(false)
+    private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _userProfile = MutableStateFlow<UserProfile?>(null)
-    private val _profileImageUri = mutableStateOf(Uri.EMPTY)
+    private val _dialogState = mutableStateOf(false)
+    private val _profilePhotoUri = mutableStateOf(Uri.EMPTY)
     private val _nickname = mutableStateOf("")
 
     // Getter
-    val dialogState: State<Boolean> = _dialogState
-    val nickname: State<String> = _nickname
-    val profileImageUri: State<Uri> = _profileImageUri
-    val userProfile = _userProfile.asStateFlow()
-
-    // Methods
-    fun setDialogState(state: Boolean) {
-        _dialogState.value = state
-    }
-
-    //ProfileCard
-    private val _individualImageUri = MutableStateFlow<Uri?>(null)
-    val individualImageUri = _individualImageUri.asStateFlow()
-    
-    //---------------------------------------------------------------------------
-    //ProfileViewGrid
-
-    private val _imageUris = mutableStateListOf<Uri?>()
-    val imageUris: List<Uri?> = _imageUris
-
-    fun addImageUri(uri: Uri?) {
-        _imageUris.add(uri)
-    }
-
-    fun addprofileImageUri(uri: Uri?) {
-        _profileImageUri.value = uri
-    }
-
-    //---------------------------------------------------------------------------
-
-    private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
     val signOutState = _signOutState.asStateFlow()
+    val userProfile = _userProfile.asStateFlow()
+    val dialogState: State<Boolean> = _dialogState
+    val profilePhotoUri: State<Uri> = _profilePhotoUri
+    val nickname: State<String> = _nickname
 
     // Initialization
     init {
         // Get data from FirebaseAuth
         firebaseAuth.currentUser?.let { user ->
-            _profileImageUri.value = user.photoUrl
+            _profilePhotoUri.value = user.photoUrl
             _nickname.value = user.displayName!!
         }
 
@@ -84,6 +57,18 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                     _userProfile.value = data.getValue(UserProfile::class.java)
                 }
         }
+    }
+
+    fun setDialogState(state: Boolean) {
+        _dialogState.value = state
+    }
+
+    fun addImageUri(uri: Uri?) {
+        _userProfile.value?.pictureIds?.add(uri.toString())
+    }
+
+    fun addProfileImageUri(uri: Uri?) {
+        _profilePhotoUri.value = uri
     }
 
     fun signOut() {
