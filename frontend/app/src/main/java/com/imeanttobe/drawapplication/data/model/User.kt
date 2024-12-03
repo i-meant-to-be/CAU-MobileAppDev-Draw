@@ -2,7 +2,11 @@ package com.imeanttobe.drawapplication.data.model
 
 import com.imeanttobe.drawapplication.data.enum.UserType
 
-data class UserProfile(
+data class User(
+    val id: String,
+    val nickname: String,
+    val email: String,
+    val profilePhotoUri: String,
     val instagramId: String,
     val type: UserType,
     val pictureIds: MutableList<String> = mutableListOf(),
@@ -11,9 +15,13 @@ data class UserProfile(
     val phoneNumber: String
 ) {
     constructor() : this(
+        id = "",
+        nickname = "",
+        profilePhotoUri = "",
         instagramId = "",
         type = UserType.UNDEFINED,
         introduce = "",
-        phoneNumber = ""
+        phoneNumber = "",
+        email = ""
     )
 }

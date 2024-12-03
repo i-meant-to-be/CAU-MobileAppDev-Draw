@@ -2,14 +2,13 @@ package com.imeanttobe.drawapplication.viewmodel
 
 import android.net.Uri
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.etc.Resource
-import com.imeanttobe.drawapplication.data.model.UserProfile
+import com.imeanttobe.drawapplication.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,14 +21,14 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     private val firebaseDatabase = FirebaseDatabase.getInstance()
     private val referenceName = "user_data"
     private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
-    private val _userProfile = MutableStateFlow<UserProfile?>(null)
+    private val _user = MutableStateFlow<User?>(null)
     private val _dialogState = mutableStateOf(false)
     private val _profilePhotoUri = mutableStateOf(Uri.EMPTY)
     private val _nickname = mutableStateOf("")
 
     // Getter
     val signOutState = _signOutState.asStateFlow()
-    val userProfile = _userProfile.asStateFlow()
+    val userProfile = _user.asStateFlow()
     val dialogState: State<Boolean> = _dialogState
     val profilePhotoUri: State<Uri> = _profilePhotoUri
     val nickname: State<String> = _nickname
@@ -54,7 +53,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                 .child(user.uid)
                 .get()
                 .addOnSuccessListener { data ->
-                    _userProfile.value = data.getValue(UserProfile::class.java)
+                    _user.value = data.getValue(User::class.java)
                 }
         }
     }
@@ -64,7 +63,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     }
 
     fun addImageUri(uri: Uri?) {
-        _userProfile.value?.pictureIds?.add(uri.toString())
+        _user.value?.pictureIds?.add(uri.toString())
     }
 
     fun addProfileImageUri(uri: Uri?) {

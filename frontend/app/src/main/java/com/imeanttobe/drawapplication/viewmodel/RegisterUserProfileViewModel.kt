@@ -9,7 +9,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
-import com.imeanttobe.drawapplication.data.model.UserProfile
+import com.imeanttobe.drawapplication.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -80,29 +80,23 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
             .createUserWithEmailAndPassword(email, pw)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful && task.result.user != null) {
-                    val user = task.result.user!!
-                    user.updateProfile(
-                        UserProfileChangeRequest
-                            .Builder()
-                            .setDisplayName(_nickname.value)
-                            .setPhotoUri(_profilePhotoUri.value)
-                            .build()
-                    ).addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val userProfile = UserProfile(
-                                instagramId = _instagramId.value,
-                                type = _userType.value,
-                                phoneNumber = phoneNumber,
-                                introduce = _introduce.value,
-                            )
-                            userProfile.pictureIds.add(_pictureUri.value.toString())
-                            FirebaseDatabase.getInstance()
-                                .getReference("user_data")
-                                .child(user.uid)
-                                .setValue(userProfile)
-                        }
-                        _registerState.value = Resource.Success()
-                    }
+                    val userId = task.result.user!!.uid
+                    val user = User(
+                        id = userId,
+                        nickname = _nickname.value,
+                        email = email,
+                        profilePhotoUri = _profilePhotoUri.value.toString(),
+                        instagramId = _instagramId.value,
+                        type = _userType.value,
+                        introduce = _introduce.value,
+                        phoneNumber = phoneNumber,
+                    )
+                    user.pictureIds.add(_pictureUri.value.toString())
+                    FirebaseDatabase.getInstance()
+                        .getReference("user")
+                        .child(userId)
+                        .setValue(user)
+                    _registerState.value = Resource.Success()
                 } else {
                     _registerState.value =
                         Resource.Error(task.exception?.message ?: "Unknown Error")

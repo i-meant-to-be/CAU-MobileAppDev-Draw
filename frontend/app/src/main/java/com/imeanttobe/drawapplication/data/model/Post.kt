@@ -1,18 +1,20 @@
 package com.imeanttobe.drawapplication.data.model
 
-import android.os.Parcel
-import android.os.Parcelable
-import kotlinx.parcelize.Parceler
-import kotlinx.parcelize.Parcelize
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private val localDateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
 data class Post(
-    val id: Int = -1,
-    val userId: Int,
+    val id: String,
+    val userId: String,
     val description: String,
-    val datetime: LocalDateTime = LocalDateTime.now(),
+    val timestamp: Long = System.currentTimeMillis(),
     val imageUrl: String
-)
+) {
+    constructor() : this(
+        id = "",
+        userId = "",
+        description = "",
+        imageUrl = ""
+    )
+}
