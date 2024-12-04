@@ -27,14 +27,16 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     private val _profilePhotoUri = mutableStateOf(Uri.EMPTY)
     private val _nickname = mutableStateOf("")
     private val _usertype = mutableStateOf(UserType.UNDEFINED)
+    private val _information= mutableStateOf("")
 
     // Getter
     val signOutState = _signOutState.asStateFlow()
-    val userProfile = _user.asStateFlow()
+    val user = _user.asStateFlow()
     val dialogState: State<Boolean> = _dialogState
     val profilePhotoUri: State<Uri> = _profilePhotoUri
     val nickname: State<String> = _nickname
     val userType: State<UserType> = _usertype
+    val information: State<String> = _information
 
 
     // Initialization
@@ -69,7 +71,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
         _usertype.value = newValue
 
     }
-
 
     fun setDialogState(state: Boolean) {
         _dialogState.value = state

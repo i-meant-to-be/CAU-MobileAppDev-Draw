@@ -68,7 +68,6 @@ import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
-import com.imeanttobe.drawapplication.data.model.UserProfile
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
 
 @Composable
@@ -391,7 +390,7 @@ fun ExploreViewSearchBoxTextField(
 fun ExploreViewGridItem(
     post: Post,
     user: FirebaseUser,
-    userProfile: UserProfile,
+
     onImageClick: () -> Unit
 ) {
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -409,7 +408,7 @@ fun ExploreViewGridItem(
         ) {
             ExploreViewUserInfoItem(
                 userName = user.displayName ?: "",
-                userType = userProfile.type,
+                userType = user.UserType,
                 userImageUrl = user.photoUrl.toString(),
                 contentColor = contentColor,
                 onClick = {}
