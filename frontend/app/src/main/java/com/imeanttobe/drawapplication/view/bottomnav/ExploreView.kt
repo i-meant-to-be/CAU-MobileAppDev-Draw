@@ -34,14 +34,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -65,12 +62,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
-import com.imeanttobe.drawapplication.data.model.User
+import com.imeanttobe.drawapplication.data.model.UserProfile
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
 
 @Composable
@@ -79,7 +77,6 @@ fun ExploreView(
     viewModel: ExploreViewModel = hiltViewModel()
 ) {
     val posts = viewModel.posts.collectAsState()
-    val refreshState = viewModel.refreshState.collectAsState()
 
     Surface(modifier = modifier) {
         Column(
@@ -96,8 +93,6 @@ fun ExploreView(
             )
             ExploreViewGrid(
                 modifier = Modifier.padding(horizontal = 10.dp),
-                refreshState = refreshState.value,
-                onRefresh = viewModel::onPullToRefreshTriggered,
                 isDialogOpen = viewModel.dialogState.value,
                 setDialogState = { newValue -> viewModel.setDialogState(newValue) },
                 posts = posts.value
@@ -136,12 +131,9 @@ fun ExploreViewSearchBox(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreViewGrid(
     modifier: Modifier = Modifier,
-    refreshState: Boolean,
-    onRefresh: () -> Unit,
     isDialogOpen: Boolean,
     setDialogState: (Boolean) -> Unit,
     posts: List<Post>
@@ -166,26 +158,28 @@ fun ExploreViewGrid(
             )
         }
     } else {
-        PullToRefreshBox(
+        LazyVerticalGrid(
             modifier = modifier,
-            isRefreshing = refreshState,
-            onRefresh = onRefresh
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(vertical = 10.dp)
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(vertical = 10.dp)
-            ) {
-                items(posts) { post ->
-                    ExploreViewGridItem(
-                        post = post,
-                        onImageClick = {
-                            dialogDescription = post.description
-                            setDialogState(true)
-                        }
-                    )
-                }
+            items(posts) { post ->
+                ExploreViewGridItem(
+                    post = post,
+                    user = FirebaseAuth.getInstance().currentUser!!,
+                    userProfile = UserProfile(
+                        instagramId = "",
+                        type = UserType.WEBTOON_ARTIST,
+                        introduce = "",
+                        phoneNumber = ""
+                    ),
+                    onImageClick = {
+                        dialogDescription = post.description
+                        setDialogState(true)
+                    }
+                )
             }
         }
 
@@ -267,7 +261,8 @@ fun ExploreViewImageDialog(
                         .padding(10.dp),
                     text = description,
                     minLines = 2,
-                    maxLines = 2
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -395,28 +390,12 @@ fun ExploreViewSearchBoxTextField(
 @Composable
 fun ExploreViewGridItem(
     post: Post,
+    user: FirebaseUser,
+    userProfile: UserProfile,
     onImageClick: () -> Unit
 ) {
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     val containerColor = MaterialTheme.colorScheme.primaryContainer
-    var user = User()
-
-    LaunchedEffect(key1 = true) {
-        FirebaseDatabase
-            .getInstance()
-            .getReference("user")
-            .child(post.userId)
-            .get()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val snapshot = task.result.getValue(User::class.java)
-                    if (snapshot != null) {
-                        user = snapshot
-                    }
-                }
-            }
-
-    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -429,15 +408,16 @@ fun ExploreViewGridItem(
             modifier = Modifier.fillMaxWidth()
         ) {
             ExploreViewUserInfoItem(
-                userName = user.nickname,
-                userType = user.type,
-                userImageUrl = user.profilePhotoUri,
+                userName = user.displayName ?: "",
+                userType = userProfile.type,
+                userImageUrl = user.photoUrl.toString(),
                 contentColor = contentColor,
                 onClick = {}
             )
             ExploreViewImageItem(
                 post = post,
-                imageUrl = post.imageUrl,
+                // TODO: have to set image's url here
+                imageUrl = "?",
                 contentColor = contentColor,
                 onImageClick = onImageClick
             )

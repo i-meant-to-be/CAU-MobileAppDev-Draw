@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
+import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,6 +26,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     private val _dialogState = mutableStateOf(false)
     private val _profilePhotoUri = mutableStateOf(Uri.EMPTY)
     private val _nickname = mutableStateOf("")
+    private val _usertype = mutableStateOf(UserType.UNDEFINED)
 
     // Getter
     val signOutState = _signOutState.asStateFlow()
@@ -32,6 +34,8 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     val dialogState: State<Boolean> = _dialogState
     val profilePhotoUri: State<Uri> = _profilePhotoUri
     val nickname: State<String> = _nickname
+    val userType: State<UserType> = _usertype
+
 
     // Initialization
     init {
@@ -57,6 +61,15 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                 }
         }
     }
+    fun setNickname(newValue: String) {
+        _nickname.value = newValue
+    }
+
+    fun setUserType(newValue: UserType) {
+        _usertype.value = newValue
+
+    }
+
 
     fun setDialogState(state: Boolean) {
         _dialogState.value = state

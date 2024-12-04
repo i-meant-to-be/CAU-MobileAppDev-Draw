@@ -86,9 +86,10 @@ fun ProfileViewGrid(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        items(5) { index->
+        items(viewModel.userProfile) {
+            index->
             ProfileViewImageItem(
-                imageUri = Uri.EMPTY,
+                imageUri = viewModel.imageUris[index],
                 onImageClick = {}
             )
         }
@@ -131,6 +132,10 @@ fun ProfileCard(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.primaryContainer
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+
+
+    var showDialog by remember { mutableStateOf(false) }
+
     val userProfile = viewModel.userProfile.collectAsState()
 
     val launcher1 = rememberLauncherForActivityResult(
@@ -140,6 +145,7 @@ fun ProfileCard(
             viewModel.addImageUri( result.data?.data)
         }
     }
+
     val launcher2 = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -165,7 +171,7 @@ fun ProfileCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = viewModel.profilePhotoUri.value,
+                model = viewModel.profileImageUri.value,
 //                model = Uri.parse("android.resource://com.example.myapp/drawable/basic_profile"),
                 contentDescription = "Profile Image",
                 contentScale = ContentScale.Crop,
@@ -174,15 +180,15 @@ fun ProfileCard(
                     .clip(CircleShape) // 이미지를 원형으로 자름
             )
             Spacer(Modifier.height(10.dp))
-            Text(text = viewModel.nickname.value, style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
-            Text(text = userProfile.value?.type.toString(), style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
+            Text(text = viewModel.userNickname.value?:"", style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
+            Text(text = viewModel.userType.value.toString(),style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
             Spacer(Modifier.height(10.dp))
-            Text(text = userProfile.value?.introduce.toString(), style = MaterialTheme.typography.bodySmall)
+            Text(text = viewModel.userInfo.value,style = MaterialTheme.typography.bodySmall)
 
             Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
 
             Button(
-                onClick = { viewModel.setDialogState(true) },
+                onClick = {showDialog=true},
                 modifier = Modifier
                     .weight(0.7f)
                     .padding(10.dp)
@@ -241,7 +247,9 @@ fun ProfileCard(
             Text(text = stringResource(id = R.string.logout), fontSize = 10.sp)
         }
 
-        if (viewModel.dialogState.value) {
+
+
+        if (showDialog) {
             UpdateUserDataDialog(
                 onDismiss = {
                     viewModel.setDialogState(false)
