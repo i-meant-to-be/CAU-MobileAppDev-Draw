@@ -62,12 +62,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
+import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
 
 @Composable
@@ -167,13 +166,7 @@ fun ExploreViewGrid(
             items(posts) { post ->
                 ExploreViewGridItem(
                     post = post,
-                    user = FirebaseAuth.getInstance().currentUser!!,
-                    userProfile = UserProfile(
-                        instagramId = "",
-                        type = UserType.WEBTOON_ARTIST,
-                        introduce = "",
-                        phoneNumber = ""
-                    ),
+                    user = User(),
                     onImageClick = {
                         dialogDescription = post.description
                         setDialogState(true)
@@ -389,8 +382,7 @@ fun ExploreViewSearchBoxTextField(
 @Composable
 fun ExploreViewGridItem(
     post: Post,
-    user: FirebaseUser,
-
+    user: User,
     onImageClick: () -> Unit
 ) {
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -407,9 +399,9 @@ fun ExploreViewGridItem(
             modifier = Modifier.fillMaxWidth()
         ) {
             ExploreViewUserInfoItem(
-                userName = user.displayName ?: "",
-                userType = user.UserType,
-                userImageUrl = user.photoUrl.toString(),
+                userName = user.nickname,
+                userType = user.type,
+                userImageUrl = user.profilePhotoUri,
                 contentColor = contentColor,
                 onClick = {}
             )
