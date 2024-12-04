@@ -1,6 +1,7 @@
 package com.imeanttobe.drawapplication.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -20,7 +21,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     // Variables
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val firebaseDatabase = FirebaseDatabase.getInstance()
-    private val referenceName = "user_data"
+    private val referenceName = "user"
     private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _user = MutableStateFlow<User?>(null)
     private val _dialogState = mutableStateOf(false)
@@ -41,12 +42,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
     // Initialization
     init {
-        // Get data from FirebaseAuth
-        firebaseAuth.currentUser?.let { user ->
-            _profilePhotoUri.value = user.photoUrl
-            _nickname.value = user.displayName!!
-        }
-
         // Get user's profile data from FirebaseDatabase
         getUserData()
     }
@@ -59,10 +54,12 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                 .child(user.uid)
                 .get()
                 .addOnSuccessListener { data ->
+                    Log.d("ProfileViewModel", "getUserData Success")
                     _user.value = data.getValue(User::class.java)
                 }
         }
     }
+
     fun setNickname(newValue: String) {
         _nickname.value = newValue
     }
@@ -93,8 +90,8 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
         FirebaseAuth.getInstance()
             .currentUser?.updateProfile(
                 UserProfileChangeRequest.Builder()
-                    .setDisplayName("")
-                    .setPhotoUri(Uri.EMPTY)
+//                    .setDisplayName("")
+//                    .setPhotoUri(Uri.EMPTY)
                     .build()
             )
     }

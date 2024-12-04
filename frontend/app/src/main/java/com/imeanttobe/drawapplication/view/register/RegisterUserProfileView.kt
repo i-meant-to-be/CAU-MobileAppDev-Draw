@@ -387,7 +387,7 @@ fun RegisterUserProfileView(
             } else {
                 Button(
                     onClick = {
-                        viewModel.signUp(email, password, phoneNumber)
+                        viewModel.signUp(context, email, password, phoneNumber)
                     },
                     modifier = Modifier
                         .padding(horizontal = 30.dp)

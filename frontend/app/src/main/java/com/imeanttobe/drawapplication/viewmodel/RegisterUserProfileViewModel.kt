@@ -1,15 +1,18 @@
 package com.imeanttobe.drawapplication.viewmodel
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.model.User
+import com.imeanttobe.drawapplication.util.StorageUtil.Companion.uploadPictureToStorage
+import com.imeanttobe.drawapplication.util.StorageUtil.Companion.uploadProfilePhotoToStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,6 +73,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
     }
 
     fun signUp(
+        context: Context,
         email: String,
         pw: String,
         phoneNumber: String
@@ -81,22 +85,34 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful && task.result.user != null) {
                     val userId = task.result.user!!.uid
-                    val user = User(
-                        id = userId,
-                        nickname = _nickname.value,
-                        email = email,
-                        profilePhotoUri = _profilePhotoUri.value.toString(),
-                        instagramId = _instagramId.value,
-                        type = _userType.value,
-                        introduce = _introduce.value,
-                        phoneNumber = phoneNumber,
-                    )
-                    user.pictureIds.add(_pictureUri.value.toString())
-                    FirebaseDatabase.getInstance()
-                        .getReference("user")
-                        .child(userId)
-                        .setValue(user)
-                    _registerState.value = Resource.Success()
+
+                    //프로필 사진 저장하고 그 uri 가져와서 저장.
+                    uploadProfilePhotoToStorage(_profilePhotoUri.value, context, userId) { photoUri ->
+                        uploadPictureToStorage(_pictureUri.value, context, userId, 0) {pictureUri -> //여기서 0은 register시에 pictureIds의 첫번째를 뜻하는거
+
+                            val user = User(
+                                id = userId,
+                                nickname = _nickname.value,
+                                email = email,
+                                profilePhotoUri = photoUri.toString(),
+                                instagramId = _instagramId.value,
+                                type = _userType.value,
+                                introduce = _introduce.value,
+                                phoneNumber = phoneNumber,
+                            )
+                            Log.d(
+                                "RegisteruserProfileViewModel",
+                                "signUp: before add pictureId. loadPictureUri: $pictureUri"
+                            )
+                            user.pictureIds.add(pictureUri.toString())
+                            Log.d("RegisteruserProfileViewModel", "signUp: after add pictureId")
+                            FirebaseDatabase.getInstance()
+                                .getReference("user")
+                                .child(userId)
+                                .setValue(user)
+                            _registerState.value = Resource.Success()
+                        }
+                    }
                 } else {
                     _registerState.value =
                         Resource.Error(task.exception?.message ?: "Unknown Error")

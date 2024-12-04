@@ -77,12 +77,14 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.storage)
 
     // Etc
     implementation(libs.material.icons.extended)
     implementation(libs.coil.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity)
+    implementation(libs.coil.network.okhttp)
 
     // Default
     implementation(libs.androidx.core.ktx)

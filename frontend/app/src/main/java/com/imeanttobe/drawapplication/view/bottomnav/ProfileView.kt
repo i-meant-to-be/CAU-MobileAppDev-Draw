@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -49,7 +51,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.google.firebase.auth.FirebaseAuth
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 import com.imeanttobe.drawapplication.data.etc.Resource
@@ -93,7 +96,9 @@ fun ProfileViewGrid(
                 index->
                 ProfileViewImageItem(
                     imageUri = user.value?.pictureIds?.get(index)?.toUri(),
-                    onImageClick = {}
+                    onImageClick = {
+                        //todo
+                    }
                 )
             }
         }
@@ -110,9 +115,12 @@ fun ProfileViewImageItem(
             .fillMaxWidth()
             .clickable { onImageClick() }
     ) {
+        Log.d("ProfileView", imageUri.toString())
         if (imageUri != null) {
             AsyncImage(
-                model = imageUri,
+                model = ImageRequest.Builder(LocalPlatformContext.current)
+                    .data(imageUri)
+                    .build(),
                 contentDescription = "Selected image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxWidth()
@@ -171,20 +179,26 @@ fun ProfileCard(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Log.d("ProfileView", user.value?.profilePhotoUri.toString())
             AsyncImage(
-                model = user.value?.profilePhotoUri,
-//                model = Uri.parse("android.resource://com.example.myapp/drawable/basic_profile"),
+                model = ImageRequest.Builder(LocalPlatformContext.current)
+                    .data(user.value?.profilePhotoUri)
+                    .build(),
                 contentDescription = "Profile Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(90.dp) // 이미지 크기 64dp로 설정
-                    .clip(CircleShape) // 이미지를 원형으로 자름
+                    .clip(CircleShape), // 이미지를 원형으로 자름
+                onError = {
+                    // 이미지 로딩 실패 시 로그 출력
+                    Log.e("AsyncImage", "Image load failed" + it.toString())
+                }
             )
             Spacer(Modifier.height(10.dp))
-            Text(text = user.value?.nickname ?:"" , style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
+            Text(text = user.value?.nickname ?:"no user" , style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
             Text(text = viewModel.userType.value.toString(),style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
             Spacer(Modifier.height(10.dp))
-            Text(text = user.value?.introduce!!,style = MaterialTheme.typography.bodySmall)
+            Text(text = user.value?.introduce ?: "", style = MaterialTheme.typography.bodySmall)
 
             Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
 

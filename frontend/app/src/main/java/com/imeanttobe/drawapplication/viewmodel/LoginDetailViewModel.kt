@@ -48,16 +48,15 @@ class LoginDetailViewModel @Inject constructor() : ViewModel() {
 
     fun login() {
         _loginState.value = Resource.Loading()
-
-        FirebaseAuth
-            .getInstance()
-            .signInWithEmailAndPassword(_email.value, _pw.value)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _loginState.value = Resource.Success()
-                } else {
-                    _loginState.value = Resource.Error(task.exception?.message ?: "로그인 실패")
+            FirebaseAuth
+                .getInstance()
+                .signInWithEmailAndPassword(_email.value, _pw.value)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        _loginState.value = Resource.Success()
+                    } else {
+                        _loginState.value = Resource.Error(task.exception?.message ?: "로그인 실패")
+                    }
                 }
-            }
     }
 }
