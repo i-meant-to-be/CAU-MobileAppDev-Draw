@@ -34,7 +34,7 @@ data class User(
         profilePhotoUri = Uri.parse(userWrapper.profilePhotoUri),
         instagramId = userWrapper.instagramId,
         type = UserType.fromString(userWrapper.type),
-        postIds = userWrapper.pictureIds,
+        postIds = userWrapper.postIds,
         chatSessions = userWrapper.chatSessions,
         introduce = userWrapper.introduce,
         phoneNumber = userWrapper.phoneNumber

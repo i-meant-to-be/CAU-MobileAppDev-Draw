@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -79,7 +80,10 @@ fun ProfileView(
     val context = LocalContext.current
 
     Surface(modifier = modifier) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             ProfileCard(
                 modifier = Modifier,
                 viewModel = viewModel,
@@ -145,10 +149,11 @@ fun ProfileViewGrid(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        user.value?.postIds?.let {
-            items(it.size) { index ->
-                val imageUri = user.value?.postIds?.get(index)?.toUri()
-
+        user.value?.postIds?.let { postIds ->
+            items(postIds.size) { postId ->
+                val imageUri = user.value?.postIds?.get(postId)?.toUri()
+                // TODO: Post 요청 코드 추가
+                
                 ProfileViewImageItem(
                     imageUri = imageUri,
                     onImageClick = {
@@ -181,15 +186,20 @@ fun ProfileViewImageItem(
                     .data(imageUri)
                     .build(),
                 contentDescription = "Selected image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth()
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+
             )
         } else {
             Image(
                 painter = painterResource(id = R.drawable.paintimage),
                 contentDescription = "Image",
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
             )
         }
     }

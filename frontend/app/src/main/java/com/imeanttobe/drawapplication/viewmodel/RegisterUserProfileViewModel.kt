@@ -120,10 +120,10 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
                                 "RegisterUserProfileViewModel",
                                 "signUp: before add pictureId. loadPictureUri: $pictureUri"
                             )
-                            user.postIds.add(pictureUri.toString())
+                            user.postIds.add(postId)
 
                             Log.d(
-                                "RegisteruserProfileViewModel",
+                                "RegisterUserProfileViewModel",
                                 "signUp: after add pictureId"
                             )
                             FirebaseDatabase.getInstance()
@@ -132,7 +132,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
                                 .setValue(UserWrapper(user))
 
                             Log.d(
-                                "RegisteruserProfileViewModel",
+                                "RegisterUserProfileViewModel",
                                 "signUp: after add user data on Firebase Database"
                             )
                             FirebaseDatabase.getInstance()
