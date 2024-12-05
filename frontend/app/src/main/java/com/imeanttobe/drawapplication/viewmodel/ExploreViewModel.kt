@@ -79,9 +79,7 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onPullToRefreshTriggered() {
-        _refreshState.update { true }
         getPosts()
-        _refreshState.update { false }
     }
 
     private fun getPosts() {
@@ -126,5 +124,6 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
             onResult(null)
         }
     }
+
 
 }

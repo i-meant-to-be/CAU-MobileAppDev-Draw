@@ -37,10 +37,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,6 +52,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -77,13 +82,29 @@ import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreView(
     modifier: Modifier = Modifier,
     viewModel: ExploreViewModel = hiltViewModel()
 ) {
     val posts = viewModel.posts.collectAsState()
+
+    var isRefreshing by remember { mutableStateOf(false) }
+    val state = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        coroutineScope.launch {
+            delay(2000)
+            viewModel.onPullToRefreshTriggered()
+            isRefreshing = false
+        }
+    }
 
     Surface(modifier = modifier) {
         Column(
@@ -98,17 +119,21 @@ fun ExploreView(
                 searchOption = viewModel.filterState.value,
                 search = viewModel::search
             )
-            ExploreViewGrid(
-                modifier = Modifier.padding(horizontal = 10.dp),
-                isDialogOpen = viewModel.dialogState.value,
-                setDialogState = { newValue -> viewModel.setDialogState(newValue) },
-                posts = posts.value,
-                viewModel = viewModel
-            )
+            PullToRefreshBox(
+                state = state,
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+            ) {
+                ExploreViewGrid(
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                    isDialogOpen = viewModel.dialogState.value,
+                    setDialogState = { newValue -> viewModel.setDialogState(newValue) },
+                    posts = posts.value,
+                    viewModel = viewModel
+                )
+            }
         }
     }
-
-
 }
 
 @Composable
