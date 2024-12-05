@@ -506,7 +506,8 @@ fun ExploreViewImageItem(
             AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f),
+                    .aspectRatio(1f)
+                    .background(color = MaterialTheme.colorScheme.surfaceContainerHighest),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageUri)
                     .build(),

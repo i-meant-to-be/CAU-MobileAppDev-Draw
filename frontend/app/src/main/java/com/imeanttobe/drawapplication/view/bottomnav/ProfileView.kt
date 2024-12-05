@@ -1,5 +1,7 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,11 +22,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -34,6 +38,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -50,11 +55,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +78,7 @@ import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.model.Post
+import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 
 @Composable
@@ -81,6 +89,7 @@ fun ProfileView(
 ) {
     val context = LocalContext.current
     val posts = viewModel.userPosts.collectAsState()
+    val user = viewModel.user.collectAsState()
 
     Surface(modifier = modifier) {
         Column(
@@ -89,8 +98,10 @@ fun ProfileView(
         ) {
             ProfileCard(
                 modifier = Modifier,
-                viewModel = viewModel,
-                navigateToLogin = navigateToLogin
+                user = user.value,
+                navigateToLogin = navigateToLogin,
+                setDialogState = viewModel::setDialogState,
+                signOut = viewModel::signOut
             )
             ProfileViewGrid(
                 modifier = Modifier
@@ -111,8 +122,9 @@ fun ProfileView(
             onDismiss = {
                 viewModel.setDialogState(0)
             },
-            onConfirm = {
-                viewModel.updateUserData()
+            user = user.value,
+            onUpdate = { newUser ->
+                viewModel.updateUser(newUser)
                 viewModel.setDialogState(0)
             }
         )
@@ -204,30 +216,24 @@ fun ProfileViewImageItem(
 @Composable // 프로필 카드 컴포저블
 fun ProfileCard(
     modifier: Modifier,
-    viewModel: ProfileViewModel,
-    navigateToLogin: ()-> Unit
+    user: User?,
+    navigateToLogin: ()-> Unit,
+    setDialogState: (Int) -> Unit,
+    signOut: () -> Unit
 ) {
-    val buttonContainerColor = MaterialTheme.colorScheme.surfaceDim
+    val buttonContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
     val buttonContentColor = MaterialTheme.colorScheme.onSurface
-    val user = viewModel.user.collectAsState()
-    val signOutState = viewModel.signOutState.collectAsState()
-
-    LaunchedEffect(key1 = signOutState.value) {
-        if (signOutState.value == Resource.Success()) {
-            navigateToLogin()
-        }
-    }
 
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Log.d("ProfileView", user.value?.profilePhotoUri.toString())
+        Log.d("ProfileView", user?.profilePhotoUri.toString())
 
         // Profile photo
         AsyncImage(
             model = ImageRequest.Builder(LocalPlatformContext.current)
-                .data(user.value?.profilePhotoUri)
+                .data(user?.profilePhotoUri)
                 .build(),
             contentDescription = "Profile Image",
             contentScale = ContentScale.Crop,
@@ -244,20 +250,33 @@ fun ProfileCard(
 
         // Nickname
         Text(
-            text = user.value?.nickname ?: stringResource(id = R.string.error_nickname),
+            text = user?.nickname ?: stringResource(id = R.string.error_nickname),
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
         )
         Spacer(modifier = Modifier.height(0.dp))
 
         // Introduce
         Text(
-            text = user.value?.introduce ?: stringResource(id = R.string.error_introduce),
+            text = user?.introduce ?: stringResource(id = R.string.error_introduce),
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         // Usertype
-        UserTypeLabel(userType = user.value?.type ?: UserType.UNDEFINED)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            UserTypeLabel(userType = user?.type ?: UserType.UNDEFINED)
+            Spacer(modifier = Modifier.width(10.dp))
+            InstagramButton(
+                instagramId = user?.instagramId ?: "",
+                userType = user?.type ?: UserType.UNDEFINED
+            )
+        }
         Spacer(Modifier.height(24.dp))
 
         // Profile buttons
@@ -269,7 +288,7 @@ fun ProfileCard(
         ) {
             // Edit button
             Button(
-                onClick = { viewModel.setDialogState(1) },
+                onClick = { setDialogState(1) },
                 modifier = Modifier
                     .height(40.dp)
                     .weight(1f),
@@ -286,7 +305,7 @@ fun ProfileCard(
 
             // New picture button
             Button(
-                onClick = { viewModel.setDialogState(2) },
+                onClick = { setDialogState(2) },
                 modifier = Modifier.size(width = 110.dp, height = 40.dp),
                 shape = RoundedCornerShape(100.dp), // 버튼 모양 설정
                 colors = ButtonDefaults.buttonColors(
@@ -302,7 +321,7 @@ fun ProfileCard(
             // Logout button
             Button(
                 onClick = {
-                    viewModel.signOut()
+                    signOut()
                     navigateToLogin()
                 },
                 modifier = Modifier.size(40.dp),
@@ -321,6 +340,44 @@ fun ProfileCard(
             }
         }
     }
+}
+
+@Composable
+fun InstagramButton(
+    instagramId: String,
+    userType: UserType
+) {
+    val containerColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.tertiary
+    }
+    val contentColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
+        else -> MaterialTheme.colorScheme.onTertiary
+    }
+    val context = LocalContext.current
+    val uri = Uri.parse("http://instagram.com/_u/$instagramId")
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+    intent.setPackage("com.instagram.android")
+
+    Icon(
+        painter = painterResource(id = R.drawable.instagram_logo), // 원하는 아이콘으로 변경
+        contentDescription = "인스타그램 아이디 아이콘", // 접근성을 위한 설명
+        tint = contentColor,
+        modifier = Modifier
+            .size(30.dp)
+            .background(color = containerColor, shape = CircleShape)
+            .padding(6.dp)
+            .clickable {
+                try {
+                    context.startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                }
+            }
+    )
 }
 
 @Composable
@@ -565,160 +622,172 @@ fun NewPictureDialog(
 @Composable
 fun UpdateUserDataDialog(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onUpdate: (User) -> Unit,
+    user: User?
 ) {
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    var pictureUri by rememberSaveable { mutableStateOf(user?.profilePhotoUri ?: Uri.EMPTY) }
+    var newNickname by rememberSaveable { mutableStateOf(user?.nickname ?: "") }
+    var newInstagramId by rememberSaveable { mutableStateOf(user?.instagramId ?: "") }
+    var newIntroduce by rememberSaveable { mutableStateOf(user?.introduce ?: "") }
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            pictureUri = uri
+        }
+    )
 
     Dialog(
-        onDismissRequest = {
-            onDismiss()
-        },
-        content = {
-
-        }
-                /*
-        text = {
-            Column() {
-
-                Row(verticalAlignment = Alignment.CenterVertically
-                    ,horizontalArrangement = Arrangement.spacedBy(50.dp)) {
-
-
-                    Text(
-                        modifier = Modifier,
-                        text = "프로필",
-                        fontSize = 15.sp,               // 텍스트 크기
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Visible
-                    )
-
-
-
-                    Box(
-                        modifier = Modifier
-
-                            .size(100.dp)
-                            .background(
-                                Color.LightGray,
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            .clickable {val intent = Intent(
-                                Intent.ACTION_PICK,
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                            )
-                                launcher2.launch(intent)}, // 이미지 선택 Intent 실행
-                        contentAlignment = Alignment.Center
-                    ) {
+        onDismissRequest = onDismiss
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(
+                modifier = Modifier.padding(30.dp)
+            ) {
+                // Image area
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.edit_profile_photo),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.edit_your_profile_photo),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (pictureUri != Uri.EMPTY) {
                         AsyncImage(
-
-                            model = profileImageUri.value
-                            ,contentDescription = "Profile Image",
-                            contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(90.dp) // 이미지 크기 64dp로 설정
-                                .clip(CircleShape)
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .clickable { imagePicker.launch("image/*") },
+                            model = ImageRequest.Builder(context)
+                                .data(pictureUri)
+                                .build(),
+                            contentScale = ContentScale.FillBounds,
+                            contentDescription = "Picture"
                         )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
+                                .clickable { imagePicker.launch("image/*") },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.add_picture),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
-                Spacer(modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
+                // Nickname area
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.nickname),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.enter_your_nickname),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = newNickname,
+                    onValueChange = { newValue -> newNickname = newValue },
+                    placeholder = { Text(text = stringResource(id = R.string.example_nickname)) },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    minLines = 1,
+                    maxLines = 2
+                )
+                Spacer(modifier = Modifier.height(30.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically
-                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+                // Instagram area
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.instagram_account),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.enter_your_instagram_id),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = newInstagramId,
+                    onValueChange = { newValue -> newInstagramId = newValue },
+                    placeholder = { Text(text = stringResource(id = R.string.instagram_account)) },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    minLines = 1,
+                    maxLines = 2
+                )
+                Spacer(modifier = Modifier.height(30.dp))
 
+                // Introduce area
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.introduce),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.enter_your_introduce),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = newIntroduce,
+                    onValueChange = { newValue -> newIntroduce = newValue },
+                    placeholder = { Text(text = stringResource(id = R.string.example_introduce)) },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    minLines = 1,
+                    maxLines = 2
+                )
+                Spacer(modifier = Modifier.height(30.dp))
 
-                    Text(
-                        modifier = Modifier.weight(3f),
-                        text = "시용자 이름",
-                        fontSize = 15.sp,               // 텍스트 크기
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Visible
-                    )
-
-                    TextField(
-                        modifier = Modifier
-                            .weight(7f),
-                        value = tempNickname,
-                        onValueChange = { tempNickname = it },
-
-                        placeholder = { Text(text = "닉네임을 입력하시오") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
-                    )
+                // Button area
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        onUpdate(
+                            user!!.copy(
+                                profilePhotoUri = pictureUri,
+                                nickname = newNickname,
+                                instagramId = newInstagramId,
+                                introduce = newIntroduce
+                            )
+                        )
+                        onDismiss()
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.edit_profile))
                 }
-
-                Spacer(Modifier.height(10.dp))
-                Row(verticalAlignment = Alignment.CenterVertically
-                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-
-                    Text(
-                        modifier = Modifier.weight(3f),
-                        text = "역할",
-                        fontSize = 15.sp,               // 텍스트 크기
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Visible
-                    )
-
-                    TextField(
-                        modifier = Modifier
-                            .weight(7f),
-                        value = tempRole,
-                        onValueChange = { tempRole= it },
-
-                        placeholder = { Text(text = "역할을 입력하시오") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
-                    )
-                }
-                Spacer(Modifier.height(10.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically
-                    ,horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-
-                    Text(
-                        modifier = Modifier.weight(3f),
-                        text = "소개",
-                        fontSize = 15.sp,               // 텍스트 크기
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Visible
-                    )
-
-                    TextField(
-                        modifier = Modifier
-                            .weight(7f),
-                        value = temponesentence,
-                        onValueChange = { temponesentence = it },
-
-                        placeholder = { Text(text = "소개를 입력하시오") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
-                    )
-                }
-
-
-            }
-
-            // 정보 입력 폼 추가
-            // 예: OutlinedTextField, Button 등
-        },
-        confirmButton = {
-            Button(onClick = {
-                onesentence=temponesentence
-                Role=tempRole
-                Nickname=tempNickname
-
-                // 정보 저장 로직 추가
-                showDialog = false // dialog 닫기
-            }) {
-                Text("저장")
-            }
-        },
-        dismissButton = {
-            Button(onClick = { showDialog = false }) {
-                Text("취소")
             }
         }
-
-                 */
-    )
+    }
 }

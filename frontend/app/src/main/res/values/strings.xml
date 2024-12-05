@@ -16,6 +16,7 @@
     <string name="enter_your_pw">비밀번호를 입력하세요.</string>
     <string name="enter_your_email">유효한 이메일을 입력하세요.</string>
     <string name="register_profile_img">프로필 사진을 등록하세요.</string>
+    <string name="edit_your_profile_photo">프로필 사진을 변경하세요.</string>
     <string name="confirm_your_password">비밀번호를 다시 입력하세요.</string>
     <string name="enter_your_phone_number">유효한 전화번호를 입력하세요.</string>
     <string name="forgot_your_id">ID를 잊으셨나요?</string>
@@ -23,6 +24,8 @@
     <string name="confirm">확인</string>
     <string name="verification">인증</string>
     <string name="add_picture">그림 추가</string>
+    <string name="edit_profile_photo">프로필 사진 변경</string>
+    <string name="edit_profile">사용자 정보 변경</string>
     <string name="no_image">서버에 이미지 없음</string>
     <string name="add_profile_photo">프로필 사진 추가</string>
     <string name="register_picture">그림 등록</string>

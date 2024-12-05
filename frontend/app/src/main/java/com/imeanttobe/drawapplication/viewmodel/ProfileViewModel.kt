@@ -162,9 +162,14 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
         _signOutState.value = Resource.Success()
     }
 
-    fun updateUserData() {
+    fun updateUser(user: User) {
         FirebaseDatabase.getInstance()
             .getReference(userReferenceName)
-            .child(_user.value!!.id)
+            .child(user.id)
+            .setValue(UserWrapper(user))
+            .addOnSuccessListener {
+                getUserData()
+            }
+
     }
 }
