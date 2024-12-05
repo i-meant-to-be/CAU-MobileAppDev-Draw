@@ -84,6 +84,7 @@ fun ProfileViewGrid(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val user = viewModel.user.collectAsState()
+
     LazyVerticalGrid(
         modifier = modifier.padding(horizontal = 10.dp),
         columns = GridCells.Fixed(3),
@@ -146,12 +147,13 @@ fun ProfileCard(
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     var showDialog by remember { mutableStateOf(false) }
     val user = viewModel.user.collectAsState()
+    val context = LocalContext.current
 
     val launcher1 = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            viewModel.addImageUri( result.data?.data)
+            viewModel.addImageUri( result.data?.data, context)
         }
     }
 
@@ -201,21 +203,21 @@ fun ProfileCard(
             Text(text = user.value?.introduce ?: "", style = MaterialTheme.typography.bodySmall)
 
             Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-
-            Button(
-                onClick = {showDialog=true},
-                modifier = Modifier
-                    .weight(0.7f)
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(5.dp)),// 배경색 설정
-                shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.LightGray,
-                    contentColor = Color.White
-                )            ) {
-                Text(text = stringResource(id = R.string.modify_information), fontSize = 15.sp, maxLines = 1 )
-            }
+                Button(
+                    onClick = {showDialog=true},
+                    modifier = Modifier
+                        .weight(0.7f)
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(5.dp)),// 배경색 설정
+                    shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(text = stringResource(id = R.string.modify_information), fontSize = 15.sp, maxLines = 1 )
+                }
 
                 Button(
                     onClick = {
@@ -236,9 +238,12 @@ fun ProfileCard(
                         contentColor = Color.White
                     )
                 ) {
-                    Text(text = stringResource(id = R.string.register_picture), fontSize = 15.sp, maxLines = 1 )
+                    Text(
+                        text = stringResource(id = R.string.register_picture),
+                        fontSize = 15.sp,
+                        maxLines = 1
+                    )
                 }
-
             }
         }
         Button(

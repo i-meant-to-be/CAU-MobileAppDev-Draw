@@ -88,7 +88,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
 
                     //프로필 사진 저장하고 그 uri 가져와서 저장.
                     uploadProfilePhotoToStorage(_profilePhotoUri.value, context, userId) { photoUri ->
-                        uploadPictureToStorage(_pictureUri.value, context, userId, 0) {pictureUri -> //여기서 0은 register시에 pictureIds의 첫번째를 뜻하는거
+                        uploadPictureToStorage(_pictureUri.value, context, userId, 0) {pictureUri -> //여기서 0은 register시에 pictureIds의 첫번째를 뜻하는 거
 
                             val user = User(
                                 id = userId,
