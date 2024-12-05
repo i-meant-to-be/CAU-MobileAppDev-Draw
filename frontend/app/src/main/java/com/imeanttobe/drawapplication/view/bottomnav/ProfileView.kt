@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -69,6 +70,7 @@ import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
+import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 
 @Composable
@@ -78,6 +80,7 @@ fun ProfileView(
     navigateToLogin: () -> Unit
 ) {
     val context = LocalContext.current
+    val posts = viewModel.userPosts.collectAsState()
 
     Surface(modifier = modifier) {
         Column(
@@ -93,7 +96,11 @@ fun ProfileView(
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
                     .padding(top = 10.dp),
-                viewModel = viewModel
+                posts = posts.value,
+                onImageClick = { imageUri, description ->
+                    viewModel.setDialogState(3)
+                    viewModel.setPictureDialogData(imageUri, description)
+                }
             )
         }
     }
@@ -115,10 +122,10 @@ fun ProfileView(
     if (viewModel.dialogState.value == 2) {
         NewPictureDialog(
             onDismiss = { viewModel.setDialogState(0) },
-            onAddNewPicture = { uri ->
+            onAddNewPicture = { uri, description ->
                 viewModel.addPost(
                     uri = uri,
-                    description = "",
+                    description = description,
                     context = context
                 )
             }
@@ -138,10 +145,9 @@ fun ProfileView(
 @Composable
 fun ProfileViewGrid(
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = hiltViewModel()
+    posts: List<Post>,
+    onImageClick: (Uri, String) -> Unit
 ) {
-    val user = viewModel.user.collectAsState()
-
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(3),
@@ -149,41 +155,31 @@ fun ProfileViewGrid(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        user.value?.postIds?.let { postIds ->
-            items(postIds.size) { postId ->
-                val imageUri = user.value?.postIds?.get(postId)?.toUri()
-                // TODO: Post 요청 코드 추가
-                
-                ProfileViewImageItem(
-                    imageUri = imageUri,
-                    onImageClick = {
-                        // TODO
-                        viewModel.setDialogState(3)
-                        viewModel.setCurrentPictureDescription("")
-                        viewModel.setCurrentPictureUri(imageUri)
-                    }
-                )
-            }
+        items(items = posts) { post ->
+            ProfileViewImageItem(
+                post = post,
+                onImageClick = { imageUri, description -> onImageClick(imageUri, description) }
+            )
         }
     }
 }
 
 @Composable
 fun ProfileViewImageItem(
-    imageUri: Uri?,
-    onImageClick: () -> Unit
+    post: Post,
+    onImageClick: (Uri, String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onImageClick() }
+            .clickable { onImageClick(post.imageUri, post.description) }
     ) {
-        Log.d("ProfileView", imageUri.toString())
+        Log.d("ProfileView", post.imageUri.toString())
 
-        if (imageUri != null) {
+        if (post.imageUri != Uri.EMPTY) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(imageUri)
+                    .data(post.imageUri)
                     .build(),
                 contentDescription = "Selected image",
                 contentScale = ContentScale.FillWidth,
@@ -454,7 +450,7 @@ fun UserTypeLabel(userType: UserType) {
 @Composable
 fun NewPictureDialog(
     onDismiss: () -> Unit,
-    onAddNewPicture: (Uri) -> Unit
+    onAddNewPicture: (Uri, String) -> Unit
 ) {
     val context = LocalContext.current
     var pictureUri by rememberSaveable { mutableStateOf(Uri.EMPTY) }
@@ -555,7 +551,7 @@ fun NewPictureDialog(
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        onAddNewPicture(pictureUri)
+                        onAddNewPicture(pictureUri, description)
                         onDismiss()
                     }
                 ) {
@@ -571,9 +567,6 @@ fun UpdateUserDataDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-
-    // Dialog()
-    // AlertDialog()
 
     Dialog(
         onDismissRequest = {
