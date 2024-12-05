@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,7 @@ import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.etc.PostWrapper
 import com.imeanttobe.drawapplication.data.etc.UserWrapper
 import com.imeanttobe.drawapplication.data.model.Post
+import com.imeanttobe.drawapplication.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +29,7 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
 
     // Variables
     private val postReferenceName = "post"
+    private val userReferenceName = "user"
 
     private val _searchText = mutableStateOf("")
     private val _dialogState = mutableStateOf(false)
@@ -104,4 +107,24 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
                 }
             )
     }
+
+    fun getUserFromDB(post: Post, onResult: (User?) -> Unit){
+        try{
+            FirebaseDatabase.getInstance()
+                .getReference(userReferenceName)
+                .child(post.userId)
+                .get()
+                .addOnSuccessListener { data ->
+                    Log.d("ExploreViewModel", "getUserFromDB Success: $data")
+                    onResult(User(data.getValue(UserWrapper::class.java) as UserWrapper))
+                }.addOnFailureListener { e ->
+                    Log.e("ExploreViewModel", "Error fetching user: ${e.message}")
+                    onResult(null)
+                }
+        } catch (e: Exception) {
+            Log.e("ExploreViewModel", "Unexpected error: ${e.message}")
+            onResult(null)
+        }
+    }
+
 }

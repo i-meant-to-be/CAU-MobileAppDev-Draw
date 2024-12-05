@@ -42,10 +42,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
@@ -99,7 +102,8 @@ fun ExploreView(
                 modifier = Modifier.padding(horizontal = 10.dp),
                 isDialogOpen = viewModel.dialogState.value,
                 setDialogState = { newValue -> viewModel.setDialogState(newValue) },
-                posts = posts.value
+                posts = posts.value,
+                viewModel = viewModel
             )
         }
     }
@@ -140,7 +144,8 @@ fun ExploreViewGrid(
     modifier: Modifier = Modifier,
     isDialogOpen: Boolean,
     setDialogState: (Boolean) -> Unit,
-    posts: List<Post>
+    posts: List<Post>,
+    viewModel: ExploreViewModel
 ) {
     var dialogDescription by rememberSaveable { mutableStateOf("") }
 
@@ -170,9 +175,16 @@ fun ExploreViewGrid(
             contentPadding = PaddingValues(vertical = 10.dp)
         ) {
             items(posts) { post ->
+                var user by remember { mutableStateOf<User?>(null) }
+                LaunchedEffect(post) {
+                    viewModel.getUserFromDB(post) {
+                        user = it ?: User()
+                    }
+                }
+
                 ExploreViewGridItem(
                     post = post,
-                    user = User(),
+                    user = user ?: User(),
                     onImageClick = {
                         dialogDescription = post.description
                         setDialogState(true)
@@ -186,6 +198,7 @@ fun ExploreViewGrid(
                 setDialogState = { setDialogState(false) },
                 description = dialogDescription,
                 // TODO: how can we get image included in post?
+                // answer: currentUser.id로 db에서 pictureIds를 받아와서 가능.
                 image = painterResource(id = R.drawable.paintimage)
             )
         }
@@ -438,8 +451,10 @@ fun ExploreViewUserInfoItem(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.joker),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalPlatformContext.current)
+                .data(userImageUrl)
+                .build(),
             contentDescription = "Image",
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
