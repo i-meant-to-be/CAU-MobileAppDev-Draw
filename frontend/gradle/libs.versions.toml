@@ -1,7 +1,6 @@
 [versions]
 # Default
 agp = "8.7.3"
-coilNetworkOkhttp = "3.0.4"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -19,16 +18,16 @@ activity = "1.9.3"
 parcelize = "2.0.21"
 gms = "4.4.2"
 coil = "3.0.2"
+coilNetworkOkhttp = "3.0.4"
 firebaseAuth = "23.1.0"
 firebaseBom = "33.6.0"
 firebaseAnalytics = "22.1.2"
 firebaseDatabase = "21.0.0"
+firebaseStorage = "21.0.1"
 
 [libraries]
 # Default
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilNetworkOkhttp" }
-firebase-storage = { module = "com.google.firebase:firebase-storage" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -53,10 +52,12 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 firebase-analytics = { module = "com.google.firebase:firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
+firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebaseStorage" }
 # Etc
 androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "iconsExtended"}
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilNetworkOkhttp" }
 
 [plugins]
 # Default

@@ -1,16 +1,12 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,13 +16,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,13 +40,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,8 +53,9 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
-import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
+import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
+import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileView(
@@ -71,7 +71,9 @@ fun ProfileView(
                 navigateToLogin = navigateToLogin
             )
             ProfileViewGrid(
-                modifier = Modifier,
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .padding(top = 10.dp),
                 viewModel = viewModel
             )
         }
@@ -86,7 +88,7 @@ fun ProfileViewGrid(
     val user = viewModel.user.collectAsState()
 
     LazyVerticalGrid(
-        modifier = modifier.padding(horizontal = 10.dp),
+        modifier = modifier,
         columns = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -117,6 +119,7 @@ fun ProfileViewImageItem(
             .clickable { onImageClick() }
     ) {
         Log.d("ProfileView", imageUri.toString())
+
         if (imageUri != null) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalPlatformContext.current)
@@ -143,143 +146,180 @@ fun ProfileCard(
     viewModel: ProfileViewModel,
     navigateToLogin: ()-> Unit
 ) {
-    val backgroundColor = MaterialTheme.colorScheme.primaryContainer
-    val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+    val buttonContainerColor = MaterialTheme.colorScheme.surfaceDim
+    val buttonContentColor = MaterialTheme.colorScheme.onSurface
     var showDialog by remember { mutableStateOf(false) }
     val user = viewModel.user.collectAsState()
+    val signOutState = viewModel.signOutState.collectAsState()
     val context = LocalContext.current
 
-    val launcher1 = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            viewModel.addImageUri( result.data?.data, context)
+    val newProfilePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            // viewModel.updateProfilePhotoUri(uri, context)
         }
-    }
+    )
 
-    val launcher2 = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            viewModel.addProfileImageUri( result.data?.data)
+    val newPicturePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            viewModel.addImageUri(uri, context)
         }
-    }
-    val uiState = viewModel.signOutState.collectAsState()
-    LaunchedEffect(key1 = uiState.value) {
-        if (uiState.value == Resource.Success()) {
+    )
+
+    LaunchedEffect(key1 = signOutState.value) {
+        if (signOutState.value == Resource.Success()) {
             navigateToLogin()
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 50.dp, horizontal = 10.dp)
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Column(
+        Log.d("ProfileView", user.value?.profilePhotoUri.toString())
+
+        // Profile photo
+        AsyncImage(
+            model = ImageRequest.Builder(LocalPlatformContext.current)
+                .data(user.value?.profilePhotoUri)
+                .build(),
+            contentDescription = "Profile Image",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(top = 10.dp)
+                .size(100.dp) // 이미지 크기 64dp로 설정
+                .clip(CircleShape), // 이미지를 원형으로 자름
+            onError = {
+                // 이미지 로딩 실패 시 로그 출력
+                Log.e("AsyncImage", "Image load failed $it")
+            }
+        )
+        Spacer(Modifier.height(10.dp))
+
+        // Nickname
+        Text(
+            text = user.value?.nickname ?: stringResource(id = R.string.error_nickname),
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+        )
+        Spacer(modifier = Modifier.height(0.dp))
+
+        // Introduce
+        Text(
+            text = user.value?.introduce ?: stringResource(id = R.string.error_introduce),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Usertype
+        UserTypeLabel(userType = user.value?.type ?: UserType.UNDEFINED)
+        Spacer(Modifier.height(24.dp))
+
+        // Profile buttons
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Log.d("ProfileView", user.value?.profilePhotoUri.toString())
-            AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(user.value?.profilePhotoUri)
-                    .build(),
-                contentDescription = "Profile Image",
-                contentScale = ContentScale.Crop,
+            // Edit button
+            Button(
+                onClick = { showDialog = true },
                 modifier = Modifier
-                    .size(90.dp) // 이미지 크기 64dp로 설정
-                    .clip(CircleShape), // 이미지를 원형으로 자름
-                onError = {
-                    // 이미지 로딩 실패 시 로그 출력
-                    Log.e("AsyncImage", "Image load failed" + it.toString())
-                }
-            )
-            Spacer(Modifier.height(10.dp))
-            Text(text = user.value?.nickname ?:"no user" , style = MaterialTheme.typography.labelLarge, fontSize = 20.sp)
-            Text(text = viewModel.userType.value.toString(),style = MaterialTheme.typography.labelMedium, fontSize = 15.sp)
-            Spacer(Modifier.height(10.dp))
-            Text(text = user.value?.introduce ?: "", style = MaterialTheme.typography.bodySmall)
+                    .height(40.dp)
+                    .weight(1f),
+                shape = RoundedCornerShape(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonContainerColor,
+                    contentColor = buttonContentColor
+                )
+            ) {
+                Text(
+                    text = stringResource(id = R.string.modify_information)
+                )
+            }
 
-            Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-                Button(
-                    onClick = {showDialog=true},
-                    modifier = Modifier
-                        .weight(0.7f)
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(5.dp)),// 배경색 설정
-                    shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(text = stringResource(id = R.string.modify_information), fontSize = 15.sp, maxLines = 1 )
-                }
+            // New picture button
+            Button(
+                onClick = { newPicturePickerLauncher.launch("image/*") },
+                modifier = Modifier.size(width = 110.dp, height = 40.dp),
+                shape = RoundedCornerShape(100.dp), // 버튼 모양 설정
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonContainerColor,
+                    contentColor = buttonContentColor
+                )
+            ) {
+                Text(
+                    text = stringResource(id = R.string.register_picture)
+                )
+            }
 
-                Button(
-                    onClick = {
-                        val intent = Intent(
-                            Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                        )
-                        launcher1.launch(intent)
+            // Logout button
+            Button(
+                onClick = {
+                    viewModel.signOut()
+                    navigateToLogin()
+                },
+                modifier = Modifier.size(40.dp),
+                shape = RoundedCornerShape(100.dp), // 버튼 모양 설정
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonContainerColor,
+                    contentColor = buttonContentColor
+                )
+            ) {
+                // Text(text = stringResource(id = R.string.logout), fontSize = 10.sp)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = "Logout button"
+                )
+            }
+
+            if (showDialog) {
+                UpdateUserDataDialog(
+                    onDismiss = {
+                        viewModel.setDialogState(false)
                     },
-                    modifier = Modifier
-                        .weight(0.3f)
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(5.dp)),// 배경색 설정
-                    shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.register_picture),
-                        fontSize = 15.sp,
-                        maxLines = 1
-                    )
-                }
+                    onConfirm = {
+                        viewModel.updateUserData()
+                        viewModel.setDialogState(false)
+                    }
+                )
             }
         }
-        Button(
-            onClick = {
-                viewModel.signOut()
-                navigateToLogin()
+    }
+}
+
+@Composable
+fun UserTypeLabel(userType: UserType) {
+    val containerColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.tertiary
+    }
+    val contentColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
+        else -> MaterialTheme.colorScheme.onTertiary
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        )
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
+            text = when (userType) {
+                UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
+                UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
+                UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
+                else -> stringResource(id = R.string.error_user_type)
             },
-            modifier = Modifier
-                .padding(10.dp)
-                .width(58.dp)
-                .align(alignment = Alignment.TopEnd)
-                .height(20.dp)
-                .clip(RoundedCornerShape(5.dp)),// 배경색 설정
-            shape = RoundedCornerShape(5.dp), // 버튼 모양 설정
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = backgroundColor,
-                contentColor = contentColor
-            )
-        ) {
-            Text(text = stringResource(id = R.string.logout), fontSize = 10.sp)
-        }
-
-
-
-        if (showDialog) {
-            UpdateUserDataDialog(
-                onDismiss = {
-                    viewModel.setDialogState(false)
-                },
-                onConfirm = {
-                    viewModel.updateUserData()
-                    viewModel.setDialogState(false)
-                }
-            )
-        }
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = contentColor
+        )
     }
 }
 

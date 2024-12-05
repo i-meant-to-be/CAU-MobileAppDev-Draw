@@ -1,6 +1,7 @@
 package com.imeanttobe.drawapplication.data.model
 
 import com.imeanttobe.drawapplication.data.enum.UserType
+import com.imeanttobe.drawapplication.data.etc.UserWrapper
 
 data class User(
     val id: String,
@@ -23,5 +24,18 @@ data class User(
         introduce = "",
         phoneNumber = "",
         email = ""
+    )
+
+    constructor(userWrapper: UserWrapper) : this(
+        id = userWrapper.id,
+        nickname = userWrapper.nickname,
+        email = userWrapper.email,
+        profilePhotoUri = userWrapper.profilePhotoUri,
+        instagramId = userWrapper.instagramId,
+        type = UserType.fromString(userWrapper.type),
+        pictureIds = userWrapper.pictureIds,
+        chatSessions = userWrapper.chatSessions,
+        introduce = userWrapper.introduce,
+        phoneNumber = userWrapper.phoneNumber
     )
 }

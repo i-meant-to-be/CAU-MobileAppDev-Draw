@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
+import com.imeanttobe.drawapplication.data.etc.UserWrapper
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.util.StorageUtil.Companion.uploadPictureToStorage
 import com.imeanttobe.drawapplication.util.StorageUtil.Companion.uploadProfilePhotoToStorage
@@ -88,8 +89,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
 
                     //프로필 사진 저장하고 그 uri 가져와서 저장.
                     uploadProfilePhotoToStorage(_profilePhotoUri.value, context, userId) { photoUri ->
-                        uploadPictureToStorage(_pictureUri.value, context, userId, 0) {pictureUri -> //여기서 0은 register시에 pictureIds의 첫번째를 뜻하는 거
-
+                        uploadPictureToStorage(_pictureUri.value, context, userId, 0) { pictureUri -> //여기서 0은 register시에 pictureIds의 첫번째를 뜻하는 거
                             val user = User(
                                 id = userId,
                                 nickname = _nickname.value,
@@ -109,7 +109,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
                             FirebaseDatabase.getInstance()
                                 .getReference("user")
                                 .child(userId)
-                                .setValue(user)
+                                .setValue(UserWrapper(user))
                             _registerState.value = Resource.Success()
                         }
                     }

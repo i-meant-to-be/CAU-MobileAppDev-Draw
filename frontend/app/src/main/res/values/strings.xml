@@ -44,6 +44,10 @@
     <string name="add_your_picture">소개하고 싶은 그림을 1장 이상 추가해주세요.</string>
     <string name="error_get_message">메시지를 가져오는 도중 오류가 발생했어요.</string>
 
+    <string name="error_nickname">별명 오류</string>
+    <string name="error_user_type">사용자 유형 오류</string>
+    <string name="error_introduce">소개 오류</string>
+
     <string name="example_phone_number">010–0000–0000</string>
     <string name="example_verification_code">1234</string>
     <string name="example_email">example@example.com</string>
@@ -58,7 +62,7 @@
     <string name="option">선택</string>
     <string name="instagram_account">인스타그램 계정</string>
     <string name="nickname">별명</string>
-    <string name="introduce">별명</string>
+    <string name="introduce">한 줄 소개ㅎ</string>
     <string name="usertype">사용자 유형</string>
     <string name="verification_code">인증 번호</string>
     <string name="email">이메일</string>
