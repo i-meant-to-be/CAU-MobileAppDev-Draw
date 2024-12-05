@@ -84,8 +84,8 @@ class ChatDetailViewModel @Inject constructor() : ViewModel() {
                 object: ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val list = mutableListOf<Message>()
-                        snapshot.children.forEach { message ->
-                            val message = message.getValue(Message::class.java)
+                        snapshot.children.forEach { data ->
+                            val message = data.getValue(Message::class.java)
                             message?.let { list.add(it) }
                         }
 

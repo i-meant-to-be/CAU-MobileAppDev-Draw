@@ -9,7 +9,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.imeanttobe.drawapplication.data.etc.PostWrapper
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.etc.UserWrapper
@@ -29,6 +32,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
     private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _user = MutableStateFlow<User?>(null)
+    private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
     private val _dialogState = mutableIntStateOf(0)
     private val _currentPictureDescription = mutableStateOf("")
     private val _currentPictureUri = mutableStateOf(Uri.EMPTY)
@@ -36,6 +40,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     // Getter
     val signOutState = _signOutState.asStateFlow()
     val user = _user.asStateFlow()
+    val userPosts = _userPosts.asStateFlow()
     val dialogState: State<Int> = _dialogState
     val currentPictureDescription: State<String> = _currentPictureDescription
     val currentPictureUri: State<Uri> = _currentPictureUri
@@ -57,20 +62,58 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                     .addOnSuccessListener { data ->
                         Log.d("ProfileViewModel", "getUserData Success")
                         _user.value = User(data.getValue(UserWrapper::class.java) as UserWrapper)
+                        getUserPosts()
                 }
             }
+    }
+
+    private fun getUserPosts() {
+        // Get user's posts
+        FirebaseDatabase.getInstance()
+            .getReference(userReferenceName)
+            .child(user.value!!.id)
+            .child("postIds")
+            .orderByChild("timestamp")
+            .addValueEventListener(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        // Clear before load new data
+                        _userPosts.value = emptyList()
+
+                        for (data in snapshot.children) {
+                            val postId = data.getValue(String::class.java)
+                            postId?.let { postId ->
+                                FirebaseDatabase.getInstance()
+                                    .getReference(postReferenceName)
+                                    .child(postId)
+                                    .get()
+                                    .addOnSuccessListener { data ->
+                                        Log.d("ProfileViewModel", "getUserPosts Success")
+                                        _userPosts.value += Post(data.getValue(PostWrapper::class.java) as PostWrapper)
+                                    }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                }
+            )
+
     }
 
     fun setDialogState(newValue: Int) {
         _dialogState.intValue = newValue
     }
 
-    fun setCurrentPictureDescription(newValue: String) {
-        _currentPictureDescription.value = newValue
-    }
-
-    fun setCurrentPictureUri(newValue: Uri?) {
-        _currentPictureUri.value = newValue
+    fun setPictureDialogData(
+        uri: Uri,
+        description: String
+    ) {
+        _currentPictureUri.value = uri
+        _currentPictureDescription.value = description
     }
 
     fun addPost(
@@ -103,7 +146,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                     .child(_user.value!!.id)
                     .child("postIds")
                     .child(currentUser.postIds.size.toString())
-                    .setValue(pictureUri.toString())
+                    .setValue(postId)
 
                 // Add post
                 FirebaseDatabase.getInstance()
