@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +26,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.ImageSearch
@@ -55,6 +58,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -62,6 +66,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
@@ -408,7 +414,7 @@ fun ExploreViewGridItem(
             ExploreViewImageItem(
                 post = post,
                 // TODO: have to set image's url here
-                imageUrl = "?",
+                imageUri = post.imageUri,
                 contentColor = contentColor,
                 onImageClick = onImageClick
             )
@@ -461,7 +467,7 @@ fun ExploreViewUserInfoItem(
 @Composable
 fun ExploreViewImageItem(
     post: Post,
-    imageUrl: String,
+    imageUri: Uri,
     contentColor: Color,
     onImageClick: () -> Unit
 ) {
@@ -470,6 +476,7 @@ fun ExploreViewImageItem(
             .fillMaxWidth()
             .clickable { onImageClick() }
     ) {
+        /*
         Image(
             // TODO: this sample image have to replaced with server's image loaded by Coil library
             painter = painterResource(id = R.drawable.paintimage),
@@ -477,6 +484,44 @@ fun ExploreViewImageItem(
             contentScale = ContentScale.FillWidth,
             modifier = Modifier.fillMaxWidth()
         )
+
+         */
+
+        if (imageUri != Uri.EMPTY) {
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUri)
+                    .build(),
+                contentScale = ContentScale.FillWidth,
+                contentDescription = "Image"
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .background(color = MaterialTheme.colorScheme.error),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Error,
+                    contentDescription = "Image",
+                    tint = MaterialTheme.colorScheme.onError,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .align(alignment = Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    text = stringResource(id = R.string.no_image),
+                    color = MaterialTheme.colorScheme.onError,
+                )
+            }
+        }
         Text(
             text = post.description,
             minLines = 2,

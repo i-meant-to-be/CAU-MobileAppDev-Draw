@@ -1,6 +1,7 @@
 package com.imeanttobe.drawapplication.view
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.imeanttobe.drawapplication.data.etc.PostWrapper
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 
@@ -58,17 +60,18 @@ fun addNewPost(context: Context) {
     val user = FirebaseAuth.getInstance().currentUser ?: return
     val firebaseDatabase = FirebaseDatabase.getInstance()
     val key = firebaseDatabase.getReference(postReferenceName).push().key
+
     val post = Post(
         id = key!!,
         userId = user.uid,
         description = "This is a description. If it is too long, text will be truncated and it will be shown with 3-dots. It is a long description.",
-        imageUri = ""
+        imageUri = Uri.EMPTY
     )
 
     firebaseDatabase
         .getReference(postReferenceName)
         .child(key)
-        .setValue(post)
+        .setValue(PostWrapper(post))
         .addOnSuccessListener {
             Toast.makeText(context, "Post added successfully", Toast.LENGTH_SHORT).show()
         }

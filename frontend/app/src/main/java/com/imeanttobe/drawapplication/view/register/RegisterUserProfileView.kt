@@ -383,12 +383,16 @@ fun RegisterUserProfileView(
 
             // Description area
             Text(
-                modifier = Modifier.align(alignment = Alignment.Start),
+                modifier = Modifier
+                    .align(alignment = Alignment.Start)
+                    .padding(horizontal = 30.dp),
                 text = stringResource(id = R.string.picture_description),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
             Text(
-                modifier = Modifier.align(alignment = Alignment.Start),
+                modifier = Modifier
+                    .align(alignment = Alignment.Start)
+                    .padding(horizontal = 30.dp),
                 text = stringResource(id = R.string.enter_picture_description),
                 style = MaterialTheme.typography.bodyMedium
             )

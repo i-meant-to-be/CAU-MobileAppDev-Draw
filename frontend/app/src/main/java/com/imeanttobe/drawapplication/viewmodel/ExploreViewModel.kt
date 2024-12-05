@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
+import com.imeanttobe.drawapplication.data.etc.PostWrapper
 import com.imeanttobe.drawapplication.data.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +26,6 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
 
     // Variables
     private val postReferenceName = "post"
-    private val firebaseDatabase = FirebaseDatabase.getInstance()
-    private val firebaseAuth = FirebaseAuth.getInstance()
 
     private val _searchText = mutableStateOf("")
     private val _dialogState = mutableStateOf(false)
@@ -84,16 +83,15 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
     private fun getPosts() {
         val posts = mutableListOf<Post>()
 
-        firebaseDatabase
+        FirebaseDatabase
+            .getInstance()
             .getReference(postReferenceName)
             .addListenerForSingleValueEvent(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for (childSnapshot in snapshot.children) {
-                            val post = childSnapshot.getValue(Post::class.java)
-                            post?.let { post ->
-                                posts.add(post)
-                            }
+                            val post = Post(childSnapshot.getValue(PostWrapper::class.java) as PostWrapper)
+                            posts.add(post)
                         }
                         _posts.value = posts
                     }

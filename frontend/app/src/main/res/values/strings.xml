@@ -23,6 +23,7 @@
     <string name="confirm">확인</string>
     <string name="verification">인증</string>
     <string name="add_picture">그림 추가</string>
+    <string name="no_image">서버에 이미지 없음</string>
     <string name="add_profile_photo">프로필 사진 추가</string>
     <string name="register_picture">그림 등록</string>
     <string name="logout">로그아웃</string>
@@ -66,7 +67,7 @@
     <string name="option">선택</string>
     <string name="instagram_account">인스타그램 계정</string>
     <string name="nickname">별명</string>
-    <string name="introduce">한 줄 소개ㅎ</string>
+    <string name="introduce">한 줄 소개</string>
     <string name="usertype">사용자 유형</string>
     <string name="verification_code">인증 번호</string>
     <string name="email">이메일</string>
