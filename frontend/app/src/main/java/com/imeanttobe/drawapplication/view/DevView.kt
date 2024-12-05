@@ -62,7 +62,7 @@ fun addNewPost(context: Context) {
         id = key!!,
         userId = user.uid,
         description = "This is a description. If it is too long, text will be truncated and it will be shown with 3-dots. It is a long description.",
-        imageUrl = ""
+        imageUri = ""
     )
 
     firebaseDatabase

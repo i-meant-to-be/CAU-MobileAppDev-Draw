@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.enum.UserType
+import com.imeanttobe.drawapplication.data.etc.PostWrapper
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.etc.UserWrapper
+import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.util.StorageUtil.Companion.uploadPictureToStorage
 import com.imeanttobe.drawapplication.util.StorageUtil.Companion.uploadProfilePhotoToStorage
@@ -26,6 +28,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
     private val _nickname = mutableStateOf("")
     private val _instagramId = mutableStateOf("")
     private val _introduce = mutableStateOf("")
+    private val _description = mutableStateOf("")
     private val _userType = mutableStateOf(UserType.UNDEFINED)
     private val _profilePhotoUri = mutableStateOf(Uri.EMPTY)
     private val _pictureUri = mutableStateOf(Uri.EMPTY)
@@ -36,6 +39,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
     val nickname: State<String> = _nickname
     val instagramId: State<String> = _instagramId
     val introduce: State<String> = _introduce
+    val description: State<String> = _description
     val userType: State<UserType> = _userType
     val profilePhotoUri: State<Uri> = _profilePhotoUri
     val pictureUri: State<Uri> = _pictureUri
@@ -57,6 +61,10 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
 
     fun setIntroduce(newValue: String) {
         _introduce.value = newValue
+    }
+
+    fun setDescription(newValue: String) {
+        _description.value = newValue
     }
 
     fun setUserType(newValue: UserType) {
@@ -94,22 +102,44 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
                                 id = userId,
                                 nickname = _nickname.value,
                                 email = email,
-                                profilePhotoUri = photoUri.toString(),
+                                profilePhotoUri = photoUri!!,
                                 instagramId = _instagramId.value,
                                 type = _userType.value,
                                 introduce = _introduce.value,
                                 phoneNumber = phoneNumber,
                             )
+                            val postId = FirebaseDatabase.getInstance().getReference("post").push().key!!
+                            val post = Post(
+                                id = postId,
+                                userId = userId,
+                                description = _description.value,
+                                imageUri = pictureUri!!
+                            )
+
                             Log.d(
-                                "RegisteruserProfileViewModel",
+                                "RegisterUserProfileViewModel",
                                 "signUp: before add pictureId. loadPictureUri: $pictureUri"
                             )
-                            user.pictureIds.add(pictureUri.toString())
-                            Log.d("RegisteruserProfileViewModel", "signUp: after add pictureId")
+                            user.postIds.add(pictureUri.toString())
+
+                            Log.d(
+                                "RegisteruserProfileViewModel",
+                                "signUp: after add pictureId"
+                            )
                             FirebaseDatabase.getInstance()
                                 .getReference("user")
                                 .child(userId)
                                 .setValue(UserWrapper(user))
+
+                            Log.d(
+                                "RegisteruserProfileViewModel",
+                                "signUp: after add user data on Firebase Database"
+                            )
+                            FirebaseDatabase.getInstance()
+                                .getReference("post")
+                                .child(postId)
+                                .setValue(PostWrapper(post))
+
                             _registerState.value = Resource.Success()
                         }
                     }

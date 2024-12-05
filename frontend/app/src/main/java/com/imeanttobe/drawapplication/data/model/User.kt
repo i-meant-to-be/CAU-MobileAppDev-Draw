@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.data.model
 
+import android.net.Uri
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.UserWrapper
 
@@ -7,10 +8,10 @@ data class User(
     val id: String,
     val nickname: String,
     val email: String,
-    val profilePhotoUri: String,
+    val profilePhotoUri: Uri,
     val instagramId: String,
     val type: UserType,
-    val pictureIds: MutableList<String> = mutableListOf(),
+    val postIds: MutableList<String> = mutableListOf(),
     val chatSessions: MutableList<String> = mutableListOf(),
     val introduce: String,
     val phoneNumber: String
@@ -18,7 +19,7 @@ data class User(
     constructor() : this(
         id = "",
         nickname = "",
-        profilePhotoUri = "",
+        profilePhotoUri = Uri.EMPTY,
         instagramId = "",
         type = UserType.UNDEFINED,
         introduce = "",
@@ -30,10 +31,10 @@ data class User(
         id = userWrapper.id,
         nickname = userWrapper.nickname,
         email = userWrapper.email,
-        profilePhotoUri = userWrapper.profilePhotoUri,
+        profilePhotoUri = Uri.parse(userWrapper.profilePhotoUri),
         instagramId = userWrapper.instagramId,
         type = UserType.fromString(userWrapper.type),
-        pictureIds = userWrapper.pictureIds,
+        postIds = userWrapper.pictureIds,
         chatSessions = userWrapper.chatSessions,
         introduce = userWrapper.introduce,
         phoneNumber = userWrapper.phoneNumber

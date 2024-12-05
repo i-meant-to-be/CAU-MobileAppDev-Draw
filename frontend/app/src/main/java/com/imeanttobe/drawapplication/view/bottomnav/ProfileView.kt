@@ -5,8 +5,11 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,31 +23,41 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
@@ -61,8 +74,10 @@ import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 fun ProfileView(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
-    navigateToLogin : ()->Unit
+    navigateToLogin: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Surface(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileCard(
@@ -77,6 +92,42 @@ fun ProfileView(
                 viewModel = viewModel
             )
         }
+    }
+
+    // Edit user profile dialog
+    if (viewModel.dialogState.value == 1) {
+        UpdateUserDataDialog(
+            onDismiss = {
+                viewModel.setDialogState(0)
+            },
+            onConfirm = {
+                viewModel.updateUserData()
+                viewModel.setDialogState(0)
+            }
+        )
+    }
+
+    // Add new picture dialog
+    if (viewModel.dialogState.value == 2) {
+        NewPictureDialog(
+            onDismiss = { viewModel.setDialogState(0) },
+            onAddNewPicture = { uri ->
+                viewModel.addPost(
+                    uri = uri,
+                    description = "",
+                    context = context
+                )
+            }
+        )
+    }
+
+    // Picture dialog
+    if (viewModel.dialogState.value == 3) {
+        PictureDialog(
+            setDialogState = { newValue -> viewModel.setDialogState(newValue) },
+            description = viewModel.currentPictureDescription.value,
+            imageUri = viewModel.currentPictureUri.value
+        )
     }
 }
 
@@ -94,13 +145,17 @@ fun ProfileViewGrid(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        user.value?.pictureIds?.let {
-            items(it.size) {
-                index->
+        user.value?.postIds?.let {
+            items(it.size) { index ->
+                val imageUri = user.value?.postIds?.get(index)?.toUri()
+
                 ProfileViewImageItem(
-                    imageUri = user.value?.pictureIds?.get(index)?.toUri(),
+                    imageUri = imageUri,
                     onImageClick = {
-                        //todo
+                        // TODO
+                        viewModel.setDialogState(3)
+                        viewModel.setCurrentPictureDescription("")
+                        viewModel.setCurrentPictureUri(imageUri)
                     }
                 )
             }
@@ -148,24 +203,8 @@ fun ProfileCard(
 ) {
     val buttonContainerColor = MaterialTheme.colorScheme.surfaceDim
     val buttonContentColor = MaterialTheme.colorScheme.onSurface
-    var showDialog by remember { mutableStateOf(false) }
     val user = viewModel.user.collectAsState()
     val signOutState = viewModel.signOutState.collectAsState()
-    val context = LocalContext.current
-
-    val newProfilePhotoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            // viewModel.updateProfilePhotoUri(uri, context)
-        }
-    )
-
-    val newPicturePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            viewModel.addImageUri(uri, context)
-        }
-    )
 
     LaunchedEffect(key1 = signOutState.value) {
         if (signOutState.value == Resource.Success()) {
@@ -224,7 +263,7 @@ fun ProfileCard(
         ) {
             // Edit button
             Button(
-                onClick = { showDialog = true },
+                onClick = { viewModel.setDialogState(1) },
                 modifier = Modifier
                     .height(40.dp)
                     .weight(1f),
@@ -241,7 +280,7 @@ fun ProfileCard(
 
             // New picture button
             Button(
-                onClick = { newPicturePickerLauncher.launch("image/*") },
+                onClick = { viewModel.setDialogState(2) },
                 modifier = Modifier.size(width = 110.dp, height = 40.dp),
                 shape = RoundedCornerShape(100.dp), // 버튼 모양 설정
                 colors = ButtonDefaults.buttonColors(
@@ -274,16 +313,95 @@ fun ProfileCard(
                     contentDescription = "Logout button"
                 )
             }
+        }
+    }
+}
 
-            if (showDialog) {
-                UpdateUserDataDialog(
-                    onDismiss = {
-                        viewModel.setDialogState(false)
-                    },
-                    onConfirm = {
-                        viewModel.updateUserData()
-                        viewModel.setDialogState(false)
+@Composable
+fun PictureDialog(
+    setDialogState: (Int) -> Unit,
+    description: String,
+    imageUri: Uri?
+) {
+    var scale by rememberSaveable { mutableFloatStateOf(1f) }
+    var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
+    var offsetY by rememberSaveable { mutableFloatStateOf(0f) }
+    var cardWidth by rememberSaveable { mutableFloatStateOf(0f) }
+    var cardHeight by rememberSaveable { mutableFloatStateOf(0f) }
+    var imageWidth by rememberSaveable { mutableFloatStateOf(0f) }
+    var imageHeight by rememberSaveable { mutableFloatStateOf(0f) }
+    val backgroundColor = MaterialTheme.colorScheme.surface
+
+    Dialog(
+        onDismissRequest = { setDialogState(0) }
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            cardWidth = coordinates.size.width.toFloat()
+                            cardHeight = coordinates.size.height.toFloat()
+                        }
+                        .pointerInput(Unit) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                scale = (scale * zoom).coerceIn(1f, 3f)
+
+                                val maxOffsetX = (cardWidth * (scale - 1f) / 2f)
+                                val maxOffsetY = (cardHeight * (scale - 1f) / 2f)
+
+                                offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
+                                offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                            }
+                        }
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offsetX,
+                            translationY = offsetY
+                        ),
+                ) {
+                    if (imageUri != null) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalPlatformContext.current)
+                                .data(imageUri)
+                                .build(),
+                            contentDescription = "Selected image",
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned { coordinates ->
+                                    imageWidth = coordinates.size.width.toFloat()
+                                    imageHeight = coordinates.size.height.toFloat()
+                                },
+                        )
+                    } else {
+                        Image(
+                            imageVector = Icons.Filled.Error,
+                            contentDescription = "Image",
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned { coordinates ->
+                                    imageWidth = coordinates.size.width.toFloat()
+                                    imageHeight = coordinates.size.height.toFloat()
+                            }
+                        )
                     }
+                }
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = backgroundColor)
+                        .padding(10.dp),
+                    text = description,
+                    minLines = 2,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -320,6 +438,121 @@ fun UserTypeLabel(userType: UserType) {
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
             color = contentColor
         )
+    }
+}
+
+@Composable
+fun NewPictureDialog(
+    onDismiss: () -> Unit,
+    onAddNewPicture: (Uri) -> Unit
+) {
+    val context = LocalContext.current
+    var pictureUri by rememberSaveable { mutableStateOf(Uri.EMPTY) }
+    var description by rememberSaveable { mutableStateOf("") }
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            pictureUri = uri
+        }
+    )
+
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(
+                modifier = Modifier.padding(30.dp)
+            ) {
+                // Image area
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.add_picture),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.add_your_picture),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (pictureUri != Uri.EMPTY) {
+                        AsyncImage(
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .clickable { imagePicker.launch("image/*") },
+                            model = ImageRequest.Builder(context)
+                                .data(pictureUri)
+                                .build(),
+                            contentScale = ContentScale.FillBounds,
+                            contentDescription = "Picture"
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
+                                .clickable { imagePicker.launch("image/*") },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.add_picture),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(30.dp))
+
+                // Description area
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.picture_description),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.enter_picture_description),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = description,
+                    onValueChange = { newValue -> description = newValue },
+                    placeholder = { Text(text = stringResource(id = R.string.example_picture_description)) },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    minLines = 1,
+                    maxLines = 2
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+
+                // Button area
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        onAddNewPicture(pictureUri)
+                        onDismiss()
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.add_picture))
+                }
+            }
+        }
     }
 }
 

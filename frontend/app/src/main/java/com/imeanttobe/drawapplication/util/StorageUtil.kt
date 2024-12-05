@@ -7,22 +7,19 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.google.android.gms.tasks.Task
 import com.google.firebase.storage.FirebaseStorage
 import com.imeanttobe.drawapplication.R
 import java.io.ByteArrayOutputStream
-import java.lang.System.exit
 
 class StorageUtil{
     companion object {
-
         fun uploadProfilePhotoToStorage(imageUri: Uri, context: Context, uid: String, onComplete: (Uri?) -> Unit) {
             val storageReference = FirebaseStorage.getInstance()
                 .reference
                 .child("profile_photo/$uid.jpg") // UID 기반 경로 설정
 
             val uploadTask =
-                if(imageUri != Uri.EMPTY) {
+                if (imageUri != Uri.EMPTY) {
                     storageReference.putFile(imageUri)
                 } else {
                     // Drawable을 Bitmap으로 변환한 뒤 ByteArray로 만들어 업로드

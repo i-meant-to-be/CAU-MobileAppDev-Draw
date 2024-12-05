@@ -29,10 +29,10 @@ data class UserWrapper(
         id = user.id,
         nickname = user.nickname,
         email = user.email,
-        profilePhotoUri = user.profilePhotoUri,
+        profilePhotoUri = user.profilePhotoUri.toString(),
         instagramId = user.instagramId,
         type = user.type.toString(),
-        pictureIds = user.pictureIds,
+        pictureIds = user.postIds,
         chatSessions = user.chatSessions,
         introduce = user.introduce,
         phoneNumber = user.phoneNumber

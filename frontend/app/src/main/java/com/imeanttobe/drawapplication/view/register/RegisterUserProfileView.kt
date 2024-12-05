@@ -341,7 +341,7 @@ fun RegisterUserProfileView(
                 text = String.format(
                     "%s (%s)",
                     stringResource(id = R.string.register_picture),
-                    stringResource(id = R.string.necessary_least_one)
+                    stringResource(id = R.string.necessary)
                 ),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
@@ -349,7 +349,7 @@ fun RegisterUserProfileView(
                 modifier = Modifier
                     .padding(horizontal = 30.dp)
                     .align(alignment = Alignment.Start),
-                text = stringResource(id = R.string.add_your_picture),
+                text = stringResource(id = R.string.add_your_first_picture),
                 style = MaterialTheme.typography.bodyMedium
             )
             if (viewModel.pictureUri.value != Uri.EMPTY) {
@@ -379,6 +379,33 @@ fun RegisterUserProfileView(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Description area
+            Text(
+                modifier = Modifier.align(alignment = Alignment.Start),
+                text = stringResource(id = R.string.picture_description),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                modifier = Modifier.align(alignment = Alignment.Start),
+                text = stringResource(id = R.string.enter_picture_description),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp),
+                value = viewModel.description.value,
+                onValueChange = { newValue -> viewModel.setDescription(newValue) },
+                placeholder = { Text(text = stringResource(id = R.string.example_picture_description)) },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                minLines = 1,
+                maxLines = 2
+            )
             Spacer(modifier = Modifier.height(10.dp))
 
             // Button area

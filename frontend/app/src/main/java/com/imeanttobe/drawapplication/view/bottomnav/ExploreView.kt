@@ -401,7 +401,7 @@ fun ExploreViewGridItem(
             ExploreViewUserInfoItem(
                 userName = user.nickname,
                 userType = user.type,
-                userImageUrl = user.profilePhotoUri,
+                userImageUrl = user.profilePhotoUri.toString(),
                 contentColor = contentColor,
                 onClick = {}
             )

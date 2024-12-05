@@ -39,9 +39,11 @@
     <string name="enter_your_nickname">별명을 입력하세요.</string>
     <string name="enter_your_introduce">자신을 잘 나타내는 소개 한 줄을 입력하세요.</string>
     <string name="enter_your_instagram_id">인스타그램 계정이 있으시다면 입력하세요.</string>
+    <string name="enter_picture_description">그림에 대한 설명을 작성해주세요.</string>
     <string name="choose_your_usertype">사용자 유형을 선택해주세요.</string>
     <string name="modify_information">정보 수정</string>
-    <string name="add_your_picture">소개하고 싶은 그림을 1장 이상 추가해주세요.</string>
+    <string name="add_your_first_picture">소개하고 싶은 그림을 1장 추가해주세요.</string>
+    <string name="add_your_picture">소개하고 싶은 그림을 추가해주세요.</string>
     <string name="error_get_message">메시지를 가져오는 도중 오류가 발생했어요.</string>
 
     <string name="error_nickname">별명 오류</string>
@@ -54,9 +56,11 @@
     <string name="example_nickname">홍길동</string>
     <string name="example_instagram_id">hong_gil_dong</string>
     <string name="example_introduce">안녕하세요. 홍길동입니다.</string>
+    <string name="example_picture_description">이 그림은 이뻐요.</string>
     <string name="example_pw">******</string>
 
     <string name="necessary">필수</string>
+    <string name="picture_description">그림 설명</string>
     <string name="necessary_least_one">1장 이상 필수</string>
     <string name="profile_img">프로필 사진</string>
     <string name="option">선택</string>
@@ -70,6 +74,7 @@
     <string name="menu">메뉴</string>
     <string name="next">다음</string>
     <string name="register">회원가입</string>
+    <string name="add">추가</string>
     <string name="phone_number">전화번호</string>
     <string name="pw_confirm">비밀번호 확인</string>
     <string name="register_account">회원 정보 입력</string>

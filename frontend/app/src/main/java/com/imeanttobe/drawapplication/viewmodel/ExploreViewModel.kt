@@ -10,7 +10,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
-import com.imeanttobe.drawapplication.data.etc.PostUserData
 import com.imeanttobe.drawapplication.data.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,10 +79,6 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
         _refreshState.update { true }
         getPosts()
         _refreshState.update { false }
-    }
-
-    fun getUserData(): PostUserData {
-        return TODO()
     }
 
     private fun getPosts() {
