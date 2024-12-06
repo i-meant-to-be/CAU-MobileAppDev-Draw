@@ -90,13 +90,12 @@ fun UserProfileView(
     val context = LocalContext.current
     val posts = viewModel.userPosts.collectAsState()
     val user = viewModel.user.collectAsState()
-    val usernickname = navBackStackEntry.arguments?.getString("usernickname")
-    val userType = navBackStackEntry.arguments?.getString("userType")
+    val userId = navBackStackEntry.arguments?.getString("userId")
 
 
 
-    LaunchedEffect(usernickname, userType) {
-        viewModel.setUserProfileData(usernickname, userType)
+    LaunchedEffect(userId) {
+        viewModel.setUserProfileData(userId)
     }
 
 

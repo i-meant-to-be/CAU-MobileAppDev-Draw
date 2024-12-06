@@ -122,10 +122,9 @@ fun MainNavHostView(
                 )
             }
 
-            composableAnimated("${NavItem.UserProfileViewItem.route}/usernickname={usernickname}?userType={userType}",
+            composableAnimated("${NavItem.UserProfileViewItem.route}/user={user}",
                 arguments = listOf(
-                    navArgument("usernickname") { type = NavType.StringType },
-                    navArgument("userType") { type = NavType.StringType },
+                    navArgument("user") { type = NavType.StringType },
                 )) {
                     navBackStackEntry ->
             UserProfileView(

@@ -458,7 +458,7 @@ fun ExploreViewGridItem(
                 userImageUrl = user.profilePhotoUri.toString(),
                 contentColor = contentColor,
                 onClick = {navController.
-                navigate("${NavItem.UserProfileViewItem.route}/usernickname=${user.nickname}?userType=${user.type}")
+                navigate("${NavItem.UserProfileViewItem.route}/userId=${user.id}")
                 }
             )
             ExploreViewImageItem(

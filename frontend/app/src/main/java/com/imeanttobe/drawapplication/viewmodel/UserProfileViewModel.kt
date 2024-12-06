@@ -52,12 +52,22 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
         _dialogState.intValue = newValue
     }
 
-    fun setUserProfileData(usernickname: String?, userType: String?) {
-        if (usernickname != null) {
-            user.value?.nickname = usernickname
-        }
-        if (userType != null) {
-            user.value?.type = UserType.valueOf(userType)
+    fun setUserProfileData(userId: String?) {
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance()
+            val usersRef = database.getReference(userReferenceName)
+            val userRef = usersRef.child(userId)
+
+            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val userdata = snapshot.getValue(User::class.java)
+                    _user.value = userdata
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("UserProfileViewModel", "Failed to get user data: ${error.message}")
+                }
+            })
         }
     }
 /*
