@@ -73,6 +73,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -81,6 +83,7 @@ import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
+import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -90,8 +93,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun ExploreView(
     modifier: Modifier = Modifier,
-    viewModel: ExploreViewModel = hiltViewModel()
+    viewModel: ExploreViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
+
     val posts = viewModel.posts.collectAsState()
 
     var isRefreshing by remember { mutableStateOf(false) }
@@ -129,7 +134,8 @@ fun ExploreView(
                     isDialogOpen = viewModel.dialogState.value,
                     setDialogState = { newValue -> viewModel.setDialogState(newValue) },
                     posts = posts.value,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    navController= navController
                 )
             }
         }
@@ -170,8 +176,8 @@ fun ExploreViewGrid(
     isDialogOpen: Boolean,
     setDialogState: (Boolean) -> Unit,
     posts: List<Post>,
-    viewModel: ExploreViewModel
-) {
+    viewModel: ExploreViewModel,
+    navController: NavController) {
     var dialogDescription by rememberSaveable { mutableStateOf("") }
 
     if (posts.isEmpty()) {
@@ -213,7 +219,9 @@ fun ExploreViewGrid(
                     onImageClick = {
                         dialogDescription = post.description
                         setDialogState(true)
-                    }
+                    },
+                    navController= navController
+
                 )
             }
         }
@@ -427,7 +435,9 @@ fun ExploreViewSearchBoxTextField(
 fun ExploreViewGridItem(
     post: Post,
     user: User,
-    onImageClick: () -> Unit
+    onImageClick: () -> Unit,
+    navController: NavController
+
 ) {
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     val containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -447,7 +457,8 @@ fun ExploreViewGridItem(
                 userType = user.type,
                 userImageUrl = user.profilePhotoUri.toString(),
                 contentColor = contentColor,
-                onClick = {}
+                onClick = {navController.navigate(NavItem.UserProfileViewItem.route)
+                }
             )
             ExploreViewImageItem(
                 post = post,

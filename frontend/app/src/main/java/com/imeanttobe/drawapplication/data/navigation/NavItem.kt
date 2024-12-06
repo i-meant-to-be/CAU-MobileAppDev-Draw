@@ -8,7 +8,9 @@ sealed class NavItem(
         val items = listOf(
             ChatDetailItem,
             LoginDetailViewItem,
-            RegisterUserAccountViewItem
+            RegisterUserAccountViewItem,
+            UserProfileViewItem
+
         )
     }
 
@@ -40,5 +42,10 @@ sealed class NavItem(
     data object RegisterUserProfileViewItem: NavItem(
         route = "/register/profile",
         label = "Register profile"
+    )
+
+    data object UserProfileViewItem: NavItem(
+        route = "/explore/userprofile",
+        label = "explore userprofile"
     )
 }

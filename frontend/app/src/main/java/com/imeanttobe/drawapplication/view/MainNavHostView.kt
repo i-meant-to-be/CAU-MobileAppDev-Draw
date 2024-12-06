@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.imeanttobe.drawapplication.data.navigation.NavItem
+import com.imeanttobe.drawapplication.view.bottomnav.UserProfileView
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
 import com.imeanttobe.drawapplication.view.login.LoginDetailView
 import com.imeanttobe.drawapplication.view.login.LoginTitleView
@@ -45,6 +46,7 @@ fun MainNavHostView(
         ) {
             composableAnimated(route = NavItem.BottomNavHostViewItem.route) {
                 BottomNavHostView(
+                    navController = navController,
                     isDevModeEnabled = true,
                     navigateTo = { route -> navController.navigate(route) },
                     navigateBack = { navController.popBackStack() },
@@ -118,6 +120,10 @@ fun MainNavHostView(
                         }
                     }
                 )
+            }
+
+            composableAnimated(route = NavItem.UserProfileViewItem.route) {
+                UserProfileView(navigateToLogin = { navController.navigateUp() })
             }
 
             // For test

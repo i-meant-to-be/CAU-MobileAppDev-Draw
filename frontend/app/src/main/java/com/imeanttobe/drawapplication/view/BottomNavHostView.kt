@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.imeanttobe.drawapplication.data.navigation.BottomBarItem
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.view.bottomnav.ChatView
@@ -24,7 +25,8 @@ fun BottomNavHostView(
     isDevModeEnabled: Boolean = false,
     navigateTo: (String) -> Unit,
     navigateBack: () -> Unit,
-    navigateToLogin: () -> Unit
+    navigateToLogin: () -> Unit,
+    navController: NavHostController
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -45,7 +47,8 @@ fun BottomNavHostView(
             )
             1 -> ExploreView(modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize())
+                .fillMaxSize(),
+                navController = navController )
             2 -> ProfileView(
                 modifier = Modifier
                     .padding(innerPadding)
