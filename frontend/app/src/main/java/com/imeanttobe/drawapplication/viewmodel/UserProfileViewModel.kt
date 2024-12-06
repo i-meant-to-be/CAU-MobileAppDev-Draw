@@ -14,7 +14,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.PostWrapper
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.etc.UserWrapper
@@ -46,19 +45,10 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     val dialogState: State<Int> = _dialogState
     val currentPictureDescription: State<String> = _currentPictureDescription
     val currentPictureUri: State<Uri> = _currentPictureUri
-
+    val userId = ""
 
     fun setDialogState(newValue: Int) {
         _dialogState.intValue = newValue
-    }
-
-    fun setUserProfileData(usernickname: String?, userType: String?) {
-        if (usernickname != null) {
-            user.value?.nickname = usernickname
-        }
-        if (userType != null) {
-            user.value?.type = UserType.valueOf(userType)
-        }
     }
 /*
     init {
