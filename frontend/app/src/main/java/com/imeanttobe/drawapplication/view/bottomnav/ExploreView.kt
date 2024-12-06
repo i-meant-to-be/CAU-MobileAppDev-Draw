@@ -1,7 +1,6 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -43,10 +42,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -61,12 +58,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -85,7 +80,6 @@ import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.viewmodel.ExploreViewModel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -97,7 +91,7 @@ fun ExploreView(
     navController: NavHostController
 ) {
 
-    val posts = viewModel.posts.collectAsState()
+    val postsAndUsers = viewModel.postsAndUsers.collectAsState()
 
     var isRefreshing by remember { mutableStateOf(false) }
     val state = rememberPullToRefreshState()
@@ -133,7 +127,7 @@ fun ExploreView(
                     modifier = Modifier.padding(horizontal = 10.dp),
                     isDialogOpen = viewModel.dialogState.value,
                     setDialogState = { newValue -> viewModel.setDialogState(newValue) },
-                    posts = posts.value,
+                    postsAndUsers = postsAndUsers.value,
                     viewModel = viewModel,
                     navController= navController
                 )
@@ -175,12 +169,14 @@ fun ExploreViewGrid(
     modifier: Modifier = Modifier,
     isDialogOpen: Boolean,
     setDialogState: (Boolean) -> Unit,
-    posts: List<Post>,
+    postsAndUsers: List<Pair<Post,User>>,
     viewModel: ExploreViewModel,
-    navController: NavController) {
+    navController: NavController
+) {
     var dialogDescription by rememberSaveable { mutableStateOf("") }
+    var dialogImgUri by rememberSaveable { mutableStateOf(Uri.EMPTY) }
 
-    if (posts.isEmpty()) {
+    if (postsAndUsers.isEmpty()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -205,20 +201,14 @@ fun ExploreViewGrid(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(vertical = 10.dp)
         ) {
-            items(posts) { post ->
-                var user by remember { mutableStateOf<User?>(null) }
-                LaunchedEffect(post) {
-                    viewModel.getUserFromDB(post) {
-                        user = it ?: User()
-                    }
-                }
+            items(postsAndUsers) { postAndUser ->
 
                 ExploreViewGridItem(
-                    post = post,
-                    user = user ?: User(),
+                    postAndUser = postAndUser,
                     onImageClick = {
-                        dialogDescription = post.description
+                        dialogDescription = postAndUser.first.description
                         setDialogState(true)
+                        dialogImgUri = postAndUser.first.imageUri
                     },
                     navController= navController
 
@@ -230,9 +220,7 @@ fun ExploreViewGrid(
             ExploreViewImageDialog(
                 setDialogState = { setDialogState(false) },
                 description = dialogDescription,
-                // TODO: how can we get image included in post?
-                // answer: currentUser.id로 db에서 pictureIds를 받아와서 가능.
-                image = painterResource(id = R.drawable.paintimage)
+                imageUri = dialogImgUri
             )
         }
     }
@@ -242,7 +230,7 @@ fun ExploreViewGrid(
 fun ExploreViewImageDialog(
     setDialogState: (Boolean) -> Unit,
     description: String,
-    image: Painter
+    imageUri: Uri
 ) {
     var scale by rememberSaveable { mutableFloatStateOf(1f) }
     var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
@@ -285,14 +273,16 @@ fun ExploreViewImageDialog(
                             translationY = offsetY
                         ),
                 ) {
-                    Image(
+                    AsyncImage(
                         modifier = Modifier
                             .fillMaxWidth()
                             .onGloballyPositioned { coordinates ->
                                 imageWidth = coordinates.size.width.toFloat()
                                 imageHeight = coordinates.size.height.toFloat()
                             },
-                        painter = image,
+                        model = ImageRequest.Builder(LocalPlatformContext.current)
+                            .data(imageUri)
+                            .build(),
                         contentDescription = null,
                         contentScale = ContentScale.FillWidth
                     )
@@ -433,8 +423,7 @@ fun ExploreViewSearchBoxTextField(
 
 @Composable
 fun ExploreViewGridItem(
-    post: Post,
-    user: User,
+    postAndUser: Pair<Post, User>,
     onImageClick: () -> Unit,
     navController: NavController
 
@@ -453,18 +442,17 @@ fun ExploreViewGridItem(
             modifier = Modifier.fillMaxWidth()
         ) {
             ExploreViewUserInfoItem(
-                userName = user.nickname,
-                userType = user.type,
-                userImageUrl = user.profilePhotoUri.toString(),
+                userName = postAndUser.second.nickname,
+                userType = postAndUser.second.type,
+                userImageUrl = postAndUser.second.profilePhotoUri.toString(),
                 contentColor = contentColor,
-                onClick = {navController.
-                navigate("${NavItem.UserProfileViewItem.route}/userId=${user.id}")
+                onClick = {
+                     navController.navigate("${NavItem.UserProfileViewItem.route}/userId=${postAndUser.second.id}")
                 }
             )
             ExploreViewImageItem(
-                post = post,
-                // TODO: have to set image's url here
-                imageUri = post.imageUri,
+                post = postAndUser.first,
+                imageUri = postAndUser.first.imageUri,
                 contentColor = contentColor,
                 onImageClick = onImageClick
             )
