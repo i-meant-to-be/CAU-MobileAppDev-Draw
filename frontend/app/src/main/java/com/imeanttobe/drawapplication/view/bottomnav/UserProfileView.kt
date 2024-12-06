@@ -28,18 +28,24 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonDefaults.shape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -60,6 +66,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -71,25 +78,50 @@ import com.imeanttobe.drawapplication.theme.onSeed
 import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.viewmodel.UserProfileViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileView(
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel(),
-    navigateToLogin: () -> Unit
+    returnTo: () -> Unit,
+    navBackStackEntry: NavBackStackEntry
+
 ) {
     val context = LocalContext.current
     val posts = viewModel.userPosts.collectAsState()
     val user = viewModel.user.collectAsState()
+    val usernickname = navBackStackEntry.arguments?.getString("usernickname")
+    val userType = navBackStackEntry.arguments?.getString("userType")
+
+
+
+    LaunchedEffect(usernickname, userType) {
+        viewModel.setUserProfileData(usernickname, userType)
+    }
+
 
 
     Surface(modifier = modifier) {
+
+        TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = returnTo) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
+        )
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             UserProfileCard(
                 modifier = Modifier,
-                user = user.value,
+                user = user.value
             )
             UserProfileViewGrid(
                 modifier = Modifier
@@ -171,7 +203,7 @@ fun UserProfileViewGrid(
     @Composable // 프로필 카드 컴포저블
     fun UserProfileCard(
         modifier: Modifier,
-        user: User?,
+        user : User?
 
     ) {
         val buttonContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
@@ -202,10 +234,12 @@ fun UserProfileViewGrid(
             Spacer(Modifier.height(10.dp))
 
             // Nickname
-            Text(
-                text = user?.nickname ?: stringResource(id = R.string.error_nickname),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-            )
+            if (user != null) {
+                Text(
+                    text = user.nickname ?: stringResource(id = R.string.error_nickname),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                )
+            }
             Spacer(modifier = Modifier.height(0.dp))
 
             // Introduce
@@ -233,7 +267,9 @@ fun UserProfileViewGrid(
             Spacer(Modifier.height(24.dp))
 
             Button(onClick = {},
-                modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = buttonContainerColor,
