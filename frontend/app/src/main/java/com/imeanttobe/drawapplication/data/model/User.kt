@@ -6,11 +6,11 @@ import com.imeanttobe.drawapplication.data.etc.UserWrapper
 
 data class User(
     val id: String,
-    var nickname: String,
+    val nickname: String,
     val email: String,
     val profilePhotoUri: Uri,
     val instagramId: String,
-    var type: UserType,
+    val type: UserType,
     val postIds: MutableList<String> = mutableListOf(),
     val chatSessions: MutableList<String> = mutableListOf(),
     val introduce: String,

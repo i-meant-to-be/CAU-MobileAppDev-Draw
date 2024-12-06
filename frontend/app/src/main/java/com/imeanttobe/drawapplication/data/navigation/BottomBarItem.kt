@@ -19,7 +19,7 @@ sealed class BottomBarItem(
             ExploreViewItem,
             ProfileViewItem,
             DevViewItem,
-
+            UserProfileViewItem
         )
     }
 
@@ -47,5 +47,10 @@ sealed class BottomBarItem(
         icon = Icons.Rounded.DeveloperMode
     )
 
+    data object UserProfileViewItem: BottomBarItem(
+        index = 1,
+        labelId = R.string.explore,
+        icon = Icons.Rounded.Explore
+    )
 
 }
