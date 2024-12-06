@@ -122,11 +122,12 @@ fun MainNavHostView(
                 )
             }
 
-            composableAnimated("${NavItem.UserProfileViewItem.route}/user={user}",
+            composableAnimated("${NavItem.UserProfileViewItem.route}/userId={userId}",
                 arguments = listOf(
-                    navArgument("user") { type = NavType.StringType },
+                    navArgument("userId") { type = NavType.StringType },
                 )) {
                     navBackStackEntry ->
+                val userId = navBackStackEntry.arguments?.getString("userId")
             UserProfileView(
                     returnTo = { navController.popBackStack() },
                     navBackStackEntry= navBackStackEntry

@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -95,11 +96,13 @@ fun UserProfileView(
 
     LaunchedEffect(userId) {
         viewModel.setUserProfileData(userId)
+        viewModel.setUserPostData(userId)
+
     }
 
 
 
-    Surface(modifier = modifier) {
+    Scaffold(modifier = modifier) { innerPadding ->
 
         TopAppBar(
                 title = {},
@@ -114,7 +117,7 @@ fun UserProfileView(
         )
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.padding(innerPadding).fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             UserProfileCard(
@@ -126,12 +129,15 @@ fun UserProfileView(
                     .padding(horizontal = 10.dp)
                     .padding(top = 10.dp),
                 posts = posts.value,
-                onImageClick = { imageUri, description ->{}}
+                onImageClick = { imageUri, description ->
+                    viewModel.setDialogState(1)
+                    viewModel.setPictureDialogData(imageUri, description)
+                }
             )
         }
     }
 
-    if (viewModel.dialogState.value == 3) {
+    if (viewModel.dialogState.value == 1) {
         PictureDialog(
             setDialogState = { newValue -> viewModel.setDialogState(newValue) },
             description = viewModel.currentPictureDescription.value,
@@ -264,14 +270,13 @@ fun UserProfileViewGrid(
             }
             Spacer(Modifier.height(24.dp))
 
-            Button(onClick = {},
+            Button(onClick = { TODO()},
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = buttonContainerColor,
-                    contentColor = buttonContentColor)//containerColor = seed, contentColor = onSeed
+                   containerColor = seed, contentColor = onSeed)
             ) {
                 Text(text = stringResource(id = R.string.send_message))
             }
@@ -320,96 +325,7 @@ fun UserProfileViewGrid(
         )
     }
 
-    @Composable
-    fun UserPictureDialog(
-        setDialogState: (Int) -> Unit,
-        description: String,
-        imageUri: Uri?
-    ) {
-        var scale by rememberSaveable { mutableFloatStateOf(1f) }
-        var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
-        var offsetY by rememberSaveable { mutableFloatStateOf(0f) }
-        var cardWidth by rememberSaveable { mutableFloatStateOf(0f) }
-        var cardHeight by rememberSaveable { mutableFloatStateOf(0f) }
-        var imageWidth by rememberSaveable { mutableFloatStateOf(0f) }
-        var imageHeight by rememberSaveable { mutableFloatStateOf(0f) }
-        val backgroundColor = MaterialTheme.colorScheme.surface
 
-        Dialog(
-            onDismissRequest = { setDialogState(0) }
-        ) {
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onGloballyPositioned { coordinates ->
-                                cardWidth = coordinates.size.width.toFloat()
-                                cardHeight = coordinates.size.height.toFloat()
-                            }
-                            .pointerInput(Unit) {
-                                detectTransformGestures { _, pan, zoom, _ ->
-                                    scale = (scale * zoom).coerceIn(1f, 3f)
-
-                                    val maxOffsetX = (cardWidth * (scale - 1f) / 2f)
-                                    val maxOffsetY = (cardHeight * (scale - 1f) / 2f)
-
-                                    offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
-                                    offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
-                                }
-                            }
-                            .graphicsLayer(
-                                scaleX = scale,
-                                scaleY = scale,
-                                translationX = offsetX,
-                                translationY = offsetY
-                            ),
-                    ) {
-                        if (imageUri != null) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalPlatformContext.current)
-                                    .data(imageUri)
-                                    .build(),
-                                contentDescription = "Selected image",
-                                contentScale = ContentScale.FillWidth,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .onGloballyPositioned { coordinates ->
-                                        imageWidth = coordinates.size.width.toFloat()
-                                        imageHeight = coordinates.size.height.toFloat()
-                                    },
-                            )
-                        } else {
-                            Image(
-                                imageVector = Icons.Filled.Error,
-                                contentDescription = "Image",
-                                contentScale = ContentScale.FillWidth,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .onGloballyPositioned { coordinates ->
-                                        imageWidth = coordinates.size.width.toFloat()
-                                        imageHeight = coordinates.size.height.toFloat()
-                                    }
-                            )
-                        }
-                    }
-
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(color = backgroundColor)
-                            .padding(10.dp),
-                        text = description,
-                        minLines = 2,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-    }
 
     @Composable
     fun UserLabel(userType: UserType) {

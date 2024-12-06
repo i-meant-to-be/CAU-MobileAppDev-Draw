@@ -51,6 +51,16 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     fun setDialogState(newValue: Int) {
         _dialogState.intValue = newValue
     }
+    fun setPictureDialogData(
+        uri: Uri,
+        description: String
+    ) {
+        _currentPictureUri.value = uri
+        _currentPictureDescription.value = description
+    }
+
+
+
 
     fun setUserProfileData(userId: String?) {
         if (userId != null) {
@@ -60,7 +70,7 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
 
             userRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val userdata = snapshot.getValue(User::class.java)
+                    val userdata = User(snapshot.getValue(UserWrapper::class.java)as UserWrapper)
                     _user.value = userdata
                 }
 
@@ -70,21 +80,50 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
             })
         }
     }
-/*
-    init {
-        getUserdata(userId ="" )
+
+fun setUserPostData(userId: String?) {
+        // Get user's posts
+    if (userId != null) {
+        FirebaseDatabase.getInstance()
+            .getReference(userReferenceName)
+            .child(userId)
+            .child("postIds")
+            .orderByChild("timestamp")
+            .addValueEventListener(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        // Clear before load new data
+                        _userPosts.value = emptyList()
+
+                        for (data in snapshot.children) {
+                            val postId = data.getValue(String::class.java)
+                            postId?.let { postId ->
+                                FirebaseDatabase.getInstance()
+                                    .getReference(postReferenceName)
+                                    .child(postId)
+                                    .get()
+                                    .addOnSuccessListener { data ->
+                                        Log.d("ProfileViewModel", "getUserPosts Success")
+                                        _userPosts.value += Post(data.getValue(PostWrapper::class.java) as PostWrapper)
+                                    }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                }
+            )
     }
+
+    }
+
+
+
+/*
 
 */
-    private fun getUserdata(userId: String){
-        val userId = userId //
-// Firebase Realtime Database에서 'user' 경로에 접근하여 userId에 해당하는 데이터를 읽기
-        val userReference = FirebaseDatabase.getInstance().getReference(userReferenceName).child(userId)
-        userReference.get().addOnSuccessListener  { data ->
-            Log.d("ProfileViewModel", "getUserData Success")
-            _user.value = User(data.getValue(UserWrapper::class.java) as UserWrapper)
-        }
-
-    }
 }
 
