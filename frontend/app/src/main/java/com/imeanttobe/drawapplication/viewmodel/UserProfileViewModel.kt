@@ -45,8 +45,26 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     val dialogState: State<Int> = _dialogState
     val currentPictureDescription: State<String> = _currentPictureDescription
     val currentPictureUri: State<Uri> = _currentPictureUri
+    val userId = ""
 
     fun setDialogState(newValue: Int) {
         _dialogState.intValue = newValue
     }
+/*
+    init {
+        getUserdata(userId ="" )
+    }
+
+*/
+    private fun getUserdata(userId: String){
+        val userId = userId //
+// Firebase Realtime Database에서 'user' 경로에 접근하여 userId에 해당하는 데이터를 읽기
+        val userReference = FirebaseDatabase.getInstance().getReference(userReferenceName).child(userId)
+        userReference.get().addOnSuccessListener  { data ->
+            Log.d("ProfileViewModel", "getUserData Success")
+            _user.value = User(data.getValue(UserWrapper::class.java) as UserWrapper)
+        }
+
+    }
 }
+

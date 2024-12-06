@@ -29,6 +29,8 @@
     <string name="no_image">서버에 이미지 없음</string>
     <string name="add_profile_photo">프로필 사진 추가</string>
     <string name="register_picture">그림 등록</string>
+    <string name="send_message">메세지 보내기</string>
+
     <string name="logout">로그아웃</string>
     <string name="direct_message">Contact</string>
     <string name="pw_length">비밀번호는 최소 6자리 이상이어야 합니다.</string>
