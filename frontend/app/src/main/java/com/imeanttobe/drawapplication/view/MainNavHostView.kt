@@ -48,7 +48,6 @@ fun MainNavHostView(
             composableAnimated(route = NavItem.BottomNavHostViewItem.route) {
                 BottomNavHostView(
                     navController = navController,
-                    isDevModeEnabled = true,
                     navigateTo = { route -> navController.navigate(route) },
                     navigateBack = { navController.popBackStack() },
                     navigateToLogin = {

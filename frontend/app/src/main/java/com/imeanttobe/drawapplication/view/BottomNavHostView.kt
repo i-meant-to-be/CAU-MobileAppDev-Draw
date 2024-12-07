@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +15,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.imeanttobe.drawapplication.data.navigation.BottomBarItem
 import com.imeanttobe.drawapplication.data.navigation.NavItem
+import com.imeanttobe.drawapplication.theme.onSeed
+import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.view.bottomnav.ChatView
 import com.imeanttobe.drawapplication.view.bottomnav.ExploreView
 import com.imeanttobe.drawapplication.view.bottomnav.ProfileView
@@ -82,7 +85,11 @@ fun BottomNavHostAppBar(
                         contentDescription = stringResource(id = item.labelId)
                     )
                 },
-                label = { Text(text = stringResource(id = item.labelId)) }
+                label = { Text(text = stringResource(id = item.labelId)) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = onSeed,
+                    indicatorColor = seed
+                )
             )
         }
     }

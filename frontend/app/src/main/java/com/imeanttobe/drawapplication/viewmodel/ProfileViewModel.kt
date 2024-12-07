@@ -31,7 +31,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
     private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _user = MutableStateFlow<User?>(null)
-    private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
+    private val _userPosts = MutableStateFlow<MutableList<Post>>(mutableListOf<Post>())
     private val _dialogState = mutableIntStateOf(0)
     private val _currentPictureDescription = mutableStateOf("")
     private val _currentPictureUri = mutableStateOf(Uri.EMPTY)
@@ -75,7 +75,9 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
             .addValueEventListener(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        _userPosts.value = emptyList()
+                        // 새 리스트 추가
+                        // _userPosts.value = mutableListOf<Post>()
+                        val newPosts = mutableListOf<Post>()
 
                         snapshot.children.forEach { data ->
                             val postId = data.getValue(String::class.java)
@@ -86,8 +88,11 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                                     .get()
                                     .addOnSuccessListener { data ->
                                         Log.d("ProfileViewModel", "getUserPosts Success")
-                                        _userPosts.value += Post(data.getValue(PostWrapper::class.java) as PostWrapper)
-                                        _userPosts.value.sortedByDescending { post -> post.timestamp }
+                                        newPosts.add(Post(data.getValue(PostWrapper::class.java) as PostWrapper))
+                                        newPosts.sortByDescending { post -> post.timestamp }
+                                        if (newPosts.size == snapshot.childrenCount.toInt()) {
+                                            _userPosts.value = newPosts
+                                        }
                                     }
                             }
                         }

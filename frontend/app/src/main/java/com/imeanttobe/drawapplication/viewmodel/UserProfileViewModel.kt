@@ -31,7 +31,7 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     private val chatReferenceName = "chat_session"
     private val msgReferenceName = "message"
 
-    private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
+    private val _creatingChatSessionState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _user = MutableStateFlow<User?>(null)
     private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
     private val _dialogState = mutableIntStateOf(0)
@@ -39,7 +39,7 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     private val _currentPictureUri = mutableStateOf(Uri.EMPTY)
 
     // Getter
-    val signOutState = _signOutState.asStateFlow()
+    val creatingChatSessionState = _creatingChatSessionState.asStateFlow()
     val user = _user.asStateFlow()
     val userPosts = _userPosts.asStateFlow()
     val dialogState: State<Int> = _dialogState
@@ -120,8 +120,17 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
         opponentId: String,
         onComplete: (Boolean) -> Unit
     ) {
-        val currentUser = FirebaseAuth.getInstance().currentUser!!
-        val chatId = FirebaseDatabase.getInstance().getReference(chatReferenceName).push().key!!
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            _creatingChatSessionState.value = Resource.Error("User not logged in")
+            return
+        }
+        val chatId = FirebaseDatabase.getInstance().getReference(chatReferenceName).push().key
+        if (chatId == null) {
+            _creatingChatSessionState.value = Resource.Error("Failed to create chat session")
+            return
+        }
+
         val chatSession = ChatSession(
             id = chatId,
             user1Id = currentUser.uid,
@@ -137,20 +146,31 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
             .child("chatSessions")
             .push()
             .setValue(chatId)
-
-        // Add new session to user 2
-        FirebaseDatabase.getInstance()
-            .getReference(userReferenceName)
-            .child(currentUser.uid)
-            .child("chatSessions")
-            .push()
-            .setValue(chatId)
-
-        // Add chat session on database
-        FirebaseDatabase.getInstance()
-            .getReference(chatReferenceName)
-            .child(chatId)
-            .setValue(chatSession)
+            .addOnSuccessListener {
+                // Add new session to user 2
+                FirebaseDatabase.getInstance()
+                    .getReference(userReferenceName)
+                    .child(currentUser.uid)
+                    .child("chatSessions")
+                    .push()
+                    .setValue(chatId)
+                    .addOnSuccessListener {
+                        // Add chat session on database
+                        FirebaseDatabase.getInstance()
+                            .getReference(chatReferenceName)
+                            .child(chatId)
+                            .setValue(chatSession)
+                            .addOnSuccessListener {
+                                _creatingChatSessionState.value = Resource.Success()
+                            }
+                    }
+                    .addOnFailureListener {
+                        _creatingChatSessionState.value = Resource.Error("Failed to create chat session")
+                    }
+            }
+            .addOnFailureListener {
+                _creatingChatSessionState.value = Resource.Error("Failed to create chat session")
+            }
     }
 }
 

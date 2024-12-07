@@ -7,8 +7,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +36,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -57,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -78,6 +82,8 @@ import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
+import com.imeanttobe.drawapplication.theme.onSeed
+import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 
 @Composable
@@ -197,7 +203,7 @@ fun ProfileViewImageItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-
+                    .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
             )
         } else {
             Image(
@@ -356,6 +362,7 @@ fun InstagramButton(
         UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
         else -> MaterialTheme.colorScheme.onTertiary
     }
+
     val context = LocalContext.current
     val uri = Uri.parse("http://instagram.com/_u/$instagramId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -472,6 +479,7 @@ fun PictureDialog(
 
 @Composable
 fun UserTypeLabel(userType: UserType) {
+    /*
     val containerColor = when (userType) {
         UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
         UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
@@ -482,6 +490,10 @@ fun UserTypeLabel(userType: UserType) {
         UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
         else -> MaterialTheme.colorScheme.onTertiary
     }
+
+     */
+    val containerColor = seed
+    val contentColor = onSeed
 
     Card(
         colors = CardDefaults.cardColors(

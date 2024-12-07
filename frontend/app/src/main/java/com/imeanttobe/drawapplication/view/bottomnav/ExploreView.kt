@@ -203,7 +203,6 @@ fun ExploreViewGrid(
             contentPadding = PaddingValues(vertical = 10.dp)
         ) {
             items(postsAndUsers) { postAndUser ->
-
                 ExploreViewGridItem(
                     postAndUser = postAndUser,
                     onImageClick = {
@@ -517,17 +516,6 @@ fun ExploreViewImageItem(
             .fillMaxWidth()
             .clickable { onImageClick() }
     ) {
-        /*
-        Image(
-            // TODO: this sample image have to replaced with server's image loaded by Coil library
-            painter = painterResource(id = R.drawable.paintimage),
-            contentDescription = "Image",
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-         */
-
         if (imageUri != Uri.EMPTY) {
             AsyncImage(
                 modifier = Modifier
