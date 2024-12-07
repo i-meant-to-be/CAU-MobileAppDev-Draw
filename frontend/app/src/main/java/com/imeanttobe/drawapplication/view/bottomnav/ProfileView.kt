@@ -35,8 +35,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -113,9 +116,9 @@ fun ProfileView(
                     .padding(horizontal = 10.dp)
                     .padding(top = 10.dp),
                 posts = posts.value,
-                onImageClick = { imageUri, description ->
+                onImageClick = { postId, imageUri, description ->
                     viewModel.setDialogState(3)
-                    viewModel.setPictureDialogData(imageUri, description)
+                    viewModel.setPictureDialogData(postId, imageUri, description)
                 }
             )
         }
@@ -149,12 +152,36 @@ fun ProfileView(
         )
     }
 
+    var showOkCancelDialog by rememberSaveable { mutableStateOf(false) }
+
     // Picture dialog
     if (viewModel.dialogState.value == 3) {
         PictureDialog(
             setDialogState = { newValue -> viewModel.setDialogState(newValue) },
             description = viewModel.currentPictureDescription.value,
-            imageUri = viewModel.currentPictureUri.value
+            imageUri = viewModel.currentPictureUri.value,
+            onDeleteClicked = {showOkCancelDialog = true}
+        )
+    }
+
+    if(showOkCancelDialog){
+        AlertDialog(
+            onDismissRequest = { showOkCancelDialog = false },
+            title = { Text("그림 삭제") },
+            text = { Text("정말로 그림을 삭제하시겠습니까?") },
+            confirmButton = {
+                Button(onClick = {
+                    showOkCancelDialog = false
+                    viewModel.deletePost()
+                }) {
+                    Text("삭제")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showOkCancelDialog = false }) {
+                    Text("취소")
+                }
+            }
         )
     }
 }
@@ -163,7 +190,7 @@ fun ProfileView(
 fun ProfileViewGrid(
     modifier: Modifier = Modifier,
     posts: List<Post>,
-    onImageClick: (Uri, String) -> Unit
+    onImageClick: (String, Uri, String) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -175,7 +202,7 @@ fun ProfileViewGrid(
         items(items = posts) { post ->
             ProfileViewImageItem(
                 post = post,
-                onImageClick = { imageUri, description -> onImageClick(imageUri, description) }
+                onImageClick = {postId, imageUri, description -> onImageClick(postId,imageUri, description) }
             )
         }
     }
@@ -184,12 +211,12 @@ fun ProfileViewGrid(
 @Composable
 fun ProfileViewImageItem(
     post: Post,
-    onImageClick: (Uri, String) -> Unit
+    onImageClick: (String, Uri, String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onImageClick(post.imageUri, post.description) }
+            .clickable { onImageClick(post.id, post.imageUri, post.description) }
     ) {
         Log.d("ProfileView", post.imageUri.toString())
 
@@ -390,7 +417,8 @@ fun InstagramButton(
 fun PictureDialog(
     setDialogState: (Int) -> Unit,
     description: String,
-    imageUri: Uri?
+    imageUri: Uri?,
+    onDeleteClicked: ()->Unit
 ) {
     var scale by rememberSaveable { mutableFloatStateOf(1f) }
     var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
@@ -404,74 +432,89 @@ fun PictureDialog(
     Dialog(
         onDismissRequest = { setDialogState(0) }
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned { coordinates ->
-                            cardWidth = coordinates.size.width.toFloat()
-                            cardHeight = coordinates.size.height.toFloat()
-                        }
-                        .pointerInput(Unit) {
-                            detectTransformGestures { _, pan, zoom, _ ->
-                                scale = (scale * zoom).coerceIn(1f, 3f)
-
-                                val maxOffsetX = (cardWidth * (scale - 1f) / 2f)
-                                val maxOffsetY = (cardHeight * (scale - 1f) / 2f)
-
-                                offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
-                                offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
-                            }
-                        }
-                        .graphicsLayer(
-                            scaleX = scale,
-                            scaleY = scale,
-                            translationX = offsetX,
-                            translationY = offsetY
-                        ),
-                ) {
-                    if (imageUri != null) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalPlatformContext.current)
-                                .data(imageUri)
-                                .build(),
-                            contentDescription = "Selected image",
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onGloballyPositioned { coordinates ->
-                                    imageWidth = coordinates.size.width.toFloat()
-                                    imageHeight = coordinates.size.height.toFloat()
-                                },
-                        )
-                    } else {
-                        Image(
-                            imageVector = Icons.Filled.Error,
-                            contentDescription = "Image",
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onGloballyPositioned { coordinates ->
-                                    imageWidth = coordinates.size.width.toFloat()
-                                    imageHeight = coordinates.size.height.toFloat()
-                            }
-                        )
-                    }
-                }
-
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = backgroundColor)
-                        .padding(10.dp),
-                    text = description,
-                    minLines = 2,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+        Column {
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.End),
+                onClick = onDeleteClicked
+            ){
+                Icon(
+                    Icons.TwoTone.Delete,
+                    "Delete Image",
+                    Modifier.background(color = backgroundColor, shape = CircleShape).padding(4.dp)
                 )
+            }
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+            ) {
+                Column {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { coordinates ->
+                                cardWidth = coordinates.size.width.toFloat()
+                                cardHeight = coordinates.size.height.toFloat()
+                            }
+                            .pointerInput(Unit) {
+                                detectTransformGestures { _, pan, zoom, _ ->
+                                    scale = (scale * zoom).coerceIn(1f, 3f)
+
+                                    val maxOffsetX = (cardWidth * (scale - 1f) / 2f)
+                                    val maxOffsetY = (cardHeight * (scale - 1f) / 2f)
+
+                                    offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
+                                    offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                                }
+                            }
+                            .graphicsLayer(
+                                scaleX = scale,
+                                scaleY = scale,
+                                translationX = offsetX,
+                                translationY = offsetY
+                            ),
+                    ) {
+                        if (imageUri != null) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalPlatformContext.current)
+                                    .data(imageUri)
+                                    .build(),
+                                contentDescription = "Selected image",
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .onGloballyPositioned { coordinates ->
+                                        imageWidth = coordinates.size.width.toFloat()
+                                        imageHeight = coordinates.size.height.toFloat()
+                                    },
+                            )
+                        } else {
+                            Image(
+                                imageVector = Icons.Filled.Error,
+                                contentDescription = "Image",
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .onGloballyPositioned { coordinates ->
+                                        imageWidth = coordinates.size.width.toFloat()
+                                        imageHeight = coordinates.size.height.toFloat()
+                                    }
+                            )
+                        }
+                    }
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(color = backgroundColor)
+                            .padding(10.dp),
+                        text = description,
+                        minLines = 2,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }

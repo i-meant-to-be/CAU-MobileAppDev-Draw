@@ -22,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor() : ViewModel() {
@@ -35,6 +36,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     private val _dialogState = mutableIntStateOf(0)
     private val _currentPictureDescription = mutableStateOf("")
     private val _currentPictureUri = mutableStateOf(Uri.EMPTY)
+    private val _currentPostId = mutableStateOf("")
 
     // Getter
     val signOutState = _signOutState.asStateFlow()
@@ -43,6 +45,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     val dialogState: State<Int> = _dialogState
     val currentPictureDescription: State<String> = _currentPictureDescription
     val currentPictureUri: State<Uri> = _currentPictureUri
+    val currentPostId: State<String> = _currentPostId
 
     // Initialization
     init {
@@ -99,7 +102,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
                     }
 
                 }
@@ -112,9 +114,11 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     }
 
     fun setPictureDialogData(
+        postId: String,
         uri: Uri,
         description: String
     ) {
+        _currentPostId.value = postId
         _currentPictureUri.value = uri
         _currentPictureDescription.value = description
     }
@@ -129,7 +133,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                 uri,
                 context,
                 currentUser.id.toString(),
-                currentUser.postIds.size
+                Random.nextInt(Int.MIN_VALUE, Int.MAX_VALUE)
             ) { pictureUri ->
                 // ProfileView에서 user의 변경을 인식해야 그림 추가 등록시 grid를 재구성함
                 // 따라서 image 추가시 pictureUri를 추가한 user로 아예 바꿈.
@@ -175,4 +179,44 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
             }
 
     }
+
+    fun deletePost(){
+        FirebaseDatabase.getInstance()
+            .getReference(userReferenceName) // 'userReferenceName' 경로 참조
+            .child(_user.value?.id.toString()) // 사용자의 'id'로 자식 경로 설정
+            .child("postIds") // 'postIds' 하위 경로로 이동
+            .orderByValue() // 값으로 정렬 (값을 기준으로 쿼리)
+            .equalTo(_currentPostId.value) // '_currentPostId.value' 값을 가진 노드를 찾기
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    // 해당 값을 가진 노드를 찾았을 때
+                    for (childSnapshot in snapshot.children) {
+                        // 해당 노드를 삭제
+                        childSnapshot.ref.removeValue()
+                            .addOnSuccessListener {
+                                Log.d("ProfileViewModel", "Post successfully removed from user's postIds.")
+                            }
+                            .addOnFailureListener { error ->
+                                Log.d("ProfileViewModel", "Error deleting post in user: ${error.message}")
+                            }
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("ProfileViewModel", "Error reading from database: ${error.message}")
+                }
+            })
+
+        FirebaseDatabase.getInstance()
+            .getReference(postReferenceName)
+            .child(_currentPostId.value)
+            .removeValue()
+            .addOnSuccessListener{
+                _dialogState.intValue = 0
+                getUserData()
+            }
+            .addOnFailureListener { error ->
+                Log.d("ProfileViewModel", "Error deleting post: ${error.message}")
+            }
+    }
+
 }

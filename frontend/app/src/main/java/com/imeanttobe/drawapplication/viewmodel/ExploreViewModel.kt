@@ -127,10 +127,10 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
                                             else -> false
                                         }
                                     }
-                                    _postsAndUsers.value = filteredPostsAndUsers
+                                    _postsAndUsers.value = filteredPostsAndUsers.reversed()
                                 }
                                 else {
-                                    _postsAndUsers.value = tempPostAndUser
+                                    _postsAndUsers.value = tempPostAndUser.reversed()
                                 }
                             }
                     }
@@ -189,7 +189,7 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
                             .addOnCompleteListener {
                                 val result = userFetchTasks.mapNotNull { it.result }
                                 tempPostAndUser.addAll(result)
-                                _postsAndUsers.value = tempPostAndUser
+                                _postsAndUsers.value = tempPostAndUser.reversed()
                             }
                     }
                     override fun onCancelled(error: DatabaseError) {

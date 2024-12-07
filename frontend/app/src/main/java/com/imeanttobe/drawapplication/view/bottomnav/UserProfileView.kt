@@ -8,7 +8,9 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -42,15 +45,24 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -124,11 +136,102 @@ fun UserProfileView(
     }
 
     if (viewModel.dialogState.value == 1) {
-        PictureDialog(
+        PictureDialogUserProfile(
             setDialogState = { newValue -> viewModel.setDialogState(newValue) },
             description = viewModel.currentPictureDescription.value,
             imageUri = viewModel.currentPictureUri.value
         )
+    }
+}
+
+@Composable
+fun PictureDialogUserProfile(
+    setDialogState: (Int) -> Unit,
+    description: String,
+    imageUri: Uri?
+) {
+    var scale by rememberSaveable { mutableFloatStateOf(1f) }
+    var offsetX by rememberSaveable { mutableFloatStateOf(0f) }
+    var offsetY by rememberSaveable { mutableFloatStateOf(0f) }
+    var cardWidth by rememberSaveable { mutableFloatStateOf(0f) }
+    var cardHeight by rememberSaveable { mutableFloatStateOf(0f) }
+    var imageWidth by rememberSaveable { mutableFloatStateOf(0f) }
+    var imageHeight by rememberSaveable { mutableFloatStateOf(0f) }
+    val backgroundColor = MaterialTheme.colorScheme.surface
+
+    Dialog(
+        onDismissRequest = { setDialogState(0) }
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            cardWidth = coordinates.size.width.toFloat()
+                            cardHeight = coordinates.size.height.toFloat()
+                        }
+                        .pointerInput(Unit) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                scale = (scale * zoom).coerceIn(1f, 3f)
+
+                                val maxOffsetX = (cardWidth * (scale - 1f) / 2f)
+                                val maxOffsetY = (cardHeight * (scale - 1f) / 2f)
+
+                                offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
+                                offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                            }
+                        }
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offsetX,
+                            translationY = offsetY
+                        ),
+                ) {
+                    if (imageUri != null) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalPlatformContext.current)
+                                .data(imageUri)
+                                .build(),
+                            contentDescription = "Selected image",
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned { coordinates ->
+                                    imageWidth = coordinates.size.width.toFloat()
+                                    imageHeight = coordinates.size.height.toFloat()
+                                },
+                        )
+                    } else {
+                        Image(
+                            imageVector = Icons.Filled.Error,
+                            contentDescription = "Image",
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned { coordinates ->
+                                    imageWidth = coordinates.size.width.toFloat()
+                                    imageHeight = coordinates.size.height.toFloat()
+                                }
+                        )
+                    }
+                }
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = backgroundColor)
+                        .padding(10.dp),
+                    text = description,
+                    minLines = 2,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
 
