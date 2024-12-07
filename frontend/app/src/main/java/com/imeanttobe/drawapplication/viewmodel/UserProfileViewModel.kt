@@ -119,6 +119,50 @@ fun setUserPostData(userId: String?) {
     }
 
     }
+    fun createChatSession(opponentId: String, onComplete: (Boolean) -> Unit) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Log.e("UserProfileViewModel", "No authenticated user")
+            onComplete(false)
+            return
+        }
+
+        val chatReferenceName = "chat_sessions"
+        val chatId = FirebaseDatabase.getInstance()
+            .getReference(chatReferenceName)
+            .push()
+            .key // Firebase에서 새로운 키 생성
+
+        if (chatId == null) {
+            Log.e("UserProfileViewModel", "Failed to generate chat ID")
+            onComplete(false)
+            return
+        }
+
+        // 채팅 세션 생성
+        val newChatSession = mapOf(
+            "id" to chatId,
+            "user1Id" to currentUser.uid,
+            "user2Id" to opponentId,
+            "lastMessage" to "",
+            "isClosed" to false
+        )
+
+        val database = FirebaseDatabase.getInstance()
+        val userChatsRef = database.getReference(userReferenceName).child(currentUser.uid).child("chatSessions")
+        val opponentChatsRef = database.getReference(userReferenceName).child(opponentId).child("chatSessions")
+
+        database.getReference(chatReferenceName).child(chatId)
+            .setValue(newChatSession)
+            .addOnSuccessListener {
+                // ID 문자열만 저장
+                userChatsRef.push().setValue(chatId) // 현재 사용자에게 세션 추가
+                opponentChatsRef.push().setValue(chatId) // 상대방에게 세션 추가
+
+                Log.d("UserProfileViewModel", "Chat session created successfully")
+                onComplete(true)
+            }
+    }
 
 
 

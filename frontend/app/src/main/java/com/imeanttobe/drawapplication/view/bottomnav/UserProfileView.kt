@@ -67,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -74,6 +76,7 @@ import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
+import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.theme.onSeed
 import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.viewmodel.UserProfileViewModel
@@ -84,7 +87,8 @@ fun UserProfileView(
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel(),
     returnTo: () -> Unit,
-    navBackStackEntry: NavBackStackEntry
+    navBackStackEntry: NavBackStackEntry,
+    navController: NavHostController
 
 ) {
     val context = LocalContext.current
@@ -118,8 +122,9 @@ fun UserProfileView(
         ) {
             UserProfileCard(
                 modifier = Modifier,
-                user = user.value
-            )
+                user = user.value,
+                navController = navController,
+                viewModel = viewModel)
             UserProfileViewGrid(
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
@@ -204,7 +209,9 @@ fun UserProfileViewImageItem(
 @Composable // 프로필 카드 컴포저블
 fun UserProfileCard(
     modifier: Modifier,
-    user : User?
+    user : User?,
+    viewModel: UserProfileViewModel,
+    navController: NavHostController
 
 ) {
     val buttonContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
@@ -267,7 +274,14 @@ fun UserProfileCard(
         }
         Spacer(Modifier.height(24.dp))
 
-        Button(onClick = { TODO()},
+        Button(onClick = {viewModel.createChatSession(opponentId = user?.id ?: "") { success ->
+            if (success) {
+                Log.d("Chat", "Chat session created, navigate to chat view")
+                navController.navigate(NavItem.ChatView.route) // ChatView로 네비게이션
+            } else {
+                Log.e("Chat", "Failed to create chat session")
+            }
+        }},
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
