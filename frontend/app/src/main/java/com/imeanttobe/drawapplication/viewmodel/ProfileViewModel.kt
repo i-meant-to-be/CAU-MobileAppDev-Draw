@@ -7,7 +7,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -52,7 +51,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     }
 
     // Methods
-    private fun getUserData() {
+    fun getUserData() {
         FirebaseAuth.getInstance()
             .currentUser?.let { user ->
                 FirebaseDatabase.getInstance()
@@ -62,25 +61,23 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                     .addOnSuccessListener { data ->
                         Log.d("ProfileViewModel", "getUserData Success")
                         _user.value = User(data.getValue(UserWrapper::class.java) as UserWrapper)
-                        getUserPosts()
-                }
+                        listenUserPosts()
+                    }
             }
     }
 
-    private fun getUserPosts() {
+    private fun listenUserPosts() {
         // Get user's posts
         FirebaseDatabase.getInstance()
             .getReference(userReferenceName)
             .child(user.value!!.id)
             .child("postIds")
-            .orderByChild("timestamp")
             .addValueEventListener(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        // Clear before load new data
                         _userPosts.value = emptyList()
 
-                        for (data in snapshot.children) {
+                        snapshot.children.forEach { data ->
                             val postId = data.getValue(String::class.java)
                             postId?.let { postId ->
                                 FirebaseDatabase.getInstance()
@@ -90,11 +87,10 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                                     .addOnSuccessListener { data ->
                                         Log.d("ProfileViewModel", "getUserPosts Success")
                                         _userPosts.value += Post(data.getValue(PostWrapper::class.java) as PostWrapper)
+                                        _userPosts.value.sortedByDescending { post -> post.timestamp }
                                     }
                             }
                         }
-
-                        _userPosts.value.sortedBy { post -> post.timestamp }
                     }
 
                     override fun onCancelled(error: DatabaseError) {

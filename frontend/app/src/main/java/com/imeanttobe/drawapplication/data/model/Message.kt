@@ -13,5 +13,4 @@ data class Message(
         chatSessionId = "",
         body = ""
     )
-
 }

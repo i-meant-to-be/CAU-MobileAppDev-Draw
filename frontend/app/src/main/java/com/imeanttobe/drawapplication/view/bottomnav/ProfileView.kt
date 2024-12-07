@@ -90,10 +90,6 @@ fun ProfileView(
     val posts = viewModel.userPosts.collectAsState()
     val user = viewModel.user.collectAsState()
 
-    LaunchedEffect(key1 = true) {
-
-    }
-
     Surface(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxSize(),
