@@ -1,6 +1,7 @@
 package com.imeanttobe.drawapplication.view.bottomnav
 
-import androidx.compose.foundation.Image
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,13 +30,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.ChatSession
+import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.data.navigation.NavItem
 import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
 
@@ -45,10 +50,11 @@ fun ChatView(
     viewModel: ChatViewModel = hiltViewModel(),
     navigateTo: (String) -> Unit
 ) {
-    val chatLists = viewModel.sessions.collectAsState().value
+    val chatLists = viewModel.sessions.collectAsState()
 
     Surface(modifier = modifier) {
-        if (chatLists.isEmpty()) {
+        if (chatLists.value.isEmpty()) {
+            // If chat list is empty, show empty chat view
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -66,17 +72,20 @@ fun ChatView(
                 )
             }
         } else {
+            // If chat list is not empty, show enable chat sessions
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                itemsIndexed(chatLists) { index, chatList ->
-                    ChatListItem(
+                itemsIndexed(chatLists.value) { index, chatSession ->
+                    ChatSessionItem(
                         modifier = Modifier.padding(
                             top = if (index == 0) 10.dp else 0.dp,
-                            bottom = if (index == chatLists.lastIndex) 10.dp else 0.dp
+                            bottom = if (index == chatLists.value.lastIndex) 10.dp else 0.dp
                         ),
-                        chatSession = chatList,
+                        chatSession = chatSession,
+                        // TODO: Opponent user's data should be here
+                        opponentUser = User(),
                         onClick = { navigateTo(NavItem.ChatDetailItem.route) }
                     )
                 }
@@ -86,9 +95,10 @@ fun ChatView(
 }
 
 @Composable
-fun ChatListItem(
+fun ChatSessionItem(
     modifier: Modifier = Modifier,
     chatSession: ChatSession,
+    opponentUser: User,
     onClick: () -> Unit
 ) {
     Row(
@@ -96,19 +106,23 @@ fun ChatListItem(
             .padding(horizontal = 10.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
+            // TODO: Navigation code have to implemented here on clickable
             .clickable { onClick() }
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ChatListItemProfileImage(imageUrl = "")
+        ChatSessionItemProfileImage(imageUri = opponentUser.profilePhotoUri)
         Spacer(modifier = Modifier.padding(end = 10.dp))
-        ChatListItemUserDataText(chatList = chatSession)
+        ChatListItemUserDataText(
+            chatSession = chatSession,
+            opponentUserType = opponentUser.type
+        )
     }
 }
 
 @Composable
-fun ChatListItemProfileImage(
-    imageUrl: String
+fun ChatSessionItemProfileImage(
+    imageUri: Uri
 ) {
     Box(
         modifier = Modifier
@@ -116,19 +130,25 @@ fun ChatListItemProfileImage(
             .clip(CircleShape)
             .background(color = MaterialTheme.colorScheme.primary)
     ) {
-        Image(
-            // TODO: have to load image here by Coil library
-            painter = painterResource(id = R.drawable.joker),
-            contentDescription = null,
+        AsyncImage(
+            model = ImageRequest.Builder(LocalPlatformContext.current)
+                .data(imageUri)
+                .build(),
+            contentDescription = "Profile Image",
+            contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.FillWidth
+            onError = {
+                // 이미지 로딩 실패 시 로그 출력
+                Log.e("AsyncImage", "Image load failed $it")
+            }
         )
     }
 }
 
 @Composable
 fun ChatListItemUserDataText(
-    chatList: ChatSession
+    chatSession: ChatSession,
+    opponentUserType: UserType
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -142,22 +162,17 @@ fun ChatListItemUserDataText(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             Text(
-                /*
-                TODO:
-                text = when(chatList.opponentType) {
-                    UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
+                text = when(opponentUserType) {
                     UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
                     UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
+                    else -> stringResource(id = R.string.usertype_undefined)
                 },
-
-                 */
-                text = stringResource(id = R.string.usertype_admin),
                 style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
             )
         }
 
         Text(
-            text = chatList.lastMessage,
+            text = chatSession.lastMessage,
             style = MaterialTheme.typography.bodyMedium
         )
     }

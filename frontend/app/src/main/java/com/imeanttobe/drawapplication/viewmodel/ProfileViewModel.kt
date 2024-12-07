@@ -93,6 +93,8 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                                     }
                             }
                         }
+
+                        _userPosts.value.sortedBy { post -> post.timestamp }
                     }
 
                     override fun onCancelled(error: DatabaseError) {

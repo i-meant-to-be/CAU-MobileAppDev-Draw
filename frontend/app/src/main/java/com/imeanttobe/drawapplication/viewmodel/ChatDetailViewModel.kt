@@ -36,6 +36,7 @@ class ChatDetailViewModel @Inject constructor() : ViewModel() {
     val drawerState: State<Boolean> = _drawerState
     val messages: StateFlow<List<Message>> = _messages.asStateFlow() // This is for messages received from firebase
 
+    // Initialization
     init {
         // TODO: this is for sample messages and have to replaced or removed when firebase is applied
         viewModelScope.launch {
@@ -53,14 +54,18 @@ class ChatDetailViewModel @Inject constructor() : ViewModel() {
     }
 
     // Methods
+    // This method sets the text field's string values
     fun setTextFieldMessage(newValue: String) {
         _messageTextField.value = newValue
     }
 
+    // This method sets drawer's state; whether drawer is opened or not
     fun setDrawerState(newValue: Boolean) {
         _drawerState.value = newValue
     }
 
+    // This method sends message to Firebase Database
+    // (NOTE: This method is almost same as the method we implemented on eClass)
     fun send(sessionId: String) {
         val message = Message(
             id = firebaseDatabase.reference.child(referenceName).push().key!!,
@@ -72,6 +77,8 @@ class ChatDetailViewModel @Inject constructor() : ViewModel() {
         firebaseDatabase.reference.child(referenceName).child(sessionId).push().setValue(message)
     }
 
+    // This method listens messages
+    // (NOTE: This method is almost same as the method we implemented on eClass)
     fun listen(
         sessionId: String,
         onError: () -> Unit

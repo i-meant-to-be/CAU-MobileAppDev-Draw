@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -69,14 +70,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
-import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
@@ -90,6 +89,10 @@ fun ProfileView(
     val context = LocalContext.current
     val posts = viewModel.userPosts.collectAsState()
     val user = viewModel.user.collectAsState()
+
+    LaunchedEffect(key1 = true) {
+
+    }
 
     Surface(modifier = modifier) {
         Column(
@@ -554,7 +557,7 @@ fun NewPictureDialog(
                             model = ImageRequest.Builder(context)
                                 .data(pictureUri)
                                 .build(),
-                            contentScale = ContentScale.FillBounds,
+                            contentScale = ContentScale.FillWidth,
                             contentDescription = "Picture"
                         )
                     } else {
@@ -634,7 +637,9 @@ fun UpdateUserDataDialog(
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
-            pictureUri = uri
+            if (uri != null) {
+                pictureUri = uri
+            }
         }
     )
 

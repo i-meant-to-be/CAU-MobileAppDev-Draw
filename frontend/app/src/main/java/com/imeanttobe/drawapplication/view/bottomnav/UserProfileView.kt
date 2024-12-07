@@ -92,15 +92,11 @@ fun UserProfileView(
     val user = viewModel.user.collectAsState()
     val userId = navBackStackEntry.arguments?.getString("userId")
 
-
-
     LaunchedEffect(userId) {
         viewModel.setUserProfileData(userId)
         viewModel.setUserPostData(userId)
 
     }
-
-
 
     Scaffold(modifier = modifier) { innerPadding ->
 
@@ -145,219 +141,220 @@ fun UserProfileView(
         )
     }
 }
+
 @Composable
 fun UserProfileViewGrid(
-        modifier: Modifier = Modifier,
-        posts: List<Post>,
-        onImageClick: (Uri, String) -> Unit
+    modifier: Modifier = Modifier,
+    posts: List<Post>,
+    onImageClick: (Uri, String) -> Unit
+) {
+    LazyVerticalGrid(
+        modifier = modifier,
+        columns = GridCells.Fixed(3),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        LazyVerticalGrid(
-            modifier = modifier,
-            columns = GridCells.Fixed(3),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(vertical = 2.dp)
-        ) {
-            items(items = posts) { post ->
-                UserProfileViewImageItem(
-                    post = post,
-                    onImageClick = { imageUri, description -> onImageClick(imageUri, description) }
-                )
-            }
+        items(items = posts) { post ->
+            UserProfileViewImageItem(
+                post = post,
+                onImageClick = { imageUri, description -> onImageClick(imageUri, description) }
+            )
         }
     }
+}
 
-    @Composable
-    fun UserProfileViewImageItem(
-        post: Post,
-        onImageClick: (Uri, String) -> Unit
+@Composable
+fun UserProfileViewImageItem(
+    post: Post,
+    onImageClick: (Uri, String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onImageClick(post.imageUri, post.description) }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onImageClick(post.imageUri, post.description) }
-        ) {
-            Log.d("ProfileView", post.imageUri.toString())
+        Log.d("ProfileView", post.imageUri.toString())
 
-            if (post.imageUri != Uri.EMPTY) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalPlatformContext.current)
-                        .data(post.imageUri)
-                        .build(),
-                    contentDescription = "Selected image",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.paintimage),
-                    contentDescription = "Image",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                )
-            }
-        }
-    }
-
-    @Composable // 프로필 카드 컴포저블
-    fun UserProfileCard(
-        modifier: Modifier,
-        user : User?
-
-    ) {
-        val buttonContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-        val buttonContentColor = MaterialTheme.colorScheme.onSurface
-
-        Column(
-            modifier = modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Log.d("ProfileView", user?.profilePhotoUri.toString())
-
-            // Profile photo
+        if (post.imageUri != Uri.EMPTY) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(user?.profilePhotoUri)
+                    .data(post.imageUri)
                     .build(),
-                contentDescription = "Profile Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .size(100.dp) // 이미지 크기 64dp로 설정
-                    .clip(CircleShape), // 이미지를 원형으로 자름
-                onError = {
-                    // 이미지 로딩 실패 시 로그 출력
-                    Log.e("AsyncImage", "Image load failed $it")
-                }
-            )
-            Spacer(Modifier.height(10.dp))
-
-            // Nickname
-            if (user != null) {
-                Text(
-                    text = user.nickname ?: stringResource(id = R.string.error_nickname),
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-            Spacer(modifier = Modifier.height(0.dp))
-
-            // Introduce
-            Text(
-                text = user?.introduce ?: stringResource(id = R.string.error_introduce),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Usertype
-            Row(
+                contentDescription = "Selected image",
+                contentScale = ContentScale.FillWidth,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                UserLabel(userType = user?.type ?: UserType.UNDEFINED)
-                Spacer(modifier = Modifier.width(10.dp))
-                InstagramButton(
-                    instagramId = user?.instagramId ?: "",
-                    userType = user?.type ?: UserType.UNDEFINED
-                )
-            }
-            Spacer(Modifier.height(24.dp))
+                    .aspectRatio(1f)
 
-            Button(onClick = { TODO()},
-                modifier = modifier
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.paintimage),
+                contentDescription = "Image",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                shape = RoundedCornerShape(15.dp),
-                colors = ButtonDefaults.buttonColors(
-                   containerColor = seed, contentColor = onSeed)
-            ) {
-                Text(text = stringResource(id = R.string.send_message))
-            }
-
-            // Profile buttons
-
-            }
+                    .aspectRatio(1f)
+            )
         }
+    }
+}
 
+@Composable // 프로필 카드 컴포저블
+fun UserProfileCard(
+    modifier: Modifier,
+    user : User?
 
-    @Composable
-    fun UserInstagramButton(
-        instagramId: String,
-        userType: UserType
+) {
+    val buttonContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    val buttonContentColor = MaterialTheme.colorScheme.onSurface
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val containerColor = when (userType) {
-            UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
-            UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
-            else -> MaterialTheme.colorScheme.tertiary
-        }
-        val contentColor = when (userType) {
-            UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
-            UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
-            else -> MaterialTheme.colorScheme.onTertiary
-        }
-        val context = LocalContext.current
-        val uri = Uri.parse("http://instagram.com/_u/$instagramId")
-        val intent = Intent(Intent.ACTION_VIEW, uri)
-        intent.setPackage("com.instagram.android")
+        Log.d("ProfileView", user?.profilePhotoUri.toString())
 
-        Icon(
-            painter = painterResource(id = R.drawable.instagram_logo), // 원하는 아이콘으로 변경
-            contentDescription = "인스타그램 아이디 아이콘", // 접근성을 위한 설명
-            tint = contentColor,
+        // Profile photo
+        AsyncImage(
+            model = ImageRequest.Builder(LocalPlatformContext.current)
+                .data(user?.profilePhotoUri)
+                .build(),
+            contentDescription = "Profile Image",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(30.dp)
-                .background(color = containerColor, shape = CircleShape)
-                .padding(6.dp)
-                .clickable {
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: ActivityNotFoundException) {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                    }
+                .padding(top = 10.dp)
+                .size(100.dp) // 이미지 크기 64dp로 설정
+                .clip(CircleShape), // 이미지를 원형으로 자름
+            onError = {
+                // 이미지 로딩 실패 시 로그 출력
+                Log.e("AsyncImage", "Image load failed $it")
+            }
+        )
+        Spacer(Modifier.height(10.dp))
+
+        // Nickname
+        if (user != null) {
+            Text(
+                text = user.nickname ?: stringResource(id = R.string.error_nickname),
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+            )
+        }
+        Spacer(modifier = Modifier.height(0.dp))
+
+        // Introduce
+        Text(
+            text = user?.introduce ?: stringResource(id = R.string.error_introduce),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Usertype
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            UserLabel(userType = user?.type ?: UserType.UNDEFINED)
+            Spacer(modifier = Modifier.width(10.dp))
+            InstagramButton(
+                instagramId = user?.instagramId ?: "",
+                userType = user?.type ?: UserType.UNDEFINED
+            )
+        }
+        Spacer(Modifier.height(24.dp))
+
+        Button(onClick = { TODO()},
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            shape = RoundedCornerShape(15.dp),
+            colors = ButtonDefaults.buttonColors(
+               containerColor = seed, contentColor = onSeed)
+        ) {
+            Text(text = stringResource(id = R.string.send_message))
+        }
+
+        // Profile buttons
+
+        }
+    }
+
+
+@Composable
+fun UserInstagramButton(
+    instagramId: String,
+    userType: UserType
+) {
+    val containerColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.tertiary
+    }
+    val contentColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
+        else -> MaterialTheme.colorScheme.onTertiary
+    }
+    val context = LocalContext.current
+    val uri = Uri.parse("http://instagram.com/_u/$instagramId")
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+    intent.setPackage("com.instagram.android")
+
+    Icon(
+        painter = painterResource(id = R.drawable.instagram_logo), // 원하는 아이콘으로 변경
+        contentDescription = "인스타그램 아이디 아이콘", // 접근성을 위한 설명
+        tint = contentColor,
+        modifier = Modifier
+            .size(30.dp)
+            .background(color = containerColor, shape = CircleShape)
+            .padding(6.dp)
+            .clickable {
+                try {
+                    context.startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, uri))
                 }
+            }
+    )
+}
+
+
+
+@Composable
+fun UserLabel(userType: UserType) {
+    val containerColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.tertiary
+    }
+    val contentColor = when (userType) {
+        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
+        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
+        else -> MaterialTheme.colorScheme.onTertiary
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        )
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
+            text = when (userType) {
+                UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
+                UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
+                UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
+                else -> stringResource(id = R.string.error_user_type)
+            },
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = contentColor
         )
     }
-
-
-
-    @Composable
-    fun UserLabel(userType: UserType) {
-        val containerColor = when (userType) {
-            UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
-            UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
-            else -> MaterialTheme.colorScheme.tertiary
-        }
-        val contentColor = when (userType) {
-            UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
-            UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
-            else -> MaterialTheme.colorScheme.onTertiary
-        }
-
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = containerColor,
-                contentColor = contentColor
-            )
-        ) {
-            Text(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
-                text = when (userType) {
-                    UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
-                    UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
-                    UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
-                    else -> stringResource(id = R.string.error_user_type)
-                },
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                color = contentColor
-            )
-        }
-    }
+}
 
 

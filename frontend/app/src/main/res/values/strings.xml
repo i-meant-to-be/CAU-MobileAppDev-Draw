@@ -50,7 +50,8 @@
     <string name="modify_information">정보 수정</string>
     <string name="add_your_first_picture">소개하고 싶은 그림을 1장 추가해주세요.</string>
     <string name="add_your_picture">소개하고 싶은 그림을 추가해주세요.</string>
-    <string name="error_get_message">메시지를 가져오는 도중 오류가 발생했어요.</string>
+    <string name="error_get_messages">메시지를 가져오는 도중 오류가 발생했어요.</string>
+    <string name="error_get_posts">게시물을 가져오는 도중 오류가 발생했어요.</string>
 
     <string name="error_nickname">별명 오류</string>
     <string name="error_user_type">사용자 유형 오류</string>

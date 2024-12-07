@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -96,9 +95,10 @@ fun ChatDetailView(
         label = "ChatDetailViewDrawerAlpha"
     )
 
+    // Let this view keep listening incoming messages
     LaunchedEffect(key1 = true) {
         viewModel.listen(
-            onError = { Toast.makeText(context, context.getString(R.string.error_get_message), Toast.LENGTH_SHORT).show() },
+            onError = { Toast.makeText(context, context.getString(R.string.error_get_messages), Toast.LENGTH_SHORT).show() },
             sessionId = sessionId
         )
     }
@@ -113,7 +113,7 @@ fun ChatDetailView(
                 onClick = { viewModel.setDrawerState(false) }
             )
     ) {
-        // Main content
+        // Main contents
         Scaffold(
             modifier = modifier,
             contentWindowInsets = WindowInsets(0.dp),
@@ -123,6 +123,7 @@ fun ChatDetailView(
                     onValueChange = viewModel::setTextFieldMessage,
                     focusRequester = focusRequester,
                     onSendClick = {
+                        // Call send method on here
                         viewModel.send(sessionId = sessionId)
                         viewModel.setTextFieldMessage("")
                     }
@@ -134,6 +135,7 @@ fun ChatDetailView(
                     .padding(innerPadding)
                     .fillMaxSize(),
             ) {
+                // Top bar and it has back button and drawer button
                 ChatDetailViewTopBar(
                     opponentNickname = viewModel.opponentNickname.value,
                     navigateUp = navigateUp,
@@ -143,6 +145,7 @@ fun ChatDetailView(
                     }
                 )
 
+                // Messages are going to be displayed here
                 ChatDetailViewBody(
                     modifier = Modifier.fillMaxSize(),
                     chatItems = messages.value
@@ -173,6 +176,7 @@ fun ChatDetailView(
                 .windowInsetsPadding(WindowInsets.systemBars)
         ) {
             ChatDetailViewDrawer(
+                // Should make chat session to be closed by set 'isClosed' variable on ChatSession instance
                 onExit = {}
             )
         }
@@ -186,12 +190,14 @@ fun ChatDetailViewDrawer(
     Column(
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
+        // Drawer title
         Text(
             text = stringResource(id = R.string.menu),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(20.dp)
         )
 
+        // Exit button
         Surface(
             modifier = Modifier
                 .widthIn(max = 200.dp)
@@ -223,10 +229,12 @@ fun ChatDetailViewBody(
 ) {
     val listState = rememberLazyListState()
 
+    // Set the scroll bar's position to the bottom when chatting view is opened
     LaunchedEffect(key1 = remember { derivedStateOf { listState.firstVisibleItemIndex } }) {
         listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
     }
 
+    // Chat bubbles are displayed here
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -291,8 +299,10 @@ fun ChatBubble(
     message: String,
     isMine: Boolean
 ) {
+    // Set colors by message's owner
     val backgroundColor = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
     val contentColor = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+    // For haptic feedback when user long clicks the message bubble
     val haptics = LocalHapticFeedback.current
     val clipboardManager = LocalClipboardManager.current
 
@@ -341,6 +351,7 @@ fun ChatDetailViewBottomBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End
     ) {
+        // User's text field to enter message
         ChatTextField(
             modifier = Modifier
                 .weight(1f)
@@ -348,6 +359,8 @@ fun ChatDetailViewBottomBar(
             text = text,
             onValueChange = onValueChange
         )
+
+        // Send button
         ChatSendButton(
             modifier = Modifier.padding(horizontal = 5.dp),
             onSendClick = onSendClick
