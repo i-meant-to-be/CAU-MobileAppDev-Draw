@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.imeanttobe.drawapplication.data.navigation.NavItem
+import com.imeanttobe.drawapplication.view.bottomnav.ChatView
 import com.imeanttobe.drawapplication.view.bottomnav.UserProfileView
 import com.imeanttobe.drawapplication.view.chat.ChatDetailView
 import com.imeanttobe.drawapplication.view.login.LoginDetailView
@@ -86,6 +87,9 @@ fun MainNavHostView(
                     }
                 )
             }
+            composableAnimated(route = NavItem.ChatView.route) {
+                ChatView(navigateTo = {})
+            }
 
             composableAnimated(
                 route = "${NavItem.RegisterUserProfileViewItem.route}/email={email}?pw={pw}?phone_number={phone_number}",
@@ -130,7 +134,8 @@ fun MainNavHostView(
                 val userId = navBackStackEntry.arguments?.getString("userId")
             UserProfileView(
                     returnTo = { navController.popBackStack() },
-                    navBackStackEntry= navBackStackEntry
+                    navBackStackEntry= navBackStackEntry,
+                    navController = navController
                 )
             }
             // For test

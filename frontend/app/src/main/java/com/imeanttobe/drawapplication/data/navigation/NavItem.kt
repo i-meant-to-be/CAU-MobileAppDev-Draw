@@ -48,4 +48,8 @@ sealed class NavItem(
         route = "/explore/userprofile",
         label = "explore userprofile"
     )
+    data object ChatView: NavItem(
+        route = "/chatviewe",
+        label = "Chat view"
+    )
 }

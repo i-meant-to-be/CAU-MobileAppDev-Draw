@@ -73,6 +73,7 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
+import com.google.firebase.auth.FirebaseAuth
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.ExploreSearchOption
 import com.imeanttobe.drawapplication.data.enum.UserType
@@ -210,8 +211,7 @@ fun ExploreViewGrid(
                         setDialogState(true)
                         dialogImgUri = postAndUser.first.imageUri
                     },
-                    navController= navController
-
+                    navigateTo = { route -> navController.navigate(route) }
                 )
             }
         }
@@ -425,8 +425,7 @@ fun ExploreViewSearchBoxTextField(
 fun ExploreViewGridItem(
     postAndUser: Pair<Post, User>,
     onImageClick: () -> Unit,
-    navController: NavController
-
+    navigateTo: (String) -> Unit
 ) {
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     val containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -447,7 +446,9 @@ fun ExploreViewGridItem(
                 userImageUrl = postAndUser.second.profilePhotoUri.toString(),
                 contentColor = contentColor,
                 onClick = {
-                     navController.navigate("${NavItem.UserProfileViewItem.route}/userId=${postAndUser.second.id}")
+                    if (postAndUser.second.id != FirebaseAuth.getInstance().currentUser!!.uid) {
+                        navigateTo("${NavItem.UserProfileViewItem.route}/userId=${postAndUser.second.id}")
+                    }
                 }
             )
             ExploreViewImageItem(

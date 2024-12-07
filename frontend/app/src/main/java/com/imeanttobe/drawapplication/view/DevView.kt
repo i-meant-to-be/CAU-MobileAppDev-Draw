@@ -51,6 +51,12 @@ fun DevView(
             ) {
                 Text(text = "Add new post")
             }
+
+            Button(
+                onClick = { navigateTo(NavItem.ChatDetailItem.route + "/test") }
+            ) {
+                Text(text = "Open test chat view")
+            }
         }
     }
 }

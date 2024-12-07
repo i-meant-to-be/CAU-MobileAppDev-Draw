@@ -29,7 +29,7 @@
     <string name="no_image">서버에 이미지 없음</string>
     <string name="add_profile_photo">프로필 사진 추가</string>
     <string name="register_picture">그림 등록</string>
-    <string name="send_message">메세지 보내기</string>
+    <string name="send_message">메시지 보내기</string>
 
     <string name="logout">로그아웃</string>
     <string name="direct_message">Contact</string>

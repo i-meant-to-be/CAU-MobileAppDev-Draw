@@ -8,9 +8,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,44 +27,33 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonDefaults.shape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -74,8 +61,6 @@ import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
-import com.imeanttobe.drawapplication.theme.onSeed
-import com.imeanttobe.drawapplication.theme.seed
 import com.imeanttobe.drawapplication.viewmodel.UserProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,7 +69,8 @@ fun UserProfileView(
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel(),
     returnTo: () -> Unit,
-    navBackStackEntry: NavBackStackEntry
+    navBackStackEntry: NavBackStackEntry,
+    navController: NavHostController
 
 ) {
     val context = LocalContext.current
@@ -95,12 +81,12 @@ fun UserProfileView(
     LaunchedEffect(userId) {
         viewModel.setUserProfileData(userId)
         viewModel.setUserPostData(userId)
-
     }
 
-    Scaffold(modifier = modifier) { innerPadding ->
-
-        TopAppBar(
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = returnTo) {
@@ -110,16 +96,20 @@ fun UserProfileView(
                         )
                     }
                 }
-        )
-
+            )
+        }
+    ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).fillMaxSize(),
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             UserProfileCard(
                 modifier = Modifier,
                 user = user.value
             )
+
             UserProfileViewGrid(
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
@@ -205,7 +195,6 @@ fun UserProfileViewImageItem(
 fun UserProfileCard(
     modifier: Modifier,
     user : User?
-
 ) {
     val buttonContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
     val buttonContentColor = MaterialTheme.colorScheme.onSurface
@@ -224,7 +213,6 @@ fun UserProfileCard(
             contentDescription = "Profile Image",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .padding(top = 10.dp)
                 .size(100.dp) // 이미지 크기 64dp로 설정
                 .clip(CircleShape), // 이미지를 원형으로 자름
             onError = {
@@ -258,7 +246,7 @@ fun UserProfileCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            UserLabel(userType = user?.type ?: UserType.UNDEFINED)
+            UserTypeLabel(userType = user?.type ?: UserType.UNDEFINED)
             Spacer(modifier = Modifier.width(10.dp))
             InstagramButton(
                 instagramId = user?.instagramId ?: "",
@@ -267,94 +255,33 @@ fun UserProfileCard(
         }
         Spacer(Modifier.height(24.dp))
 
-        Button(onClick = { TODO()},
-            modifier = modifier
+        // Chat
+        Button(
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(
-               containerColor = seed, contentColor = onSeed)
-        ) {
-            Text(text = stringResource(id = R.string.send_message))
-        }
+                .height(40.dp),
+            onClick = {
 
-        // Profile buttons
-
-        }
-    }
-
-
-@Composable
-fun UserInstagramButton(
-    instagramId: String,
-    userType: UserType
-) {
-    val containerColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.tertiary
-    }
-    val contentColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
-        else -> MaterialTheme.colorScheme.onTertiary
-    }
-    val context = LocalContext.current
-    val uri = Uri.parse("http://instagram.com/_u/$instagramId")
-    val intent = Intent(Intent.ACTION_VIEW, uri)
-    intent.setPackage("com.instagram.android")
-
-    Icon(
-        painter = painterResource(id = R.drawable.instagram_logo), // 원하는 아이콘으로 변경
-        contentDescription = "인스타그램 아이디 아이콘", // 접근성을 위한 설명
-        tint = contentColor,
-        modifier = Modifier
-            .size(30.dp)
-            .background(color = containerColor, shape = CircleShape)
-            .padding(6.dp)
-            .clickable {
-                try {
-                    context.startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                }
-            }
-    )
-}
-
-
-
-@Composable
-fun UserLabel(userType: UserType) {
-    val containerColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.tertiary
-    }
-    val contentColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
-        else -> MaterialTheme.colorScheme.onTertiary
-    }
-
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        )
-    ) {
-        Text(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
-            text = when (userType) {
-                UserType.WEBTOON_ARTIST -> stringResource(id = R.string.usertype_webtoon_artist)
-                UserType.ASSIST_ARTIST -> stringResource(id = R.string.usertype_assist_artist)
-                UserType.ADMIN -> stringResource(id = R.string.usertype_admin)
-                else -> stringResource(id = R.string.error_user_type)
             },
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = contentColor
-        )
+            shape = RoundedCornerShape(100.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = buttonContainerColor,
+                contentColor = buttonContentColor
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = stringResource(id = R.string.send_message))
+            }
+        }
     }
 }
-
 

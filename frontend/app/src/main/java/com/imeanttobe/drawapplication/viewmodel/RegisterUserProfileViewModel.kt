@@ -121,9 +121,7 @@ class RegisterUserProfileViewModel @Inject constructor() : ViewModel() {
                                 "signUp: before add pictureId. loadPictureUri: $pictureUri"
                             )
                             user.postIds.add(postId)
-                            //register시에 chatSession이 추가되지 않아서 chating이 없는경우 문제가 발생하는 것처럼 보임.
-                            //그래서 사용하지 않는 기본값 하나는 넣어서 유지시키기.
-                            user.chatSessions.add("default")
+
                             Log.d(
                                 "RegisterUserProfileViewModel",
                                 "signUp: after add pictureId"
