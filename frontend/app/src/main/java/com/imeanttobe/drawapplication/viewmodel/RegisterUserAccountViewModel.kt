@@ -16,31 +16,31 @@ class RegisterUserAccountViewModel @Inject constructor() : ViewModel() {
     private val _registerState = MutableStateFlow<Resource>(Resource.Nothing())
     val registerState = _registerState.asStateFlow()
 
-    private val _email = mutableStateOf("aaa@aaa.com")
+    private val _email = mutableStateOf("")
     val email: State<String> = _email
 
-    private var _password = mutableStateOf("111111")
+    private var _password = mutableStateOf("")
     val password: State<String> = _password
 
-    private val _passwordConfirm = mutableStateOf("111111")
+    private val _passwordConfirm = mutableStateOf("")
     val passwordConfirm: State<String> = _passwordConfirm
 
-    private val _phoneNumber = mutableStateOf("010-1111-1111")
+    private val _phoneNumber = mutableStateOf("")
     val phoneNumber: State<String> = _phoneNumber
 
-    private val _isEmailValid = mutableStateOf(true)
+    private val _isEmailValid = mutableStateOf(false)
     val isEmailValid: State<Boolean> = _isEmailValid
 
-    private val _isPasswordValid = mutableStateOf(true)
+    private val _isPasswordValid = mutableStateOf(false)
     val isPasswordValid: State<Boolean> = _isPasswordValid
 
-    private val _isPasswordConfirmed = mutableStateOf(true)
+    private val _isPasswordConfirmed = mutableStateOf(false)
     val isPasswordConfirmed: State<Boolean> = _isPasswordConfirmed
 
-    private val _isPhoneNumberValid = mutableStateOf(true)
+    private val _isPhoneNumberValid = mutableStateOf(false)
     val isPhoneNumberValid: State<Boolean> = _isPhoneNumberValid
 
-    private val _isAllValid = mutableStateOf(true)
+    private val _isAllValid = mutableStateOf(false)
     val isAllValid: State<Boolean> = _isAllValid
 
     // Methods

@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -61,29 +62,36 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
                 if (userWrapper != null) {
                     _user.value = User(userWrapper)
 
-                    // @Suppress("SENSELESS_COMPARISON")
-                    val postFetchTasks = _user.value!!.postIds.map { postId ->
-                            FirebaseDatabase.getInstance()
-                                .getReference(postReferenceName)
-                                .child(postId)
-                                .get()
-                                .continueWith { task ->
-                                    if (task.isSuccessful) {
-                                        val postWrapper = task.result.getValue(PostWrapper::class.java)
-                                        if (postWrapper != null) {
-                                            Post(postWrapper)
+                    val postFetchTasks: MutableList<Task<Post?>> = mutableListOf()
+                    for (postId in _user.value!!.postIds) {
+                        if (postId != null) {
+                            postFetchTasks.add(
+                                FirebaseDatabase.getInstance()
+                                    .getReference(postReferenceName)
+                                    .child(postId)
+                                    .get()
+                                    .continueWith { task ->
+                                        if (task.isSuccessful) {
+                                            val postWrapper =
+                                                task.result.getValue(PostWrapper::class.java)
+                                            if (postWrapper != null) {
+                                                Post(postWrapper)
+                                            } else {
+                                                null
+                                            }
                                         } else {
                                             null
                                         }
-                                    } else {
-                                        null
                                     }
-                                }
+                            )
+                        }
                     }
 
                     Tasks.whenAllComplete(postFetchTasks)
                         .addOnCompleteListener {
-                            val posts = postFetchTasks.mapNotNull { it.result }
+                            val posts = postFetchTasks.mapNotNull {
+                                it.result
+                            }
                             _userPosts.value = posts
                             _loadingUserDataState.value = Resource.Success()
                         }
