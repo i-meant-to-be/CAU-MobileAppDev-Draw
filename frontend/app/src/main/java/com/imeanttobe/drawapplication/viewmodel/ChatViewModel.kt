@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +13,7 @@ import com.google.firebase.database.ValueEventListener
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.etc.UserWrapper
 import com.imeanttobe.drawapplication.data.model.ChatSession
+import com.imeanttobe.drawapplication.data.model.Message
 import com.imeanttobe.drawapplication.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -95,11 +97,27 @@ class ChatViewModel @Inject constructor() : ViewModel() {
                     .addChildEventListener(
                         object : ChildEventListener {
                             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                                val message = snapshot.getValue(Message::class.java)
+                                Log.d("ChatViewModel", "onChildAdded called: ${message?.body}")
                                 updateUserData()
                             }
                             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
                             override fun onChildRemoved(snapshot: DataSnapshot) {}
                             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {                        }
+                            override fun onCancelled(error: DatabaseError) {}
+                        }
+                    )
+
+                FirebaseDatabase.getInstance()
+                    .getReference(chatReferenceName)
+                    .child(sessionId)
+                    .child("lastMessage")
+                    .addValueEventListener(
+                        object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                Log.d("ChatViewModel", "onDataChange called")
+                                updateUserData()
+                            }
                             override fun onCancelled(error: DatabaseError) {}
                         }
                     )
