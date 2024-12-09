@@ -181,6 +181,8 @@ fun ChatListItemUserDataText(
 
         Text(
             text = if (chatSession.lastMessage.isEmpty()) stringResource(id = R.string.no_message) else chatSession.lastMessage,
+            maxLines = 1,
+            minLines = 1,
             style = MaterialTheme.typography.bodyMedium
         )
     }

@@ -2,13 +2,11 @@ package com.imeanttobe.drawapplication.viewmodel
 
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Tasks
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.imeanttobe.drawapplication.data.etc.PostWrapper
@@ -65,7 +63,6 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
 
                     // @Suppress("SENSELESS_COMPARISON")
                     val postFetchTasks = _user.value!!.postIds.map { postId ->
-
                             FirebaseDatabase.getInstance()
                                 .getReference(postReferenceName)
                                 .child(postId)
@@ -99,58 +96,7 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
                     onFailure()
                 }
             }
-
-        /*
-        // Old one
-        _loadingUserDataState.value = Resource.Loading()
-
-        FirebaseDatabase.getInstance()
-            .getReference(userReferenceName)
-            .child(id)
-            .get()
-            .addOnSuccessListener { data ->
-                Log.d("UserProfileViewModel", "getUserData Success")
-                _user.value = User(data.getValue(UserWrapper::class.java) as UserWrapper)
-                getUserPosts(onFailure = onFailure)
-            }
-            .addOnFailureListener {
-                _loadingUserDataState.value = Resource.Error("Failed to load user data")
-                onFailure()
-            }
-
-         */
     }
-
-    fun getUserPosts(onFailure: () -> Unit) {
-        val posts = mutableListOf<Post>()
-
-        if (user.value != null) {
-            user.value!!.postIds.forEach { postId ->
-                @Suppress("SENSELESS_COMPARISON")
-                if (postId != null) {
-                    FirebaseDatabase.getInstance()
-                        .getReference(postReferenceName)
-                        .child(postId)
-                        .get()
-                        .addOnSuccessListener { data ->
-                            Log.d("UserProfileViewModel", "getUserPosts Success")
-                            posts.add(Post(data.getValue(PostWrapper::class.java) as PostWrapper))
-                            if (posts.size == user.value!!.postIds.size) {
-                                posts.sortByDescending { post -> post.timestamp }
-                                _userPosts.value = posts
-                            }
-                        }
-                        .addOnFailureListener {
-                            _loadingUserDataState.value = Resource.Error("Failed to load user data")
-                            onFailure()
-                        }
-                }
-            }
-        } else {
-            onFailure()
-        }
-    }
-
 
     fun setDialogState(newValue: Int) {
         _dialogState.intValue = newValue
@@ -186,7 +132,7 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
             user1Id = currentUser.uid,
             user2Id = userId,
             lastMessage = "",
-            isClosed = false
+            closed = false
         )
 
         // Push chat sessions on database

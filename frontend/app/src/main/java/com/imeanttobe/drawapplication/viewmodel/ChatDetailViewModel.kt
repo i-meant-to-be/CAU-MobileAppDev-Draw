@@ -1,5 +1,6 @@
 package com.imeanttobe.drawapplication.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -22,6 +23,8 @@ class ChatDetailViewModel @Inject constructor() : ViewModel() {
 
     // Values
     private val messageReferenceName = "message"
+    private val userReferenceName = "user"
+    private val chatReferenceName = "chat_session"
 
     private val _currentUserId = mutableStateOf<String>("")
     private val _messageTextField = mutableStateOf("")
@@ -67,6 +70,13 @@ class ChatDetailViewModel @Inject constructor() : ViewModel() {
             .child(sessionId)
             .child(messageId)
             .setValue(message)
+            .addOnSuccessListener {
+                FirebaseDatabase.getInstance()
+                    .getReference(chatReferenceName)
+                    .child(sessionId)
+                    .child("lastMessage")
+                    .setValue(message.body)
+            }
     }
 
     // This method listens messages
@@ -98,5 +108,41 @@ class ChatDetailViewModel @Inject constructor() : ViewModel() {
 
                 }
             )
+    }
+
+    fun exit(sessionId: String) {
+        FirebaseDatabase.getInstance()
+            .getReference(chatReferenceName)
+            .child(sessionId)
+            .child("closed")
+            .setValue(true)
+            .addOnSuccessListener {
+                FirebaseDatabase.getInstance()
+                    .getReference(userReferenceName)
+                    .child(_currentUserId.value)
+                    .child("chatSessions")
+                    .orderByValue()
+                    .equalTo(sessionId)
+                    .addListenerForSingleValueEvent(
+                        object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                for (childSnapshot in snapshot.children) {
+                                    // 해당 노드를 삭제
+                                    childSnapshot.ref.removeValue()
+                                        .addOnSuccessListener {
+                                            Log.d("ProfileViewModel", "Post successfully removed from user's postIds.")
+                                        }
+                                        .addOnFailureListener { error ->
+                                            Log.d("ProfileViewModel", "Error deleting post in user: ${error.message}")
+                                        }
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                Log.d("ProfileViewModel", "Error reading from database: ${error.message}")
+                            }
+                        }
+                    )
+            }
     }
 }

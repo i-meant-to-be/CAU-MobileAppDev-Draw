@@ -184,7 +184,10 @@ fun ChatDetailView(
         ) {
             ChatDetailViewDrawer(
                 // Should make chat session to be closed by set 'isClosed' variable on ChatSession instance
-                onExit = {}
+                onExit = {
+                    viewModel.exit(sessionId = sessionId)
+                    navigateUp()
+                }
             )
         }
     }
@@ -238,9 +241,9 @@ fun ChatDetailViewBody(
     val listState = rememberLazyListState()
 
     // Set the scroll bar's position to the bottom when chatting view is opened
-    LaunchedEffect(key1 = remember { derivedStateOf { listState.firstVisibleItemIndex } }) {
+    LaunchedEffect(key1 = chatItems.size) {
         if (chatItems.isNotEmpty()) {
-            listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+            listState.scrollToItem(chatItems.lastIndex)
         }
     }
 
@@ -257,7 +260,7 @@ fun ChatDetailViewBody(
                 ChatBubble(
                     modifier = Modifier.padding(
                         top = if (index == 0) 10.dp else 0.dp,
-                        bottom = if (index != chatItems.lastIndex) 10.dp else 0.dp
+                        bottom = 10.dp
                     ),
                     message = message.body,
                     isMine = message.senderId == currentUserId // TODO: have to set the logic that determines whether the message is mine or not
@@ -391,7 +394,7 @@ fun ChatTextField(
         modifier = Modifier
             .heightIn(min = 36.dp)
             .then(modifier),
-        textStyle = MaterialTheme.typography.bodyLarge,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(color = contentColor),
         value = text,
         onValueChange = onValueChange,
         singleLine = true,

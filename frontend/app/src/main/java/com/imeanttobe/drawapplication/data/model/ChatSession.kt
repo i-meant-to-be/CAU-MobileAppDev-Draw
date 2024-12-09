@@ -4,8 +4,8 @@ data class ChatSession(
     val id: String,
     val user1Id: String,
     val user2Id: String,
-    val lastMessage: String,
-    val isClosed: Boolean = false
+    var lastMessage: String,
+    val closed: Boolean = false
 ) {
     constructor() : this(
         id = "",
