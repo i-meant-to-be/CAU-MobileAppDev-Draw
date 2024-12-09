@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -39,9 +40,11 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
+import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.model.ChatSession
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.data.navigation.NavItem
+import com.imeanttobe.drawapplication.theme.keyColor1
 import com.imeanttobe.drawapplication.viewmodel.ChatViewModel
 
 @Composable
@@ -50,10 +53,19 @@ fun ChatView(
     viewModel: ChatViewModel = hiltViewModel(),
     navigateTo: (String) -> Unit
 ) {
-    val chatLists = viewModel.sessions.collectAsState()
+    val sessionAndUserList = viewModel.sessionAndUser.collectAsState()
+    val loadingState = viewModel.loadingState.collectAsState()
 
     Surface(modifier = modifier) {
-        if (chatLists.value.isEmpty()) {
+        if (loadingState.value is Resource.Loading) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(alignment = Alignment.Center),
+                    color = keyColor1
+                )
+            }
+        }
+        else if (sessionAndUserList.value.isEmpty() || loadingState.value is Resource.Error) {
             // If chat list is empty, show empty chat view
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -77,16 +89,14 @@ fun ChatView(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                itemsIndexed(chatLists.value) { index, chatSession ->
+                itemsIndexed(sessionAndUserList.value) { index, sessionAndUser ->
                     ChatSessionItem(
                         modifier = Modifier.padding(
                             top = if (index == 0) 10.dp else 0.dp,
-                            bottom = if (index == chatLists.value.lastIndex) 10.dp else 0.dp
+                            bottom = if (index == sessionAndUserList.value.lastIndex) 10.dp else 0.dp
                         ),
-                        chatSession = chatSession,
-                        // TODO: Opponent user's data should be here
-                        opponentUser = User(),
-                        onClick = { navigateTo(NavItem.ChatDetailItem.route) }
+                        sessionAndUser = sessionAndUser,
+                        onClick = { navigateTo("${NavItem.ChatDetailItem.route}/sessionId=${sessionAndUser.first.id}/opponentNickname=${sessionAndUser.second.nickname}") }
                     )
                 }
             }
@@ -97,8 +107,7 @@ fun ChatView(
 @Composable
 fun ChatSessionItem(
     modifier: Modifier = Modifier,
-    chatSession: ChatSession,
-    opponentUser: User,
+    sessionAndUser: Pair<ChatSession, User>,
     onClick: () -> Unit
 ) {
     Row(
@@ -106,24 +115,22 @@ fun ChatSessionItem(
             .padding(horizontal = 10.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            // TODO: Navigation code have to implemented here on clickable
             .clickable { onClick() }
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ChatSessionItemProfileImage(imageUri = opponentUser.profilePhotoUri)
+        ChatSessionItemProfileImage(profilePhotoUri = sessionAndUser.second.profilePhotoUri)
         Spacer(modifier = Modifier.padding(end = 10.dp))
         ChatListItemUserDataText(
-            chatSession = chatSession,
-            opponentUserType = opponentUser.type
+            userName = sessionAndUser.second.nickname,
+            chatSession = sessionAndUser.first,
+            opponentUserType = sessionAndUser.second.type
         )
     }
 }
 
 @Composable
-fun ChatSessionItemProfileImage(
-    imageUri: Uri
-) {
+fun ChatSessionItemProfileImage(profilePhotoUri: Uri) {
     Box(
         modifier = Modifier
             .size(50.dp)
@@ -132,7 +139,7 @@ fun ChatSessionItemProfileImage(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalPlatformContext.current)
-                .data(imageUri)
+                .data(profilePhotoUri)
                 .build(),
             contentDescription = "Profile Image",
             contentScale = ContentScale.Crop,
@@ -148,7 +155,8 @@ fun ChatSessionItemProfileImage(
 @Composable
 fun ChatListItemUserDataText(
     chatSession: ChatSession,
-    opponentUserType: UserType
+    opponentUserType: UserType,
+    userName: String
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -158,7 +166,7 @@ fun ChatListItemUserDataText(
             horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Text(
-                text = "",
+                text = userName,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             Text(
@@ -172,7 +180,7 @@ fun ChatListItemUserDataText(
         }
 
         Text(
-            text = chatSession.lastMessage,
+            text = if (chatSession.lastMessage.isEmpty()) stringResource(id = R.string.no_message) else chatSession.lastMessage,
             style = MaterialTheme.typography.bodyMedium
         )
     }

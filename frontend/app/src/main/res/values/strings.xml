@@ -38,6 +38,8 @@
     <string name="not_valid_input">입력한 내용이 유효하지 않아요.</string>
     <string name="failed_to_sign_in">로그인에 실패했어요.</string>
     <string name="chat_is_empty">새로운 작가들을 찾아 대화를 시작해보세요.</string>
+    <string name="failed_to_load_user_data">사용자 정보를 불러오는 중 오류가 발생했어요.</string>
+    <string name="failed_to_create_chat_session">채팅을 연결하는 중 오류가 발생했어요.</string>
     <string name="post_is_empty">다른 작가들이 아직 그림을 공유하지 않았네요.</string>
     <string name="failed_to_register">회원가입에 실패했어요.</string>
     <string name="failed_to_get_permission">권한이 거부되었어요.</string>
@@ -52,6 +54,8 @@
     <string name="add_your_picture">소개하고 싶은 그림을 추가해주세요.</string>
     <string name="error_get_messages">메시지를 가져오는 도중 오류가 발생했어요.</string>
     <string name="error_get_posts">게시물을 가져오는 도중 오류가 발생했어요.</string>
+    <string name="user_profile">사용자 프로필</string>
+    <string name="no_message">아직 주고받은 메시지가 없어요.</string>
 
     <string name="error_nickname">별명 오류</string>
     <string name="error_user_type">사용자 유형 오류</string>

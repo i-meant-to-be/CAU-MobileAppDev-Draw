@@ -1,6 +1,5 @@
 package com.imeanttobe.drawapplication.view.register
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.filled.PhoneIphone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,12 +30,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,9 +42,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
-import com.imeanttobe.drawapplication.data.etc.Resource
-import com.imeanttobe.drawapplication.theme.onSeed
-import com.imeanttobe.drawapplication.theme.seed
+import com.imeanttobe.drawapplication.theme.onKeyColor
+import com.imeanttobe.drawapplication.theme.keyColor1
 import com.imeanttobe.drawapplication.viewmodel.RegisterUserAccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,7 +118,7 @@ fun RegisterUserAccountView(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1)
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -161,7 +155,7 @@ fun RegisterUserAccountView(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1),
                 visualTransformation = PasswordVisualTransformation()
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -199,7 +193,7 @@ fun RegisterUserAccountView(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1),
                 visualTransformation = PasswordVisualTransformation()
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -237,7 +231,7 @@ fun RegisterUserAccountView(
                 keyboardActions = KeyboardActions(
                     onDone = { focusManager.clearFocus() }
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1)
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -255,8 +249,8 @@ fun RegisterUserAccountView(
                     )
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = seed,
-                    contentColor = onSeed
+                    containerColor = keyColor1,
+                    contentColor = onKeyColor
                 ),
                 shape = RoundedCornerShape(100.dp),
                 enabled = viewModel.isAllValid.value

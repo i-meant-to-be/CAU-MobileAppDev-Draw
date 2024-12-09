@@ -250,6 +250,8 @@ fun ExploreViewImageDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .background(color = backgroundColor)
                         .onGloballyPositioned { coordinates ->
                             cardWidth = coordinates.size.width.toFloat()
                             cardHeight = coordinates.size.height.toFloat()
@@ -275,6 +277,8 @@ fun ExploreViewImageDialog(
                     AsyncImage(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
                             .onGloballyPositioned { coordinates ->
                                 imageWidth = coordinates.size.width.toFloat()
                                 imageHeight = coordinates.size.height.toFloat()
@@ -426,8 +430,8 @@ fun ExploreViewGridItem(
     onImageClick: () -> Unit,
     navigateTo: (String) -> Unit
 ) {
-    val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-    val containerColor = MaterialTheme.colorScheme.primaryContainer
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -521,7 +525,7 @@ fun ExploreViewImageItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .background(color = MaterialTheme.colorScheme.surfaceContainerHighest),
+                    .background(color = MaterialTheme.colorScheme.primary),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageUri)
                     .build(),

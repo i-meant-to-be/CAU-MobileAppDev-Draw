@@ -69,6 +69,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.data.model.Message
 import com.imeanttobe.drawapplication.R
+import com.imeanttobe.drawapplication.theme.keyColor1
+import com.imeanttobe.drawapplication.theme.onKeyColor
 import com.imeanttobe.drawapplication.viewmodel.ChatDetailViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -77,7 +79,8 @@ fun ChatDetailView(
     modifier: Modifier = Modifier,
     viewModel: ChatDetailViewModel = hiltViewModel(),
     navigateUp: () -> Unit,
-    sessionId: String
+    sessionId: String,
+    opponentNickname: String
 ) {
     val messages = viewModel.messages.collectAsState()
     val context = LocalContext.current
@@ -101,6 +104,7 @@ fun ChatDetailView(
             onError = { Toast.makeText(context, context.getString(R.string.error_get_messages), Toast.LENGTH_SHORT).show() },
             sessionId = sessionId
         )
+        viewModel.loadUserId()
     }
 
     // Drawer wrapper
@@ -137,7 +141,7 @@ fun ChatDetailView(
             ) {
                 // Top bar and it has back button and drawer button
                 ChatDetailViewTopBar(
-                    opponentNickname = viewModel.opponentNickname.value,
+                    opponentNickname = opponentNickname,
                     navigateUp = navigateUp,
                     setDrawerState = {
                         viewModel.setDrawerState(true)
@@ -147,8 +151,11 @@ fun ChatDetailView(
 
                 // Messages are going to be displayed here
                 ChatDetailViewBody(
-                    modifier = Modifier.fillMaxSize(),
-                    chatItems = messages.value
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.surfaceContainerHighest),
+                    chatItems = messages.value,
+                    currentUserId = viewModel.currentUserId.value
                 )
             }
         }
@@ -225,33 +232,35 @@ fun ChatDetailViewDrawer(
 @Composable
 fun ChatDetailViewBody(
     modifier: Modifier = Modifier,
-    chatItems: List<Message>
+    chatItems: List<Message>,
+    currentUserId: String
 ) {
     val listState = rememberLazyListState()
 
     // Set the scroll bar's position to the bottom when chatting view is opened
     LaunchedEffect(key1 = remember { derivedStateOf { listState.firstVisibleItemIndex } }) {
-        listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+        if (chatItems.isNotEmpty()) {
+            listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+        }
     }
 
     // Chat bubbles are displayed here
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         LazyColumn(
-            modifier = Modifier.background(color = MaterialTheme.colorScheme.primaryContainer),
             state = listState,
             verticalArrangement = Arrangement.Top
         ) {
-            itemsIndexed(chatItems) { index, item ->
+            itemsIndexed(chatItems) { index, message ->
                 ChatBubble(
                     modifier = Modifier.padding(
                         top = if (index == 0) 10.dp else 0.dp,
-                        bottom = if (index == chatItems.lastIndex) 10.dp else 0.dp
+                        bottom = if (index != chatItems.lastIndex) 10.dp else 0.dp
                     ),
-                    message = item.body,
-                    isMine = index % 2 == 0 // TODO: have to set the logic that determines whether the message is mine or not
+                    message = message.body,
+                    isMine = message.senderId == currentUserId // TODO: have to set the logic that determines whether the message is mine or not
                 )
             }
         }
@@ -300,8 +309,8 @@ fun ChatBubble(
     isMine: Boolean
 ) {
     // Set colors by message's owner
-    val backgroundColor = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
-    val contentColor = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+    val backgroundColor = if (isMine) keyColor1 else MaterialTheme.colorScheme.surface
+    val contentColor = if (isMine) onKeyColor else MaterialTheme.colorScheme.onSurface
     // For haptic feedback when user long clicks the message bubble
     val haptics = LocalHapticFeedback.current
     val clipboardManager = LocalClipboardManager.current

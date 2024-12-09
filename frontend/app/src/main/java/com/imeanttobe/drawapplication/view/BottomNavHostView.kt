@@ -11,37 +11,34 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.imeanttobe.drawapplication.data.navigation.BottomBarItem
-import com.imeanttobe.drawapplication.data.navigation.NavItem
-import com.imeanttobe.drawapplication.theme.onSeed
-import com.imeanttobe.drawapplication.theme.seed
+import com.imeanttobe.drawapplication.theme.onKeyColor
+import com.imeanttobe.drawapplication.theme.keyColor1
 import com.imeanttobe.drawapplication.view.bottomnav.ChatView
 import com.imeanttobe.drawapplication.view.bottomnav.ExploreView
 import com.imeanttobe.drawapplication.view.bottomnav.ProfileView
-import com.imeanttobe.drawapplication.viewmodel.BottomNavHostViewModel
 
 @Composable
 fun BottomNavHostView(
-    viewModel: BottomNavHostViewModel = hiltViewModel(),
+    index: Int,
+    onChangeIndex: (Int) -> Unit,
     isDevModeEnabled: Boolean = false,
     navigateTo: (String) -> Unit,
-    navigateBack: () -> Unit,
     navigateToLogin: () -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             BottomNavHostAppBar(
-                index = viewModel.currentIndex.value,
-                onClick = { newValue -> viewModel.setCurrentIndex(newValue) },
+                index = index,
+                onClick = { newValue -> onChangeIndex(newValue) },
                 isDevModeEnabled = isDevModeEnabled
             )
         }
     ) { innerPadding ->
-        when(viewModel.currentIndex.value) {
+        when(index) {
             0 -> ChatView(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -87,8 +84,8 @@ fun BottomNavHostAppBar(
                 },
                 label = { Text(text = stringResource(id = item.labelId)) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = onSeed,
-                    indicatorColor = seed
+                    selectedIconColor = onKeyColor,
+                    indicatorColor = keyColor1
                 )
             )
         }

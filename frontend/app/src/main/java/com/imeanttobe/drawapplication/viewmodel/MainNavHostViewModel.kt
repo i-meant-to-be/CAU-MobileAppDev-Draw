@@ -7,12 +7,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class BottomNavHostViewModel @Inject constructor() : ViewModel() {
-    private val _currentIndex = mutableIntStateOf(0)
+class MainNavHostViewModel @Inject constructor() : ViewModel() {
+    private val _bottomNavBarIndex = mutableIntStateOf(0)
 
-    val currentIndex: State<Int> = _currentIndex
+    val bottomNavBarIndex: State<Int> = _bottomNavBarIndex
 
-    fun setCurrentIndex(newValue: Int) {
-        _currentIndex.intValue = newValue
+    fun setBottomNavBarIndex(newValue: Int) {
+        _bottomNavBarIndex.intValue = newValue
     }
 }

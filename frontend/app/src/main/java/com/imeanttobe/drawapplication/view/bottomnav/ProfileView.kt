@@ -4,13 +4,10 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -37,8 +34,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,13 +41,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -85,8 +80,10 @@ import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
-import com.imeanttobe.drawapplication.theme.onSeed
-import com.imeanttobe.drawapplication.theme.seed
+import com.imeanttobe.drawapplication.theme.onKeyColor
+import com.imeanttobe.drawapplication.theme.keyColor1
+import com.imeanttobe.drawapplication.theme.keyColor2
+import com.imeanttobe.drawapplication.theme.keyColor3
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 
 @Composable
@@ -380,15 +377,11 @@ fun InstagramButton(
     userType: UserType
 ) {
     val containerColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.tertiary
+        UserType.WEBTOON_ARTIST -> keyColor2
+        UserType.ASSIST_ARTIST -> keyColor3
+        else -> keyColor1
     }
-    val contentColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
-        else -> MaterialTheme.colorScheme.onTertiary
-    }
+    val contentColor = onKeyColor
 
     val context = LocalContext.current
     val uri = Uri.parse("http://instagram.com/_u/$instagramId")
@@ -428,20 +421,26 @@ fun PictureDialog(
     var imageWidth by rememberSaveable { mutableFloatStateOf(0f) }
     var imageHeight by rememberSaveable { mutableFloatStateOf(0f) }
     val backgroundColor = MaterialTheme.colorScheme.surface
+    val contentColor = MaterialTheme.colorScheme.onSurface
 
     Dialog(
         onDismissRequest = { setDialogState(0) }
     ) {
-        Column {
+        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
             IconButton(
                 modifier = Modifier
+                    .padding(5.dp)
                     .align(Alignment.End),
-                onClick = onDeleteClicked
-            ){
+                onClick = onDeleteClicked,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = backgroundColor,
+                    contentColor = contentColor
+                )
+            ) {
                 Icon(
-                    Icons.TwoTone.Delete,
-                    "Delete Image",
-                    Modifier.background(color = backgroundColor, shape = CircleShape).padding(4.dp)
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete Image",
+                    modifier = Modifier
                 )
             }
             Card(
@@ -449,10 +448,11 @@ fun PictureDialog(
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 Column {
-
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
                             .onGloballyPositioned { coordinates ->
                                 cardWidth = coordinates.size.width.toFloat()
                                 cardHeight = coordinates.size.height.toFloat()
@@ -484,6 +484,8 @@ fun PictureDialog(
                                 contentScale = ContentScale.FillWidth,
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .aspectRatio(1f)
+                                    .background(color = backgroundColor)
                                     .onGloballyPositioned { coordinates ->
                                         imageWidth = coordinates.size.width.toFloat()
                                         imageHeight = coordinates.size.height.toFloat()
@@ -522,21 +524,12 @@ fun PictureDialog(
 
 @Composable
 fun UserTypeLabel(userType: UserType) {
-    /*
     val containerColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.primary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.tertiary
+        UserType.WEBTOON_ARTIST -> keyColor2
+        UserType.ASSIST_ARTIST -> keyColor3
+        else -> keyColor1
     }
-    val contentColor = when (userType) {
-        UserType.WEBTOON_ARTIST -> MaterialTheme.colorScheme.onPrimary
-        UserType.ASSIST_ARTIST -> MaterialTheme.colorScheme.onSecondary
-        else -> MaterialTheme.colorScheme.onTertiary
-    }
-
-     */
-    val containerColor = seed
-    val contentColor = onSeed
+    val contentColor = onKeyColor
 
     Card(
         colors = CardDefaults.cardColors(

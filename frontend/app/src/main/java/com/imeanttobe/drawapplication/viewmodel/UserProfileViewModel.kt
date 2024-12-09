@@ -7,11 +7,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.imeanttobe.drawapplication.data.etc.PostWrapper
 import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.etc.UserWrapper
@@ -32,6 +31,7 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     private val msgReferenceName = "message"
 
     private val _creatingChatSessionState = MutableStateFlow<Resource>(Resource.Nothing())
+    private val _loadingUserDataState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _user = MutableStateFlow<User?>(null)
     private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
     private val _dialogState = mutableIntStateOf(0)
@@ -40,11 +40,116 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
 
     // Getter
     val creatingChatSessionState = _creatingChatSessionState.asStateFlow()
+    val loadingUserDataState = _loadingUserDataState.asStateFlow()
     val user = _user.asStateFlow()
     val userPosts = _userPosts.asStateFlow()
     val dialogState: State<Int> = _dialogState
     val currentPictureDescription: State<String> = _currentPictureDescription
     val currentPictureUri: State<Uri> = _currentPictureUri
+
+    // Methods
+    fun getUserData(
+        id: String,
+        onFailure: () -> Unit
+    ) {
+        _loadingUserDataState.value = Resource.Loading()
+
+        FirebaseDatabase.getInstance()
+            .getReference(userReferenceName)
+            .child(id)
+            .get()
+            .addOnSuccessListener { task ->
+                val userWrapper = task.getValue(UserWrapper::class.java)
+                if (userWrapper != null) {
+                    _user.value = User(userWrapper)
+
+                    // @Suppress("SENSELESS_COMPARISON")
+                    val postFetchTasks = _user.value!!.postIds.map { postId ->
+
+                            FirebaseDatabase.getInstance()
+                                .getReference(postReferenceName)
+                                .child(postId)
+                                .get()
+                                .continueWith { task ->
+                                    if (task.isSuccessful) {
+                                        val postWrapper = task.result.getValue(PostWrapper::class.java)
+                                        if (postWrapper != null) {
+                                            Post(postWrapper)
+                                        } else {
+                                            null
+                                        }
+                                    } else {
+                                        null
+                                    }
+                                }
+                    }
+
+                    Tasks.whenAllComplete(postFetchTasks)
+                        .addOnCompleteListener {
+                            val posts = postFetchTasks.mapNotNull { it.result }
+                            _userPosts.value = posts
+                            _loadingUserDataState.value = Resource.Success()
+                        }
+                        .addOnFailureListener {
+                            _loadingUserDataState.value = Resource.Error("Failed to load user data")
+                            onFailure()
+                        }
+                } else {
+                    _loadingUserDataState.value = Resource.Error("Failed to load user data")
+                    onFailure()
+                }
+            }
+
+        /*
+        // Old one
+        _loadingUserDataState.value = Resource.Loading()
+
+        FirebaseDatabase.getInstance()
+            .getReference(userReferenceName)
+            .child(id)
+            .get()
+            .addOnSuccessListener { data ->
+                Log.d("UserProfileViewModel", "getUserData Success")
+                _user.value = User(data.getValue(UserWrapper::class.java) as UserWrapper)
+                getUserPosts(onFailure = onFailure)
+            }
+            .addOnFailureListener {
+                _loadingUserDataState.value = Resource.Error("Failed to load user data")
+                onFailure()
+            }
+
+         */
+    }
+
+    fun getUserPosts(onFailure: () -> Unit) {
+        val posts = mutableListOf<Post>()
+
+        if (user.value != null) {
+            user.value!!.postIds.forEach { postId ->
+                @Suppress("SENSELESS_COMPARISON")
+                if (postId != null) {
+                    FirebaseDatabase.getInstance()
+                        .getReference(postReferenceName)
+                        .child(postId)
+                        .get()
+                        .addOnSuccessListener { data ->
+                            Log.d("UserProfileViewModel", "getUserPosts Success")
+                            posts.add(Post(data.getValue(PostWrapper::class.java) as PostWrapper))
+                            if (posts.size == user.value!!.postIds.size) {
+                                posts.sortByDescending { post -> post.timestamp }
+                                _userPosts.value = posts
+                            }
+                        }
+                        .addOnFailureListener {
+                            _loadingUserDataState.value = Resource.Error("Failed to load user data")
+                            onFailure()
+                        }
+                }
+            }
+        } else {
+            onFailure()
+        }
+    }
 
 
     fun setDialogState(newValue: Int) {
@@ -59,67 +164,12 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
         _currentPictureDescription.value = description
     }
 
-    fun setUserProfileData(userId: String?) {
-        if (userId != null) {
-            val database = FirebaseDatabase.getInstance()
-            val usersRef = database.getReference(userReferenceName)
-            val userRef = usersRef.child(userId)
-
-            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val userdata = User(snapshot.getValue(UserWrapper::class.java)as UserWrapper)
-                    _user.value = userdata
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("UserProfileViewModel", "Failed to get user data: ${error.message}")
-                }
-            })
-        }
-    }
-
-    fun setUserPostData(userId: String?) {
-            // Get user's posts
-        if (userId != null) {
-            FirebaseDatabase.getInstance()
-                .getReference(userReferenceName)
-                .child(userId)
-                .child("postIds")
-                .orderByChild("timestamp")
-                .addValueEventListener(
-                    object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            // Clear before load new data
-                            _userPosts.value = emptyList()
-
-                            for (data in snapshot.children) {
-                                val postId = data.getValue(String::class.java)
-                                postId?.let { postId ->
-                                    FirebaseDatabase.getInstance()
-                                        .getReference(postReferenceName)
-                                        .child(postId)
-                                        .get()
-                                        .addOnSuccessListener { data ->
-                                            Log.d("ProfileViewModel", "getUserPosts Success")
-                                            _userPosts.value += Post(data.getValue(PostWrapper::class.java) as PostWrapper)
-                                        }
-                                }
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            TODO("Not yet implemented")
-                        }
-
-                    }
-                )
-        }
-    }
-
     fun createChatSession(
-        opponentId: String,
+        userId: String,
         onComplete: (Boolean) -> Unit
     ) {
+        _creatingChatSessionState.value = Resource.Loading()
+
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             _creatingChatSessionState.value = Resource.Error("User not logged in")
@@ -134,35 +184,56 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
         val chatSession = ChatSession(
             id = chatId,
             user1Id = currentUser.uid,
-            user2Id = opponentId,
+            user2Id = userId,
             lastMessage = "",
             isClosed = false
         )
 
-        // Add new session to user 1
+        // Push chat sessions on database
         FirebaseDatabase.getInstance()
-            .getReference(userReferenceName)
-            .child(currentUser.uid)
-            .child("chatSessions")
-            .push()
-            .setValue(chatId)
+            .getReference(chatReferenceName)
+            .child(chatId)
+            .setValue(chatSession)
             .addOnSuccessListener {
-                // Add new session to user 2
-                FirebaseDatabase.getInstance()
-                    .getReference(userReferenceName)
-                    .child(currentUser.uid)
-                    .child("chatSessions")
-                    .push()
-                    .setValue(chatId)
-                    .addOnSuccessListener {
-                        // Add chat session on database
-                        FirebaseDatabase.getInstance()
-                            .getReference(chatReferenceName)
-                            .child(chatId)
-                            .setValue(chatSession)
-                            .addOnSuccessListener {
-                                _creatingChatSessionState.value = Resource.Success()
+                // Get user data of 2 participants
+                val userFetchTasks = listOf(userId, currentUser.uid).map { id ->
+                    FirebaseDatabase.getInstance()
+                        .getReference(userReferenceName)
+                        .child(id)
+                        .get()
+                        .continueWith { task ->
+                            if (task.isSuccessful) {
+                                val userWrapper = task.result.getValue(UserWrapper::class.java)
+                                if (userWrapper != null) {
+                                    User(userWrapper)
+                                } else {
+                                    null
+                                }
+                            } else {
+                                null
                             }
+                        }
+                }
+
+                // Check whether they are null
+                Tasks.whenAllComplete(userFetchTasks)
+                    .addOnCompleteListener {
+                        val participants = userFetchTasks.mapNotNull { it.result }
+                        if (participants.size == 2) {
+                            participants.forEach { participant ->
+                                participant.chatSessions.add(chatId)
+                                FirebaseDatabase.getInstance()
+                                    .getReference(userReferenceName)
+                                    .child(participant.id)
+                                    .setValue(UserWrapper(participant))
+                                    .addOnSuccessListener {
+                                        onComplete(true)
+                                    }
+                                    .addOnFailureListener {
+                                        _creatingChatSessionState.value = Resource.Error("Failed to create chat session")
+                                    }
+                            }
+                        }
                     }
                     .addOnFailureListener {
                         _creatingChatSessionState.value = Resource.Error("Failed to create chat session")

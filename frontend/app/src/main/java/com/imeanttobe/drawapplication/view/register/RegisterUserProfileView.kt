@@ -61,8 +61,8 @@ import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
 import com.imeanttobe.drawapplication.data.etc.Resource
-import com.imeanttobe.drawapplication.theme.onSeed
-import com.imeanttobe.drawapplication.theme.seed
+import com.imeanttobe.drawapplication.theme.onKeyColor
+import com.imeanttobe.drawapplication.theme.keyColor1
 import com.imeanttobe.drawapplication.viewmodel.RegisterUserProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -216,7 +216,7 @@ fun RegisterUserProfileView(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1)
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -258,7 +258,7 @@ fun RegisterUserProfileView(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1)
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -301,7 +301,7 @@ fun RegisterUserProfileView(
                 keyboardActions = KeyboardActions(
                     onDone = { focusManager.clearFocus() }
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1)
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -425,8 +425,8 @@ fun RegisterUserProfileView(
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.elevatedButtonColors(
-                        containerColor = seed,
-                        contentColor = onSeed
+                        containerColor = keyColor1,
+                        contentColor = onKeyColor
                     ),
                     shape = RoundedCornerShape(100.dp),
                     enabled = viewModel.isAllValid.value

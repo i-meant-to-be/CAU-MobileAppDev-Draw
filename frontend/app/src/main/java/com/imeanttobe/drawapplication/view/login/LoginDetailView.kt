@@ -5,12 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,7 +21,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,8 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.etc.Resource
-import com.imeanttobe.drawapplication.theme.onSeed
-import com.imeanttobe.drawapplication.theme.seed
+import com.imeanttobe.drawapplication.theme.onKeyColor
+import com.imeanttobe.drawapplication.theme.keyColor1
 import com.imeanttobe.drawapplication.viewmodel.LoginDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,7 +129,7 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                 keyboardActions = KeyboardActions(
                     onNext = {focusManager.moveFocus(FocusDirection.Down)}
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1)
             )
 
             Spacer(modifier = Modifier.height(8.dp)) // 16dp의 간격 추가
@@ -158,7 +155,7 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                 keyboardActions = KeyboardActions(
                     onDone = {focusManager.clearFocus()}
                 ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = seed),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1),
                 visualTransformation = PasswordVisualTransformation()
             )
 
@@ -173,8 +170,8 @@ fun LoginDetailView( //실제로 로그인 및 아이디 비번 회원가입 페
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
                     colors = ButtonDefaults.elevatedButtonColors(
-                        containerColor = seed,
-                        contentColor = onSeed
+                        containerColor = keyColor1,
+                        contentColor = onKeyColor
                     ),
                     shape = RoundedCornerShape(100.dp),
                     onClick = {

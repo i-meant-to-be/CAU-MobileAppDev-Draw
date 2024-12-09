@@ -9,6 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -26,10 +27,12 @@ import com.imeanttobe.drawapplication.view.login.LoginDetailView
 import com.imeanttobe.drawapplication.view.login.LoginTitleView
 import com.imeanttobe.drawapplication.view.register.RegisterUserProfileView
 import com.imeanttobe.drawapplication.view.register.RegisterUserAccountView
+import com.imeanttobe.drawapplication.viewmodel.MainNavHostViewModel
 
 @Composable
 fun MainNavHostView(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: MainNavHostViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
     val startRoute =
@@ -49,26 +52,30 @@ fun MainNavHostView(
                 BottomNavHostView(
                     navController = navController,
                     navigateTo = { route -> navController.navigate(route) },
-                    navigateBack = { navController.popBackStack() },
                     navigateToLogin = {
                         navController.navigate(NavItem.LoginTitleViewItem.route) {
                             popUpTo(0) { inclusive = true }
                         }
-                    }
+                    },
+                    index = viewModel.bottomNavBarIndex.value,
+                    onChangeIndex = { newValue -> viewModel.setBottomNavBarIndex(newValue) }
                 )
             }
 
             composableAnimated(
-                route = "${NavItem.ChatDetailItem.route}/sessionId={sessionId}",
+                route = "${NavItem.ChatDetailItem.route}/sessionId={sessionId}/opponentNickname={opponentNickname}",
                 arguments = listOf(
-                    navArgument("sessionId") { type = NavType.StringType }
+                    navArgument("sessionId") { type = NavType.StringType },
+                    navArgument("opponentNickname") { type = NavType.StringType }
                 )
             ) { navBackStackEntry ->
                 val sessionId = navBackStackEntry.arguments?.getString("sessionId") ?: ""
+                val opponentNickname = navBackStackEntry.arguments?.getString("opponentNickname") ?: ""
 
                 ChatDetailView(
                     navigateUp = { navController.navigateUp() },
-                    sessionId = sessionId
+                    sessionId = sessionId,
+                    opponentNickname = opponentNickname
                 )
             }
 
@@ -87,7 +94,7 @@ fun MainNavHostView(
                 )
             }
             composableAnimated(route = NavItem.ChatView.route) {
-                ChatView(navigateTo = {})
+                ChatView(navigateTo = { route -> navController.navigate(route) })
             }
 
             composableAnimated(
@@ -118,32 +125,25 @@ fun MainNavHostView(
                     returnTo = { navController.popBackStack() },
                     navigateToReg = { navController.navigate(NavItem.RegisterUserAccountViewItem.route) },
                     navigateHome = {
-                        navController.navigate(NavItem.BottomNavHostViewItem.route){
-                            popUpTo(0){inclusive = true}
-                        }
+                        navController.navigate(NavItem.BottomNavHostViewItem.route) { popUpTo(0) { inclusive = true } }
                     }
                 )
             }
 
-            composableAnimated("${NavItem.UserProfileViewItem.route}/userId={userId}",
+            composableAnimated(
+                route = "${NavItem.UserProfileViewItem.route}/userId={userId}",
                 arguments = listOf(
                     navArgument("userId") { type = NavType.StringType },
-                )) {
-                    navBackStackEntry ->
-                val userId = navBackStackEntry.arguments?.getString("userId")
-            UserProfileView(
-                    returnTo = { navController.popBackStack() },
-                    navBackStackEntry= navBackStackEntry,
-                    navController = navController
                 )
-            }
-            // For test
-            composableAnimated(
-                route = NavItem.ChatDetailItem.route
             ) { navBackStackEntry ->
-                ChatDetailView(
-                    navigateUp = { navController.navigateUp() },
-                    sessionId = ""
+                val userId = navBackStackEntry.arguments?.getString("userId")
+
+                UserProfileView(
+                    userId = userId,
+                    navigateHome = {
+                        navController.navigate(NavItem.BottomNavHostViewItem.route) { popUpTo(0) { inclusive = true } }
+                    },
+                    changeBottomNavIndex = { newValue -> viewModel.setBottomNavBarIndex(newValue) }
                 )
             }
         }

@@ -30,7 +30,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     private val userReferenceName = "user"
     private val postReferenceName = "post"
 
-    private val _signOutState = MutableStateFlow<Resource>(Resource.Nothing())
     private val _user = MutableStateFlow<User?>(null)
     private val _userPosts = MutableStateFlow<MutableList<Post>>(mutableListOf<Post>())
     private val _dialogState = mutableIntStateOf(0)
@@ -39,7 +38,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     private val _currentPostId = mutableStateOf("")
 
     // Getter
-    val signOutState = _signOutState.asStateFlow()
     val user = _user.asStateFlow()
     val userPosts = _userPosts.asStateFlow()
     val dialogState: State<Int> = _dialogState
@@ -54,7 +52,7 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
     }
 
     // Methods
-    fun getUserData() {
+    private fun getUserData() {
         FirebaseAuth.getInstance()
             .currentUser?.let { user ->
                 FirebaseDatabase.getInstance()
@@ -92,8 +90,8 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                                     .addOnSuccessListener { data ->
                                         Log.d("ProfileViewModel", "getUserPosts Success")
                                         newPosts.add(Post(data.getValue(PostWrapper::class.java) as PostWrapper))
-                                        newPosts.sortByDescending { post -> post.timestamp }
                                         if (newPosts.size == snapshot.childrenCount.toInt()) {
+                                            newPosts.sortByDescending { post -> post.timestamp }
                                             _userPosts.value = newPosts
                                         }
                                     }
@@ -102,8 +100,8 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                    }
 
+                    }
                 }
             )
 
@@ -166,7 +164,6 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
     fun signOut() {
         FirebaseAuth.getInstance().signOut()
-        _signOutState.value = Resource.Success()
     }
 
     fun updateUser(user: User) {

@@ -64,21 +64,19 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
     }
 
     fun search() {
-
         val tempPostAndUser = mutableListOf<Pair<Post, User>>()
 
-        FirebaseDatabase
-            .getInstance()
+        FirebaseDatabase.getInstance()
             .getReference(postReferenceName)
             .addListenerForSingleValueEvent(
                 object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {val postList = mutableListOf<Post>()
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val postList = mutableListOf<Post>()
 
                         // 1. 모든 Post 데이터를 수집
                         for (childSnapshot in snapshot.children) {
                             val postWrapper = childSnapshot.getValue(PostWrapper::class.java)
                             if (postWrapper != null) {
-
                                 postList.add(Post(postWrapper))
                             }
                         }
@@ -111,7 +109,7 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
 
                                 val originalPostsAndUsers = tempPostAndUser
                                 val searchText = _searchText.value
-                                if(searchText.isNotBlank()) {
+                                if (searchText.isNotBlank()) {
                                     val filteredPostsAndUsers = originalPostsAndUsers.filter { tempItem ->
                                         when (filterState.value) {
                                             ExploreSearchOption.BY_NAME -> tempItem.second.nickname.contains(
@@ -146,7 +144,6 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun getPosts() {
-
         val tempPostAndUser = mutableListOf<Pair<Post, User>>()
 
         FirebaseDatabase
@@ -198,25 +195,4 @@ class ExploreViewModel @Inject constructor() : ViewModel() {
                 }
             )
     }
-
-    fun getUserFromDB(post: Post, onResult: (User?) -> Unit){
-        try{
-            FirebaseDatabase.getInstance()
-                .getReference(userReferenceName)
-                .child(post.userId)
-                .get()
-                .addOnSuccessListener { data ->
-//                    Log.d("ExploreViewModel", "getUserFromDB Success: $data")
-                    onResult(User(data.getValue(UserWrapper::class.java) as UserWrapper))
-                }.addOnFailureListener { e ->
-                    Log.e("ExploreViewModel", "Error fetching user: ${e.message}")
-                    onResult(null)
-                }
-        } catch (e: Exception) {
-            Log.e("ExploreViewModel", "Unexpected error: ${e.message}")
-            onResult(null)
-        }
-    }
-
-
 }

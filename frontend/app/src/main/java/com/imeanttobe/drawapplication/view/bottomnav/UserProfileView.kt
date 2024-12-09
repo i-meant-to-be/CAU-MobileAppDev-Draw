@@ -1,10 +1,9 @@
 
 package com.imeanttobe.drawapplication.view.bottomnav
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +34,7 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,13 +64,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import com.imeanttobe.drawapplication.R
 import com.imeanttobe.drawapplication.data.enum.UserType
+import com.imeanttobe.drawapplication.data.etc.Resource
 import com.imeanttobe.drawapplication.data.model.Post
 import com.imeanttobe.drawapplication.data.model.User
 import com.imeanttobe.drawapplication.viewmodel.UserProfileViewModel
@@ -80,28 +79,34 @@ import com.imeanttobe.drawapplication.viewmodel.UserProfileViewModel
 fun UserProfileView(
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel(),
-    returnTo: () -> Unit,
-    navBackStackEntry: NavBackStackEntry,
-    navController: NavHostController
-
+    navigateHome: () -> Unit,
+    userId: String?,
+    changeBottomNavIndex: (Int) -> Unit
 ) {
     val context = LocalContext.current
     val posts = viewModel.userPosts.collectAsState()
     val user = viewModel.user.collectAsState()
-    val userId = navBackStackEntry.arguments?.getString("userId")
+    val creatingChatSessionState = viewModel.creatingChatSessionState.collectAsState()
+    val loadingUserDataState = viewModel.loadingUserDataState.collectAsState()
 
-    LaunchedEffect(userId) {
-        viewModel.setUserProfileData(userId)
-        viewModel.setUserPostData(userId)
+    LaunchedEffect(key1 = true) {
+        if (userId != null) {
+            viewModel.getUserData(
+                id = userId,
+                onFailure = {
+                    Toast.makeText(context, context.getString(R.string.failed_to_load_user_data), Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {},
+                title = { Text(text = stringResource(id = R.string.user_profile)) },
                 navigationIcon = {
-                    IconButton(onClick = returnTo) {
+                    IconButton(onClick = navigateHome) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
@@ -111,27 +116,66 @@ fun UserProfileView(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            UserProfileCard(
-                modifier = Modifier,
-                user = user.value
-            )
-
-            UserProfileViewGrid(
+        if (user.value != null || loadingUserDataState.value is Resource.Success) {
+            Column(
                 modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .padding(top = 10.dp),
-                posts = posts.value,
-                onImageClick = { imageUri, description ->
-                    viewModel.setDialogState(1)
-                    viewModel.setPictureDialogData(imageUri, description)
-                }
-            )
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                UserProfileCard(
+                    modifier = Modifier,
+                    user = user.value,
+                    creatingChatSessionState = creatingChatSessionState.value,
+                    onChatClick = {
+                        viewModel.createChatSession(
+                            userId = user.value!!.id,
+                            onComplete = { result ->
+                                if (result) {
+                                    navigateHome()
+                                    changeBottomNavIndex(0)
+                                } else {
+                                    Toast.makeText(context, context.getString(R.string.failed_to_create_chat_session), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
+                    }
+                )
+
+                UserProfileViewGrid(
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .padding(top = 10.dp),
+                    posts = posts.value,
+                    onImageClick = { imageUri, description ->
+                        viewModel.setDialogState(1)
+                        viewModel.setPictureDialogData(imageUri, description)
+                    }
+                )
+            }
+        } else if (loadingUserDataState.value is Resource.Error) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Error,
+                    contentDescription = null,
+                    modifier = Modifier.size(100.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(id = R.string.failed_to_load_user_data),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
         }
     }
 
@@ -169,6 +213,8 @@ fun PictureDialogUserProfile(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .background(color = backgroundColor)
                         .onGloballyPositioned { coordinates ->
                             cardWidth = coordinates.size.width.toFloat()
                             cardHeight = coordinates.size.height.toFloat()
@@ -200,6 +246,8 @@ fun PictureDialogUserProfile(
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
                                 .onGloballyPositioned { coordinates ->
                                     imageWidth = coordinates.size.width.toFloat()
                                     imageHeight = coordinates.size.height.toFloat()
@@ -297,7 +345,9 @@ fun UserProfileViewImageItem(
 @Composable // 프로필 카드 컴포저블
 fun UserProfileCard(
     modifier: Modifier,
-    user : User?
+    user : User?,
+    creatingChatSessionState: Resource,
+    onChatClick: () -> Unit
 ) {
     val buttonContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
     val buttonContentColor = MaterialTheme.colorScheme.onSurface
@@ -359,30 +409,32 @@ fun UserProfileCard(
         Spacer(Modifier.height(24.dp))
 
         // Chat
-        Button(
-            modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .fillMaxWidth()
-                .height(40.dp),
-            onClick = {
-
-            },
-            shape = RoundedCornerShape(100.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = buttonContainerColor,
-                contentColor = buttonContentColor
-            )
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = null
+        if (creatingChatSessionState is Resource.Loading) {
+            CircularProgressIndicator(modifier = Modifier.fillMaxHeight())
+        } else {
+            Button(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .fillMaxWidth()
+                    .height(40.dp),
+                onClick = { onChatClick() },
+                shape = RoundedCornerShape(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonContainerColor,
+                    contentColor = buttonContentColor
                 )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(text = stringResource(id = R.string.send_message))
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = null
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = stringResource(id = R.string.send_message))
+                }
             }
         }
     }

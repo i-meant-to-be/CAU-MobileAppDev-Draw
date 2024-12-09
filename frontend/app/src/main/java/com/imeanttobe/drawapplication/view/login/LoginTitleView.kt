@@ -1,7 +1,5 @@
 package com.imeanttobe.drawapplication.view.login
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,8 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.imeanttobe.drawapplication.R
-import com.imeanttobe.drawapplication.theme.onSeed
-import com.imeanttobe.drawapplication.theme.seed
+import com.imeanttobe.drawapplication.theme.onKeyColor
+import com.imeanttobe.drawapplication.theme.keyColor1
 
 @Composable //로그인하기 버튼 있는 페이지
 fun LoginTitleView(
@@ -56,8 +54,8 @@ fun LoginTitleView(
                     .height(40.dp),
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = seed,
-                    contentColor = onSeed
+                    containerColor = keyColor1,
+                    contentColor = onKeyColor
                 ),
                 onClick = navigateToDetail
             ) {

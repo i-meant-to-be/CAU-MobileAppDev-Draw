@@ -2,8 +2,10 @@ package com.imeanttobe.drawapplication.theme
 
 import androidx.compose.ui.graphics.Color
 
-val seed = Color(0xFF0073FF)
-val onSeed = Color(0xFFFFFFFF)
+val keyColor1 = Color(0xFF0073FF)
+val keyColor2 = Color(0xFFFFA500)
+val keyColor3 = Color(0xFFFF1700)
+val onKeyColor = Color(0xFFFFFFFF)
 
 val primaryLight = Color(0xFF465D91)
 val onPrimaryLight = Color(0xFFFFFFFF)
