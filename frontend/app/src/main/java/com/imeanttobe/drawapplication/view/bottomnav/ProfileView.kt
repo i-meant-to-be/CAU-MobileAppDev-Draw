@@ -26,10 +26,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Delete
@@ -84,6 +86,7 @@ import com.imeanttobe.drawapplication.theme.onKeyColor
 import com.imeanttobe.drawapplication.theme.keyColor1
 import com.imeanttobe.drawapplication.theme.keyColor2
 import com.imeanttobe.drawapplication.theme.keyColor3
+import com.imeanttobe.drawapplication.view.register.RadioButtonSet
 import com.imeanttobe.drawapplication.viewmodel.ProfileViewModel
 
 @Composable
@@ -678,6 +681,7 @@ fun UpdateUserDataDialog(
     var newNickname by rememberSaveable { mutableStateOf(user?.nickname ?: "") }
     var newInstagramId by rememberSaveable { mutableStateOf(user?.instagramId ?: "") }
     var newIntroduce by rememberSaveable { mutableStateOf(user?.introduce ?: "") }
+    var newUserType by rememberSaveable { mutableStateOf(user?.type!!) }
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
@@ -687,6 +691,8 @@ fun UpdateUserDataDialog(
         }
     )
 
+    val scrollState = rememberScrollState()
+
     Dialog(
         onDismissRequest = onDismiss
     ) {
@@ -695,7 +701,7 @@ fun UpdateUserDataDialog(
             color = MaterialTheme.colorScheme.surface,
         ) {
             Column(
-                modifier = Modifier.padding(30.dp)
+                modifier = Modifier.padding(30.dp).verticalScroll(scrollState)
             ) {
                 // Image area
                 Text(
@@ -815,6 +821,31 @@ fun UpdateUserDataDialog(
                 )
                 Spacer(modifier = Modifier.height(30.dp))
 
+                // User type area
+                Text(
+                    modifier = Modifier
+                        .align(alignment = Alignment.Start),
+                    text = String.format(
+                        "%s",
+                        stringResource(id = R.string.usertype)
+                    ),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    modifier = Modifier
+                        .align(alignment = Alignment.Start),
+                    text = stringResource(id = R.string.choose_your_usertype),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                RadioButtonSet(
+                    modifier = Modifier
+                        .align(alignment = Alignment.Start),
+                    selectedOption = newUserType,
+                    onChange = { newValue -> newUserType = newValue }
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+
+
                 // Button area
                 Button(
                     colors = ButtonDefaults.buttonColors(
@@ -828,7 +859,8 @@ fun UpdateUserDataDialog(
                                 profilePhotoUri = pictureUri,
                                 nickname = newNickname,
                                 instagramId = newInstagramId,
-                                introduce = newIntroduce
+                                introduce = newIntroduce,
+                                type = newUserType
                             )
                         )
                         onDismiss()
