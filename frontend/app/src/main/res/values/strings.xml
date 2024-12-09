@@ -56,6 +56,7 @@
     <string name="error_get_posts">게시물을 가져오는 도중 오류가 발생했어요.</string>
     <string name="user_profile">사용자 프로필</string>
     <string name="no_message">아직 주고받은 메시지가 없어요.</string>
+    <string name="upload_complete">업로드 완료</string>
 
     <string name="error_nickname">별명 오류</string>
     <string name="error_user_type">사용자 유형 오류</string>

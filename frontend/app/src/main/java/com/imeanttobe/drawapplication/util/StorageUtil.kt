@@ -66,14 +66,14 @@ class StorageUtil{
                 // 업로드 성공 시 다운로드 URL 가져오기
                 storageReference.downloadUrl.addOnSuccessListener { downloadUri ->
                     onComplete(downloadUri) // 다운로드 URL 반환
-                    Toast.makeText(context,"upload successed",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.upload_complete), Toast.LENGTH_SHORT).show()
                 }.addOnFailureListener {
                     onComplete(null) // 실패 시 null 반환
-                    Toast.makeText( context,"downloadUri : upload failed",Toast.LENGTH_SHORT).show()
+                    // Toast.makeText( context,"downloadUri : upload failed",Toast.LENGTH_SHORT).show()
                 }
             }.addOnFailureListener {
                 onComplete(null) // 업로드 실패 시 null 반환
-                Toast.makeText(context, "task : upload failed", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(context, "task : upload failed", Toast.LENGTH_SHORT).show()
             }
         }
     }
