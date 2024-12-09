@@ -5,41 +5,60 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.imeanttobe.drawapplication.data.BottomBarItem
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavHostController
+import com.imeanttobe.drawapplication.data.navigation.BottomBarItem
+import com.imeanttobe.drawapplication.theme.onKeyColor
+import com.imeanttobe.drawapplication.theme.keyColor1
 import com.imeanttobe.drawapplication.view.bottomnav.ChatView
 import com.imeanttobe.drawapplication.view.bottomnav.ExploreView
 import com.imeanttobe.drawapplication.view.bottomnav.ProfileView
-import com.imeanttobe.drawapplication.viewmodel.BottomNavHostViewModel
 
 @Composable
 fun BottomNavHostView(
-    viewModel: BottomNavHostViewModel = hiltViewModel(),
+    index: Int,
+    onChangeIndex: (Int) -> Unit,
     isDevModeEnabled: Boolean = false,
     navigateTo: (String) -> Unit,
-    navigateBack: () -> Unit
+    navigateToLogin: () -> Unit,
+    navController: NavHostController,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             BottomNavHostAppBar(
-                index = viewModel.currentIndex.value,
-                onClick = { newValue -> viewModel.setCurrentIndex(newValue) },
+                index = index,
+                onClick = { newValue -> onChangeIndex(newValue) },
                 isDevModeEnabled = isDevModeEnabled
             )
         }
     ) { innerPadding ->
-        when(viewModel.currentIndex.value) {
-            0 -> ChatView(modifier = Modifier.padding(innerPadding).fillMaxSize())
-            1 -> ExploreView(modifier = Modifier.padding(innerPadding).fillMaxSize())
-            2 -> ProfileView(modifier = Modifier.padding(innerPadding).fillMaxSize())
+        when(index) {
+            0 -> ChatView(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                navigateTo = navigateTo
+            )
+            1 -> ExploreView(modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+                navController = navController )
+            2 -> ProfileView(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                navigateToLogin = navigateToLogin
+            )
             3 -> DevView(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
-                navigateBack = navigateBack,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
                 navigateTo = navigateTo
             )
         }
@@ -52,7 +71,7 @@ fun BottomNavHostAppBar(
     onClick: (Int) -> Unit,
     isDevModeEnabled: Boolean
 ) {
-    BottomAppBar {
+    BottomAppBar() {
         BottomBarItem.items.subList(0, if (isDevModeEnabled) 4 else 3).forEach { item ->
             NavigationBarItem(
                 selected = item.index == index,
@@ -60,10 +79,14 @@ fun BottomNavHostAppBar(
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.label
+                        contentDescription = stringResource(id = item.labelId)
                     )
                 },
-                label = { Text(text = item.label) }
+                label = { Text(text = stringResource(id = item.labelId)) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = onKeyColor,
+                    indicatorColor = keyColor1
+                )
             )
         }
     }

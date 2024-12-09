@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1000108678323",
+    "project_id": "imeanttobe-draw",
+    "storage_bucket": "imeanttobe-draw.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000108678323:android:73c2867333e61160bee4c6",
+        "android_client_info": {
+          "package_name": "com.imeanttobe.drawapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGEOC_MNJG40E4BZtwv1r_ucH8WfDOEpA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

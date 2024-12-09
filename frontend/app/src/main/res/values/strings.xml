@@ -1,3 +1,101 @@
 <resources>
-    <string name="app_name">DrawApplication</string>
+    <string name="app_name">Draw</string>
+    <string name="app_description">창작자들을 위한 공간</string>
+
+    <string name="usertype_admin">관리자</string>
+    <string name="usertype_webtoon_artist">웹툰 작가</string>
+    <string name="usertype_assist_artist">어시스트 작가</string>
+    <string name="usertype_undefined">Undefined</string>
+
+    <string name="search_by_name">사용자 검색</string>
+    <string name="search_by_post">게시물 검색</string>
+    <string name="search_by_name_dot">사용자 검색…</string>
+    <string name="search_by_post_dot">게시물 검색…</string>
+
+    <string name="enter_your_id">ID를 입력하세요.</string>
+    <string name="enter_your_pw">비밀번호를 입력하세요.</string>
+    <string name="enter_your_email">유효한 이메일을 입력하세요.</string>
+    <string name="register_profile_img">프로필 사진을 등록하세요.</string>
+    <string name="edit_your_profile_photo">프로필 사진을 변경하세요.</string>
+    <string name="confirm_your_password">비밀번호를 다시 입력하세요.</string>
+    <string name="enter_your_phone_number">유효한 전화번호를 입력하세요.</string>
+    <string name="forgot_your_id">ID를 잊으셨나요?</string>
+    <string name="forgot_your_pw">비밀번호를 잊으셨나요?</string>
+    <string name="confirm">확인</string>
+    <string name="verification">인증</string>
+    <string name="add_picture">그림 추가</string>
+    <string name="edit_profile_photo">프로필 사진 변경</string>
+    <string name="edit_profile">사용자 정보 변경</string>
+    <string name="no_image">서버에 이미지 없음</string>
+    <string name="add_profile_photo">프로필 사진 추가</string>
+    <string name="register_picture">그림 등록</string>
+    <string name="send_message">메시지 보내기</string>
+
+    <string name="logout">로그아웃</string>
+    <string name="direct_message">Contact</string>
+    <string name="pw_length">비밀번호는 최소 6자리 이상이어야 합니다.</string>
+    <string name="repeat_your_pw">비밀번호를 다시 입력해주세요.</string>
+    <string name="not_valid_input">입력한 내용이 유효하지 않아요.</string>
+    <string name="failed_to_sign_in">로그인에 실패했어요.</string>
+    <string name="chat_is_empty">새로운 작가들을 찾아 대화를 시작해보세요.</string>
+    <string name="failed_to_load_user_data">사용자 정보를 불러오는 중 오류가 발생했어요.</string>
+    <string name="failed_to_create_chat_session">채팅을 연결하는 중 오류가 발생했어요.</string>
+    <string name="post_is_empty">다른 작가들이 아직 그림을 공유하지 않았네요.</string>
+    <string name="failed_to_register">회원가입에 실패했어요.</string>
+    <string name="failed_to_get_permission">권한이 거부되었어요.</string>
+    <string name="message_copied">메시지가 복사되었습니다.</string>
+    <string name="enter_your_nickname">별명을 입력하세요.</string>
+    <string name="enter_your_introduce">자신을 잘 나타내는 소개 한 줄을 입력하세요.</string>
+    <string name="enter_your_instagram_id">인스타그램 계정이 있으시다면 입력하세요.</string>
+    <string name="enter_picture_description">그림에 대한 설명을 작성해주세요.</string>
+    <string name="choose_your_usertype">사용자 유형을 선택해주세요.</string>
+    <string name="modify_information">정보 수정</string>
+    <string name="add_your_first_picture">소개하고 싶은 그림을 1장 추가해주세요.</string>
+    <string name="add_your_picture">소개하고 싶은 그림을 추가해주세요.</string>
+    <string name="error_get_messages">메시지를 가져오는 도중 오류가 발생했어요.</string>
+    <string name="error_get_posts">게시물을 가져오는 도중 오류가 발생했어요.</string>
+    <string name="user_profile">사용자 프로필</string>
+    <string name="no_message">아직 주고받은 메시지가 없어요.</string>
+    <string name="upload_complete">업로드 완료</string>
+
+    <string name="error_nickname">별명 오류</string>
+    <string name="error_user_type">사용자 유형 오류</string>
+    <string name="error_introduce">소개 오류</string>
+
+    <string name="example_phone_number">010–0000–0000</string>
+    <string name="example_verification_code">1234</string>
+    <string name="example_email">example@example.com</string>
+    <string name="example_nickname">홍길동</string>
+    <string name="example_instagram_id">hong_gil_dong</string>
+    <string name="example_introduce">안녕하세요. 홍길동입니다.</string>
+    <string name="example_picture_description">이 그림은 이뻐요.</string>
+    <string name="example_pw">******</string>
+
+    <string name="necessary">필수</string>
+    <string name="picture_description">그림 설명</string>
+    <string name="necessary_least_one">1장 이상 필수</string>
+    <string name="profile_img">프로필 사진</string>
+    <string name="option">선택</string>
+    <string name="instagram_account">인스타그램 계정</string>
+    <string name="nickname">별명</string>
+    <string name="introduce">한 줄 소개</string>
+    <string name="usertype">사용자 유형</string>
+    <string name="verification_code">인증 번호</string>
+    <string name="email">이메일</string>
+    <string name="pw">비밀번호</string>
+    <string name="menu">메뉴</string>
+    <string name="next">다음</string>
+    <string name="register">회원가입</string>
+    <string name="add">추가</string>
+    <string name="phone_number">전화번호</string>
+    <string name="pw_confirm">비밀번호 확인</string>
+    <string name="register_account">회원 정보 입력</string>
+    <string name="register_profile">개인 프로필 설정</string>
+    <string name="search">검색</string>
+    <string name="chat">대화</string>
+    <string name="exit_chat">대화 나가기</string>
+    <string name="explore">탐색</string>
+    <string name="profile">내 정보</string>
+    <string name="dev">개발 페이지</string>
+    <string name="login">로그인</string>
 </resources>
