@@ -644,7 +644,7 @@ fun NewPictureDialog(
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1),
                     minLines = 1,
                     maxLines = 2
                 )
@@ -653,8 +653,8 @@ fun NewPictureDialog(
                 // Button area
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = keyColor1,
+                        contentColor = onKeyColor
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
@@ -767,7 +767,7 @@ fun UpdateUserDataDialog(
                     placeholder = { Text(text = stringResource(id = R.string.example_nickname)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1),
                     minLines = 1,
                     maxLines = 2
                 )
@@ -791,7 +791,7 @@ fun UpdateUserDataDialog(
                     placeholder = { Text(text = stringResource(id = R.string.instagram_account)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1),
                     minLines = 1,
                     maxLines = 2
                 )
@@ -815,7 +815,7 @@ fun UpdateUserDataDialog(
                     placeholder = { Text(text = stringResource(id = R.string.example_introduce)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = keyColor1),
                     minLines = 1,
                     maxLines = 2
                 )
@@ -849,8 +849,8 @@ fun UpdateUserDataDialog(
                 // Button area
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = keyColor1,
+                        contentColor = onKeyColor
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {

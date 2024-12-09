@@ -88,20 +88,22 @@ class ChatViewModel @Inject constructor() : ViewModel() {
             )
 
         for (sessionId in _user.value!!.chatSessions) {
-            FirebaseDatabase.getInstance()
-                .getReference(messageReferenceName)
-                .child(sessionId)
-                .addChildEventListener(
-                    object : ChildEventListener {
-                        override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                            updateUserData()
+            if (sessionId != null) {
+                FirebaseDatabase.getInstance()
+                    .getReference(messageReferenceName)
+                    .child(sessionId)
+                    .addChildEventListener(
+                        object : ChildEventListener {
+                            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                                updateUserData()
+                            }
+                            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+                            override fun onChildRemoved(snapshot: DataSnapshot) {}
+                            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {                        }
+                            override fun onCancelled(error: DatabaseError) {}
                         }
-                        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
-                        override fun onChildRemoved(snapshot: DataSnapshot) {}
-                        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {                        }
-                        override fun onCancelled(error: DatabaseError) {}
-                    }
-                )
+                    )
+            }
         }
     }
 
