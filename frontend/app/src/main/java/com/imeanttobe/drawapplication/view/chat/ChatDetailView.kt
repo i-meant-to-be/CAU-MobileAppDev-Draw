@@ -328,6 +328,7 @@ fun ChatBubble(
             modifier = modifier
                 .clip(RoundedCornerShape(10.dp))
                 .background(color = backgroundColor)
+                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.7f)
                 .combinedClickable(
                     onClick = {},
                     onLongClick = {
